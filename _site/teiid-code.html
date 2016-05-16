@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html class="ready" lang="en"><head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="shenma-site-verification" content="8a69823d7371d1eec4379853d25200cd_1448504990"> 
+    <title>Kylin Soong . Blog</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="/feed.xml" rel="alternate" title="Kylin Soong . Blog Atom feed" type="application/atom+xml">
+    <link href="/css/screen.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.js"></script>
+    <![endif]-->
+    <link href="/favicon.ico" rel="shortcut icon">
+
+</head>
+
+  <body class="blog index">
+    <header class="navbar navbar-fixed-top" id="banner" role="banner">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-target=".nav-collapse" data-toggle="collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/">
+            <span class="logo"></span>
+            <span class="name">ksoong</span>
+          </a>
+          <nav class="nav-collapse" role="navigation">
+            <ul class="nav">
+              <li><a href="/">Home</a></li>
+	      <!--
+              <li><a href="/lab">Labs</a></li>
+              <li><a href="/blog/">Blog</a></li>
+	      -->
+	      <li><a href="/books">Books</a></li>
+              <li><a href="/archive">Archives</a></li>
+              <li><a href="/slide">Slides</a></li>
+              <li><a href="/about">About</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+    <div style="min-height: 250px;" id="main" role="main">
+      
+<div id="content-header">
+        <div class="container">
+         <h1>
+              <a href="/blog">Blog</a>
+              <!--a href="#">&raquo;</a>
+              <a href="/teiid-code">Teiid Code Analysis - Overview</a-->
+          </h1>
+        </div>
+</div>
+      <div class="container">
+        <div id="content">
+          
+<h2 class="title">
+                 <a class="post-link" href="/teiid-code">Teiid Code Analysis - Overview</a>
+              </h2>
+ 
+<header class="post">
+              <div class="byline">
+                <span class="author">Posted by
+                <a href="/about">Kylin Soong</a> on</span>
+                <span class="dateinline">May 21, 2015</span>
+		<i class="icon-tags"></i> categorized as <a class="tag" href="/categories/teiid">teiid</a>
+              </div>
+            </header>
+
+ 
+<p><a href="https://github.com/teiid/teiid">Teiid</a> is the codebase for teiid project, this article will guide you how to look over the complete Teiid code.</p>
+
+<h2 id="threadlocal">ThreadLocal</h2>
+
+<p>The following are ThreadLocal be used in teiid codebases:</p>
+
+<ul>
+  <li><a href="https://github.com/teiid/teiid/blob/master/api/src/main/java/org/teiid/resource/spi/ConnectionContext.java">org.teiid.resource.spi.ConnectionContext</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/client/src/main/java/org/teiid/net/socket/OioOjbectChannelFactory.java">org.teiid.net.socket.OioOjbectChannelFactory</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/common-core/src/main/java/org/teiid/core/util/TimestampWithTimezone.java">org.teiid.core.util.TimestampWithTimezone</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/common-core/src/main/java/org/teiid/core/types/XMLType.java">org.teiid.core.types.XMLType</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/common-core/src/main/java/org/teiid/core/types/StandardXMLTranslator.java">org.teiid.core.types.StandardXMLTranslator</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/connectors/translator-jdbc/src/main/java/org/teiid/translator/jdbc/JDBCExecutionFactory.java">org.teiid.translator.jdbc.JDBCExecutionFactory</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/dqp/internal/process/DQPWorkContext.java">org.teiid.dqp.internal.process.DQPWorkContext</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/dqp/internal/process/RequestWorkItem.java">org.teiid.dqp.internal.process.RequestWorkItem</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/query/optimizer/relational/RelationalPlanner.java">org.teiid.query.optimizer.relational.RelationalPlanner</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/query/util/CommandContext.java">org.teiid.query.util.CommandContext</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/query/function/source/XMLSystemFunctions.java">org.teiid.query.function.source.XMLSystemFunctions</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/query/parser/QueryParser.java">org.teiid.query.parser.QueryParser</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/common/buffer/impl/BufferManagerImpl.java">org.teiid.common.buffer.impl.BufferManagerImpl</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/odata/src/main/java/org/teiid/odata/ODataServletContainerDispatcher.java">org.teiid.odata.ODataServletContainerDispatcher</a></li>
+</ul>
+
+<h2 id="java-concurrent">Java concurrent</h2>
+
+<p>Teiid use quite a lot of <code class="highlighter-rouge">java.util.concurrent</code> class for multiple threads, lock, etc. The following give the quick link for these codes:</p>
+
+<p><strong>Executor Service</strong></p>
+
+<ul>
+  <li><a href="https://github.com/teiid/teiid/blob/master/client/src/main/java/org/teiid/jdbc/ConnectionImpl.java">org.teiid.jdbc.ConnectionImpl</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/client/src/main/java/org/teiid/jdbc/EnhancedTimer.java">org.teiid.jdbc.EnhancedTimer</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/common-core/src/main/java/org/teiid/core/util/ExecutorUtils.java">org.teiid.core.util.ExecutorUtils</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/common-core/src/main/java/org/teiid/core/util/NamedThreadFactory.java">org.teiid.core.util.NamedThreadFactory</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/dqp/internal/process/ThreadReuseExecutor.java">org.teiid.dqp.internal.process.ThreadReuseExecutor</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/dqp/internal/process/Request.java">org.teiid.dqp.internal.process.Request</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/dqp/internal/process/TeiidExecutor.java">org.teiid.dqp.internal.process.TeiidExecutor</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/dqp/internal/process/DQPCore.java">org.teiid.dqp.internal.process.DQPCore</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/query/util/CommandContext.java">org.teiid.query.util.CommandContext</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/common/buffer/impl/BufferFrontedFileStoreCache.java">org.teiid.common.buffer.impl.BufferFrontedFileStoreCache</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/runtime/src/main/java/org/teiid/deployers/VDBStatusChecker.java">org.teiid.deployers.VDBStatusChecker</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/runtime/src/main/java/org/teiid/runtime/EmbeddedServer.java">org.teiid.runtime.EmbeddedServer</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/runtime/src/main/java/org/teiid/runtime/MaterializationManager.java">org.teiid.runtime.MaterializationManager</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/runtime/src/main/java/org/teiid/runtime/EmbeddedConfiguration.java">org.teiid.runtime.EmbeddedConfiguration</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/runtime/src/main/java/org/teiid/transport/SocketListener.java">org.teiid.transport.SocketListener</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/runtime/src/main/java/org/teiid/replication/jgroups/JGroupsObjectReplicator.java">org.teiid.replication.jgroups.JGroupsObjectReplicator</a></li>
+</ul>
+
+<p><strong>Future and FutureTask</strong></p>
+
+<ul>
+  <li><a href="https://github.com/teiid/teiid/blob/master/client/src/main/java/org/teiid/jdbc/EnhancedTimer.java">org.teiid.jdbc.EnhancedTimer</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/client/src/main/java/org/teiid/client/util/ResultsFuture.java">org.teiid.client.util.ResultsFuture</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/client/src/main/java/org/teiid/client/lob/StreamingLobChunckProducer.java">org.teiid.client.lob.StreamingLobChunckProducer</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/client/src/main/java/org/teiid/net/socket/SocketServerConnectionFactory.java">org.teiid.net.socket.SocketServerConnectionFactory</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/client/src/main/java/org/teiid/net/socket/OioOjbectChannelFactory.java">org.teiid.net.socket.OioOjbectChannelFactory</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/client/src/main/java/org/teiid/net/socket/ObjectChannel.java">org.teiid.net.socket.ObjectChannel</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/client/src/main/java/org/teiid/net/socket/SocketServerConnection.java">org.teiid.net.socket.SocketServerConnection</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/connectors/connector-ws/src/main/java/org/teiid/resource/adapter/ws/WSConnectionImpl.java">org.teiid.resource.adapter.ws.WSConnectionImpl</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/dqp/internal/process/DataTierTupleSource.java">org.teiid.dqp.internal.process.DataTierTupleSource</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/dqp/internal/process/FutureWork.java">org.teiid.dqp.internal.process.FutureWork</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/dqp/internal/process/DataTierManagerImpl.java">org.teiid.dqp.internal.process.DataTierManagerImpl</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/dqp/internal/process/DQPWorkContext.java">org.teiid.dqp.internal.process.DQPWorkContext</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/dqp/internal/process/RequestWorkItem.java">org.teiid.dqp.internal.process.RequestWorkItem</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/dqp/internal/process/DQPCore.java">org.teiid.dqp.internal.process.DQPCore</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/query/tempdata/TempTableDataManager.java">org.teiid.query.tempdata.TempTableDataManager</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/runtime/src/main/java/org/teiid/transport/SSLAwareChannelHandler.java">org.teiid.transport.SSLAwareChannelHandler</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/runtime/src/main/java/org/teiid/transport/LocalServerConnection.java">org.teiid.transport.LocalServerConnection</a></li>
+</ul>
+
+<p><strong>ReentrantReadWriteLock, ReentrantLock and Condition</strong></p>
+
+<ul>
+  <li><a href="https://github.com/teiid/teiid/blob/master/client/src/main/java/org/teiid/jdbc/EnhancedTimer.java">org.teiid.jdbc.EnhancedTimer</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/query/tempdata/TempTable.java">org.teiid.query.tempdata.TempTable</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/common/buffer/impl/BufferFrontedFileStoreCache.java">org.teiid.common.buffer.impl.BufferFrontedFileStoreCache</a></li>
+  <li>
+    <p><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/common/buffer/impl/BlockStore.java">org.teiid.common.buffer.impl.BlockStore</a></p>
+  </li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/common/buffer/STree.java">org.teiid.common.buffer.STree</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/common/buffer/impl/BufferManagerImpl.java">org.teiid.common.buffer.impl.BufferManagerImpl</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/common/buffer/impl/BufferFrontedFileStoreCache.java">org.teiid.common.buffer.impl.BufferFrontedFileStoreCache</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/runtime/src/main/java/org/teiid/deployers/VDBRepository.java">java.org.teiid.deployers.VDBRepository</a></li>
+  <li>
+    <p><a href="https://github.com/teiid/teiid/blob/master/runtime/src/main/java/org/teiid/replication/jgroups/JGroupsInputStream.java">java.org.teiid.replication.jgroups.JGroupsInputStream</a></p>
+  </li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/common/buffer/impl/BufferManagerImpl.java">org.teiid.common.buffer.impl.BufferManagerImpl</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/common/buffer/impl/BufferFrontedFileStoreCache.java">org.teiid.common.buffer.impl.BufferFrontedFileStoreCache</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/runtime/src/main/java/org/teiid/deployers/VDBRepository.java">org.teiid.deployers.VDBRepository</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/runtime/src/main/java/org/teiid/replication/jgroups/JGroupsInputStream.java">org.teiid.replication.jgroups.JGroupsInputStream</a></li>
+</ul>
+
+<p><strong>Semaphore</strong></p>
+
+<ul>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/common/buffer/impl/BufferFrontedFileStoreCache.java">org.teiid.common.buffer.impl.BufferFrontedFileStoreCache</a></li>
+</ul>
+
+<p><strong>ConcurrentHashMap, ConcurrentSkipListMap, ConcurrentLinkedQueue, SynchronousQueue, CopyOnWriteArrayList, ConcurrentSkipListSet, LinkedBlockingQueue</strong></p>
+
+<ul>
+  <li><a href="https://github.com/teiid/teiid/blob/master/api/src/main/java/org/teiid/logging/JavaLogger.java">org.teiid.logging.JavaLogger</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/client/src/main/java/org/teiid/jdbc/ConnectionImpl.java">org.teiid.jdbc.ConnectionImpl</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/client/src/main/java/org/teiid/net/socket/SocketServerInstanceImpl.java">org.teiid.net.socket.SocketServerInstanceImpl</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/client/src/main/java/org/teiid/net/socket/SocketServerConnection.java">org.teiid.net.socket.SocketServerConnection</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/connectors/translator-mongodb/src/main/java/org/teiid/translator/mongodb/MongoDBSelectVisitor.java">org.teiid.translator.mongodb.MongoDBSelectVisitor</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/connectors/sandbox/translator-coherence/src/main/java/org/teiid/translator/coherence/util/ObjectSourceMethodManager.java">org.teiid.translator.coherence.util.ObjectSourceMethodManager</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/dqp/internal/datamgr/TranslatorRepository.java">org.teiid.dqp.internal.datamgr.TranslatorRepository</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/dqp/internal/datamgr/ConnectorManager.java">org.teiid.dqp.internal.datamgr.ConnectorManager</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/dqp/internal/datamgr/ConnectorManagerRepository.java">org.teiid.dqp.internal.datamgr.ConnectorManagerRepository</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/dqp/internal/process/multisource/MultiSourceMetadataWrapper.java">org.teiid.dqp.internal.process.multisource.MultiSourceMetadataWrapper</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/dqp/internal/process/DQPCore.java">org.teiid.dqp.internal.process.DQPCore</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/dqp/service/TransactionContext.java">org.teiid.dqp.service.TransactionContext</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/query/tempdata/GlobalTableStoreImpl.java">org.teiid.query.tempdata.GlobalTableStoreImpl</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/query/tempdata/TempTableStore.java">org.teiid.query.tempdata.TempTableStore</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/common/buffer/impl/MemoryStorageManager.java">org.teiid.common.buffer.impl.MemoryStorageManager</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/common/buffer/impl/BufferManagerImpl.java">org.teiid.common.buffer.impl.BufferManagerImpl</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/common/buffer/impl/SizeUtility.java">org.teiid.common.buffer.impl.SizeUtility</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/common/buffer/impl/BufferFrontedFileStoreCache.java">org.teiid.common.buffer.impl.BufferFrontedFileStoreCache</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/jboss-integration/src/main/java/org/teiid/jboss/JBossLogger.java">org.teiid.jboss.JBossLogger</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/runtime/src/main/java/org/teiid/deployers/EventDistributorImpl.java">org.teiid.deployers.EventDistributorImpl</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/runtime/src/main/java/org/teiid/deployers/VDBRepository.java">org.teiid.deployers.VDBRepository</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/runtime/src/main/java/org/teiid/services/SessionServiceImpl.java">org.teiid.services.SessionServiceImpl</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/runtime/src/main/java/org/teiid/runtime/EmbeddedServer.java">org.teiid.runtime.EmbeddedServer</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/runtime/src/main/java/org/teiid/transport/SSLAwareChannelHandler.java">org.teiid.transport.SSLAwareChannelHandler</a></li>
+  <li>
+    <p><a href="https://github.com/teiid/teiid/blob/master/runtime/src/main/java/org/teiid/replication/jgroups/JGroupsObjectReplicator.java">org.teiid.replication.jgroups.JGroupsObjectReplicator</a></p>
+  </li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/api/src/main/java/org/teiid/metadata/AbstractMetadataRecord.java">org.teiid.metadata.AbstractMetadataRecord</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/query/tempdata/TempTableStore.java">org.teiid.query.tempdata.TempTableStore</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/common/buffer/impl/LrfuEvictionQueue.java">org.teiid.common.buffer.impl.LrfuEvictionQueue</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/runtime/src/main/java/org/teiid/deployers/VDBRepository.java">org.teiid.deployers.VDBRepository</a></li>
+  <li>
+    <p><a href="https://github.com/teiid/teiid/blob/master/runtime/src/main/java/org/teiid/runtime/AbstractVDBDeployer.java">org.teiid.runtime.AbstractVDBDeployer</a></p>
+  </li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/test/java/org/teiid/common/queue/TestThreadReuseExecutor.java">org.teiid.common.queue.TestThreadReuseExecutor</a></li>
+  <li>
+    <p><a href="https://github.com/teiid/teiid/blob/master/runtime/src/main/java/org/teiid/transport/ODBCClientInstance.java">org.teiid.transport.ODBCClientInstance</a></p>
+  </li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/common-core/src/main/java/org/teiid/core/util/ExecutorUtils.java">org.teiid.core.util.ExecutorUtils</a></li>
+  <li>
+    <p><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/dqp/internal/process/ThreadReuseExecutor.java">org.teiid.dqp.internal.process.ThreadReuseExecutor</a></p>
+  </li>
+  <li>
+    <p><a href="https://github.com/teiid/teiid/blob/master/admin/src/main/java/org/teiid/adminapi/impl/DataPolicyMetadata.java">org.teiid.adminapi.impl.DataPolicyMetadata</a></p>
+  </li>
+  <li>
+    <p><a href="https://github.com/teiid/teiid/blob/master/client/src/main/java/org/teiid/jdbc/EnhancedTimer.java">org.teiid.jdbc.EnhancedTimer</a></p>
+  </li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/common-core/src/main/java/org/teiid/core/util/ExecutorUtils.java">org.teiid.core.util.ExecutorUtils</a></li>
+</ul>
+
+<h2 id="dynamic-proxy">Dynamic Proxy</h2>
+
+<p>Teiid use the Dynamic Proxy quite frequently, the following are quick links:</p>
+
+<ul>
+  <li><a href="https://github.com/teiid/teiid/blob/master/api/src/main/java/org/teiid/logging/LogManager.java">org.teiid.logging.LogManager.LoggingProxy</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/client/src/main/java/org/teiid/net/socket/SocketServerConnectionFactory.java">org.teiid.net.socket.SocketServerConnectionFactory.ShutdownHandler</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/client/src/main/java/org/teiid/net/socket/SocketServerInstanceImpl.java">org.teiid.net.socket.SocketServerInstanceImpl.RemoteInvocationHandler</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/client/src/main/java/org/teiid/jdbc/XAConnectionImpl.java">org.teiid.jdbc.XAConnectionImpl.CloseInterceptor</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/client/src/main/java/org/teiid/jdbc/DataTypeTransformer.java">org.teiid.jdbc.DataTypeTransformer</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/common-core/src/main/java/org/teiid/core/util/MixinProxy.java">org.teiid.core.util.MixinProxy</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/runtime/src/main/java/org/teiid/transport/LocalServerConnection.java">org.teiid.transport.LocalServerConnection.getService()</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/runtime/src/main/java/org/teiid/transport/PgFrontendProtocol.java">org.teiid.transport.PgFrontendProtocol.PgFrontendProtocol()</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/runtime/src/main/java/org/teiid/transport/ODBCClientInstance.java">org.teiid.transport.ODBCClientInstance.processMessage()</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/runtime/src/main/java/org/teiid/services/AbstractEventDistributorFactoryService.java">org.teiid.services.AbstractEventDistributorFactoryService.start()</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/runtime/src/main/java/org/teiid/replication/jgroups/JGroupsObjectReplicator.java">org.teiid.replication.jgroups.JGroupsObjectReplicator.ReplicatedInvocationHandler</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/runtime/src/main/java/org/teiid/runtime/EmbeddedServer.java">org.teiid.runtime.EmbeddedServer.start()</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/dqp/internal/datamgr/ConnectorManager.java">org.teiid.dqp.internal.datamgr.ConnectorManager.ConnectorWork</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/connectors/translator-jdbc/src/main/java/org/teiid/translator/jdbc/JDBCExecutionFactory.java">org.teiid.translator.jdbc.JDBCExecutionFactory.getDialect()</a></li>
+</ul>
+
+<h2 id="externalizable-serializable">Externalizable, Serializable</h2>
+
+<p>The following class are implement Externalizable:</p>
+
+<ul>
+  <li><a href="https://github.com/teiid/teiid/blob/master/client/src/main/java/org/teiid/net/socket/Message.java">org.teiid.net.socket.Message</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/client/src/main/java/org/teiid/net/socket/Handshake.java">org.teiid.net.socket.Handshake</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/client/src/main/java/org/teiid/net/socket/ServiceInvocationStruct.java">org.teiid.net.socket.ServiceInvocationStruct</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/client/src/main/java/org/teiid/client/ResultsMessage.java">org.teiid.client.ResultsMessage</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/client/src/main/java/org/teiid/client/RequestMessage.java">org.teiid.client.RequestMessage</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/client/src/main/java/org/teiid/client/xa/XidImpl.java">org.teiid.client.xa.XidImpl</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/client/src/main/java/org/teiid/client/plan/Annotation.java">org.teiid.client.plan.Annotation</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/client/src/main/java/org/teiid/client/plan/PlanNode.java">org.teiid.client.plan.PlanNode</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/client/src/main/java/org/teiid/client/metadata/MetadataResult.java">org.teiid.client.metadata.MetadataResult</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/client/src/main/java/org/teiid/client/metadata/ParameterInfo.java">org.teiid.client.metadata.ParameterInfo</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/client/src/main/java/org/teiid/client/security/LogonResult.java">org.teiid.client.security.LogonResult</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/client/src/main/java/org/teiid/client/security/SessionToken.java">org.teiid.client.security.SessionToken</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/client/src/main/java/org/teiid/client/lob/LobChunk.java">org.teiid.client.lob.LobChunk</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/common-core/src/main/java/org/teiid/core/types/ArrayImpl.java">org.teiid.core.types.ArrayImpl</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/common-core/src/main/java/org/teiid/core/types/Streamable.java">org.teiid.core.types.Streamable</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/common-core/src/main/java/org/teiid/core/types/BaseLob.java">org.teiid.core.types.BaseLob</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/dqp/message/RequestID.java">org.teiid.dqp.message.RequestID</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/engine/src/main/java/org/teiid/dqp/message/AtomicRequestID.java">org.teiid.dqp.message.AtomicRequestID</a></li>
+  <li><a href="https://github.com/teiid/teiid/blob/master/runtime/src/main/java/org/teiid/replication/jgroups/AddressWrapper.java">org.teiid.replication.jgroups.AddressWrapper</a></li>
+</ul>
+
+<h2 id="links">Links</h2>
+
+<ul>
+  <li><a href="/teiid-language-api">Teiid Language API</a>.</li>
+  <li><a href="/teiid-translator-api">Teiid Translator API</a>.</li>
+  <li><a href="/teiid-metadata-api">Teiid Metadata API</a>.</li>
+  <li><a href="/teiid-buffer">Teiid BufferManager</a>.</li>
+</ul>
+
+
+<br/>
+<ul class="btn pull-right">
+<div class="bdsharebuttonbox">
+  <a href="#" class="bds_more" data-cmd="more"></a>
+  <a title="分享到QQ空间" href="#" class="bds_qzone" data-cmd="qzone"></a>
+  <a title="分享到新浪微博" href="#" class="bds_tsina" data-cmd="tsina"></a>
+  <a title="分享到腾讯微博" href="#" class="bds_tqq" data-cmd="tqq"></a>
+  <a title="分享到人人网" href="#" class="bds_renren" data-cmd="renren"></a>
+  <a title="分享到微信" href="#" class="bds_weixin" data-cmd="weixin"></a>
+</div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"分享ksoong.org的文章「Teiid Code Analysis - Overview」 - ksoong.org","bdDesc":"","bdMini":"2","bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</ul>
+
+<div class="ds-thread" data-thread-key="ksoong2015052003" data-title="Teiid Code Analysis - Overview" data-url="ksoong.org/teiid-code"></div>
+
+	    <ul class="pager">
+		
+		<li class="previous"><a href="/teiid-rs-cache">&laquo;&nbsp;Teiid Results Caching Comparison Example...</a></li>
+		
+		
+		<li class="next"><a href="/teiid-mind-map">Teiid Code Analysis - Mind...&nbsp;&raquo;</a></li>
+		
+	    </ul>
+
+
+        </div>
+        <aside id="sidebar" role="complementary">
+          <div class="subscribe">
+            <h2 class="icon news">
+              <a href="/feed.xml">Subscribe</a>
+            </h2>
+          </div>
+          <nav class="latest">
+            <h2>Latest Posts</h2>
+            <ul>
+            
+              <li>
+                <div class="title">
+                  <a href="/wfl-ds">WildFly Data Sources Configuration</a>
+                </div>
+                <div class="meta">
+                  Apr 26, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-transactions">Transaction in Teiid</a>
+                </div>
+                <div class="meta">
+                  Apr 20, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-getstart-code">Get Start Teiid From Source...</a>
+                </div>
+                <div class="meta">
+                  Apr 7, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-metadata">Understanding Teiid Metadata</a>
+                </div>
+                <div class="meta">
+                  Mar 27, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/rhel7-commands">Linux 命令集合</a>
+                </div>
+                <div class="meta">
+                  Mar 17, 2016
+                </div>
+              </li>
+             
+            </ul>
+            
+                        
+          </nav>
+          <nav class="tags">
+            <h2>Categories</h2>
+            <div class="tag-cloud">
+              
+              <span class="tag tag-1">
+                <a href="/categories/jekyll">Jekyll(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/jboss">Jboss(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/java">Java(18)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/css">Css(1)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/database">Database(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/javaee">Javaee(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/linux">Linux(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/teiid">Teiid(40)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/maven">Maven(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/netty">Netty(7)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/data">Data(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/git">Git(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/other">Other(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/performance">Performance(4)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/security">Security(3)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/docker">Docker(4)</a>
+              </span>
+              
+              
+            </div>
+          </nav>
+        </aside>
+      </div>
+
+
+    </div>
+    <footer>
+      <div class="container">
+        <div class="project">
+          <p class="bottom">
+            ©
+            Copyright 2009-2016 ksoong.
+            <br>
+            <i class="icon-fire"></i>
+            Mixed with <a href="http://twitter.github.com/bootstrap">Bootstrap</a>.
+            <br>
+            <i class="icon-share-alt"></i>
+            Website and docs licensed under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
+            <br>
+            Code released under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, v2.0</a>.
+          </p>
+        </div>
+        <div class="footer-nav">
+          <h4>Learn</h4>
+          <ul>
+            <li>
+              <a href="http://www.jboss.org/">JBoss</a>
+            </li>
+            <li>
+              <a href="http://infinispan.org/">Infinispan</a>
+            </li>
+            <li>
+              <a href="http://teiid.org/">Teiid</a>
+            </li>
+            <li>
+              <a href="https://github.com/kylinsoong">Github</a>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="sponser">
+          <div class="follow-us">
+            <h4>Stay Informed</h4>
+            <ul>
+              <li>
+                <a href="https://plus.google.com/103933729718268414460?rel=author"><img alt="Google+" src="/css/googleplus-16.png" title="Follow ksoong.org on Google+"></a>
+              </li>
+              <li>
+                <a href="http://www.weibo.com/kylinsoong"><img alt="Weibo" src="/css/weibo_logo.jpg" title="Follow me on Weibo"></a>
+              </li>
+	      <li>
+                <a href="https://github.com/kylinsoong"><img alt="Github" src="/css/Octocat.jpg" title="Fork me on Github"></a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+        <a class="visible-desktop" href="#" id="toTop">Top</a>
+      </div>
+        <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1258751305'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1258751305%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+    </footer>
+  
+ 
+    <script src="/css/jquery-1.11.1.min.js"></script>
+    <script src="/css/bootstrap.js"></script>
+
+   <script>
+      $(function() {
+        $('html').addClass('ready');
+        prettify();
+        activateFooterGravity();
+        activateTooltips();
+        activateToTopControl();
+      });
+    </script>
+    <script src="/css/site.js"></script>
+
+    
+            
+            <script type="text/javascript">
+                var duoshuoQuery = {short_name:"ksoong"};
+                (function() {
+                    var ds = document.createElement('script');
+                    ds.type = 'text/javascript';
+                    ds.async = true;
+                    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+                    ds.charset = 'UTF-8';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+                })();
+            </script>
+            
+        
+
+
+</body>
+</html>

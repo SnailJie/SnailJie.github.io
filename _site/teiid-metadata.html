@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html class="ready" lang="en"><head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="shenma-site-verification" content="8a69823d7371d1eec4379853d25200cd_1448504990"> 
+    <title>Kylin Soong . Blog</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="/feed.xml" rel="alternate" title="Kylin Soong . Blog Atom feed" type="application/atom+xml">
+    <link href="/css/screen.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.js"></script>
+    <![endif]-->
+    <link href="/favicon.ico" rel="shortcut icon">
+
+</head>
+
+  <body class="blog index">
+    <header class="navbar navbar-fixed-top" id="banner" role="banner">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-target=".nav-collapse" data-toggle="collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/">
+            <span class="logo"></span>
+            <span class="name">ksoong</span>
+          </a>
+          <nav class="nav-collapse" role="navigation">
+            <ul class="nav">
+              <li><a href="/">Home</a></li>
+	      <!--
+              <li><a href="/lab">Labs</a></li>
+              <li><a href="/blog/">Blog</a></li>
+	      -->
+	      <li><a href="/books">Books</a></li>
+              <li><a href="/archive">Archives</a></li>
+              <li><a href="/slide">Slides</a></li>
+              <li><a href="/about">About</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+    <div style="min-height: 250px;" id="main" role="main">
+      
+<div id="content-header">
+        <div class="container">
+         <h1>
+              <a href="/blog">Blog</a>
+              <!--a href="#">&raquo;</a>
+              <a href="/teiid-metadata">Understanding Teiid Metadata</a-->
+          </h1>
+        </div>
+</div>
+      <div class="container">
+        <div id="content">
+          
+<h2 class="title">
+                 <a class="post-link" href="/teiid-metadata">Understanding Teiid Metadata</a>
+              </h2>
+ 
+<header class="post">
+              <div class="byline">
+                <span class="author">Posted by
+                <a href="/about">Kylin Soong</a> on</span>
+                <span class="dateinline">Mar 27, 2016</span>
+		<i class="icon-tags"></i> categorized as <a class="tag" href="/categories/teiid">teiid</a>
+              </div>
+            </header>
+
+ 
+<ul id="markdown-toc">
+  <li><a href="#systemmetadata-loading-in-vdbrepository-startup" id="markdown-toc-systemmetadata-loading-in-vdbrepository-startup">SystemMetadata loading in VDBRepository startup</a></li>
+  <li><a href="#metadata-operations-in-vdb-deploying" id="markdown-toc-metadata-operations-in-vdb-deploying">Metadata operations in VDB deploying</a>    <ul>
+      <li><a href="#assign-metadata-repositories" id="markdown-toc-assign-metadata-repositories">Assign Metadata Repositories</a></li>
+      <li><a href="#metadata-loading" id="markdown-toc-metadata-loading">Metadata loading</a></li>
+      <li><a href="#vdb-finish-deploy" id="markdown-toc-vdb-finish-deploy">VDB finish deploy</a></li>
+    </ul>
+  </li>
+  <li><a href="#examples" id="markdown-toc-examples">Examples</a>    <ul>
+      <li><a href="#load-classpath-ddl-file" id="markdown-toc-load-classpath-ddl-file">Load classpath ddl file</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="systemmetadata-loading-in-vdbrepository-startup">SystemMetadata loading in VDBRepository startup</h2>
+
+<p>In Teiid, every VDB reference a VDBRepository, once VDBRepository startup, it will load System Metadata, <code class="highlighter-rouge">SystemMetadata</code> is the API to operate with SystemMetadata:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>SystemMetadata.getInstance().getSystemStore();
+</code></pre>
+</div>
+
+<p>The System Metadata defined in <a href="https://raw.githubusercontent.com/teiid/teiid/master/engine/src/main/resources/org/teiid/metadata/types.dat">types.dat</a>, <a href="https://raw.githubusercontent.com/teiid/teiid/master/engine/src/main/resources/org/teiid/metadata/SYS.sql">SYS.sql</a>, <a href="https://raw.githubusercontent.com/teiid/teiid/master/engine/src/main/resources/org/teiid/metadata/SYSADMIN.sql">SYSADMIN.sql</a>, the loading order like:</p>
+
+<ol>
+  <li><a href="https://raw.githubusercontent.com/teiid/teiid/master/engine/src/main/resources/org/teiid/metadata/types.dat">types.dat</a> - define all supported datatypes</li>
+  <li><a href="https://raw.githubusercontent.com/teiid/teiid/master/engine/src/main/resources/org/teiid/metadata/SYS.sql">SYS.sql</a> - Contain <strong>System Tables:</strong> Columns, DataTypes, KeyColumns, Keys, ProcedureParams, Procedures, FunctionParams, Functions, Properties, ReferenceKeyColumns, Schemas, Tables, VirtualDatabases; <strong>System Procedures:</strong> getXMLSchemas, ARRAYITERATE; <strong>System Views:</strong> spatial_ref_sys, GEOMETRY_COLUMNS</li>
+  <li><a href="https://raw.githubusercontent.com/teiid/teiid/master/engine/src/main/resources/org/teiid/metadata/SYSADMIN.sql">SYSADMIN.sql</a> - Contain <strong>Tables:</strong> Usage, MatViews, VDBResources, Triggers, Views, StoredProcedures; <strong>Procedures:</strong> isLoggable, logMsg, refreshMatView, refreshMatViewRow, refreshMatViewRows, setColumnStats, setProperty, setTableStats, matViewStatus, loadMatView, updateMatView</li>
+</ol>
+
+<h2 id="metadata-operations-in-vdb-deploying">Metadata operations in VDB deploying</h2>
+
+<p>There are 3 phases of Metadata operations in VDB deploying:</p>
+
+<ol>
+  <li>Assign Metadata Repositories</li>
+  <li>Metadata loading</li>
+  <li>VDB finish deploy</li>
+</ol>
+
+<h3 id="assign-metadata-repositories">Assign Metadata Repositories</h3>
+
+<p>Assign Metadata Repositories means assign a <a href="http://ksoong.org/teiid-uml-diagram#orgteiidmetadatametadatarepositoryfc">MetadataRepository</a> to each Model which contained in a VDB definition. Assuming a VDB contain 4 Models and the processing of assign Metadata Repositories likes</p>
+
+<p><img src="/assets/blog/teiid/teiid-assign-repository.png" alt="Assign Metadata Repositories" /></p>
+
+<p>As above figure, the VDB contain 4 Models:</p>
+
+<ol>
+  <li><code class="highlighter-rouge">MarketData</code> - define a source point to a csv file, which assigned a ChainingMetadataRepository contain a NativeMetadataRepository and a DirectQueryMetadataRepository</li>
+  <li><code class="highlighter-rouge">Accounts</code> - define a source point to a RDBMS, which assigned a ChainingMetadataRepository contain a NativeMetadataRepository and a DirectQueryMetadataRepository</li>
+  <li><code class="highlighter-rouge">Stocks</code> - is a virtual model, contains a DDL text metadata, which assigned a ChainingMetadataRepository contain a MetadataRepositoryWrapper and a MaterializationMetadataRepository, a MetadataRepositoryWrapper contain a DDLMetadataRepository and DDL Text String</li>
+  <li><code class="highlighter-rouge">StocksMatModel</code> - is a virtual model, contains a DDL text metadata, which assigned a ChainingMetadataRepository contain a MetadataRepositoryWrapper and a MaterializationMetadataRepository, a MetadataRepositoryWrapper contain a DDLMetadataRepository and DDL Text String</li>
+</ol>
+
+<p>All ChainingMetadataRepository, NativeMetadataRepository, DirectQueryMetadataRepository, MetadataRepositoryWrapper, DDLMetadataRepository and MaterializationMetadataRepository are sub-class of MetadataRepository, more details refer to <a href="http://ksoong.org/teiid-uml-diagram#orgteiidmetadatametadatarepositoryfc">UML diagram</a>.</p>
+
+<h3 id="metadata-loading">Metadata loading</h3>
+
+<p>Once <a href="#Assign Metadata Repositories">Assign Metadata Repositories</a> finished, each Model has reference a <a href="http://ksoong.org/teiid-uml-diagram#orgteiidmetadatametadatarepositoryfc">MetadataRepository</a>, it’s loadMetadata() methods be invoked, the following is the 4 models load metadata sequence diagram:</p>
+
+<p><strong>MarketData Load Metadata</strong></p>
+
+<p><img src="/assets/blog/teiid/teiid-file-load-metadata.png" alt="MarketData Load Metadata" /></p>
+
+<p><strong>Accounts Load Metadata</strong></p>
+
+<p><img src="/assets/blog/teiid/teiid-jdbc-load-metadata.png" alt="Accounts Load Metadata" /></p>
+
+<p><strong>Stocks/StocksMatModel Load Metadata</strong></p>
+
+<p><img src="/assets/blog/teiid/teiid-mat-load-metadata.png" alt="Stocks Load Metadata" /></p>
+
+<p>A MetadataFactory used in each Model’s Metadata loading, MetadataFactory can merge each other, a MetadataFactory contains dataTypes, vdbResources, grants and a Schema, which related with tables, procedures, functions.</p>
+
+<p>Once the last Model’s Metadata loading finished, VDBRepository’s finishDeployment() will be invoked, relate below section for more.</p>
+
+<h3 id="vdb-finish-deploy">VDB finish deploy</h3>
+
+<p>As below figure, the VDB finish deploy mainly contains:</p>
+
+<ol>
+  <li>init runtime metadata API and attach it to VDB</li>
+  <li>validate the DDL SQL String which exist in VDB’s virtual model</li>
+  <li>invoke VDBLifeCycleListener’s finishedDeployment()</li>
+</ol>
+
+<p><img src="/assets/blog/teiid/teiid-metadata-finished.png" alt="VDB finish deploy" /></p>
+
+<p><strong>Appendix-1: buildTransformationMetaData()</strong></p>
+
+<p>Build runtime metadata API <code class="highlighter-rouge">QueryMetadataInterface1</code>’s implementation <code class="highlighter-rouge">TransformationMetadata</code>, this interface used by query components in runtime to access metadata. This implementation related with a VDB via VDB attachment:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>TransformationMetadata metadata = buildTransformationMetaData(mergedVDB, getVisibilityMap(), mergedStore, getUDF(), systemFunctions, this.additionalStores);
+QueryMetadataInterface qmi = metadata;
+mergedVDB.addAttchment(QueryMetadataInterface.class, qmi);
+mergedVDB.addAttchment(TransformationMetadata.class, metadata);
+mergedVDB.addAttchment(MetadataStore.class, mergedStore);
+</code></pre>
+</div>
+
+<p><strong>Appendix-2: Metadata Validator</strong></p>
+
+<p>Validate the SQL commands which existed in virtual model’s DDL text metadata String.</p>
+
+<p><strong>Appendix-3: MaterializationManager</strong></p>
+
+<p>Refer to <a href="http://ksoong.org/teiid-mat-view">teiid-mat-view</a>.</p>
+
+<h2 id="examples">Examples</h2>
+
+<p>This section contain examples to quick understand the Teiid Metadata.</p>
+
+<h3 id="load-classpath-ddl-file">Load classpath ddl file</h3>
+
+<p>Assuming <code class="highlighter-rouge">customer.ddl</code> file under classpath, which define a series of Metadata, this example demonstrates how to load metadata from a classpath file.</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">VDBMetaData</span> <span class="n">vdb</span> <span class="o">=</span> <span class="k">new</span> <span class="n">VDBMetaData</span><span class="o">();</span>
+<span class="n">vdb</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="s">"ExampleVDB"</span><span class="o">);</span>
+<span class="n">vdb</span><span class="o">.</span><span class="na">setVersion</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+<span class="n">Properties</span> <span class="n">p</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Properties</span><span class="o">();</span>
+<span class="n">QueryParser</span> <span class="n">parser</span> <span class="o">=</span> <span class="k">new</span> <span class="n">QueryParser</span><span class="o">();</span>
+        
+<span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Datatype</span><span class="o">&gt;</span> <span class="n">typeMap</span> <span class="o">=</span> <span class="n">SystemMetadata</span><span class="o">.</span><span class="na">getInstance</span><span class="o">().</span><span class="na">getRuntimeTypeMap</span><span class="o">();</span>
+        
+<span class="n">ModelMetaData</span> <span class="n">mmd</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ModelMetaData</span><span class="o">();</span>
+<span class="n">mmd</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="s">"ExampleMode"</span><span class="o">);</span>
+<span class="n">vdb</span><span class="o">.</span><span class="na">addModel</span><span class="o">(</span><span class="n">mmd</span><span class="o">);</span>
+<span class="n">MetadataFactory</span> <span class="n">factory</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MetadataFactory</span><span class="o">(</span><span class="n">vdb</span><span class="o">.</span><span class="na">getName</span><span class="o">(),</span> <span class="n">vdb</span><span class="o">.</span><span class="na">getVersion</span><span class="o">(),</span> <span class="s">"ExampleMode"</span><span class="o">,</span> <span class="n">typeMap</span><span class="o">,</span> <span class="n">p</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
+<span class="n">parser</span><span class="o">.</span><span class="na">parseDDL</span><span class="o">(</span><span class="n">factory</span><span class="o">,</span> <span class="n">loadReader</span><span class="o">(</span><span class="s">"customer.ddl"</span><span class="o">));</span>
+<span class="n">MetadataStore</span> <span class="n">systemStore</span> <span class="o">=</span> <span class="n">factory</span><span class="o">.</span><span class="na">asMetadataStore</span><span class="o">();</span>
+     
+<span class="n">TransformationMetadata</span> <span class="n">tm</span> <span class="o">=</span> <span class="k">new</span> <span class="n">TransformationMetadata</span><span class="o">(</span><span class="n">vdb</span><span class="o">,</span> <span class="k">new</span> <span class="n">CompositeMetadataStore</span><span class="o">(</span><span class="n">systemStore</span><span class="o">),</span> <span class="kc">null</span><span class="o">,</span> <span class="k">new</span> <span class="n">SystemFunctionManager</span><span class="o">(</span><span class="n">typeMap</span><span class="o">).</span><span class="na">getSystemFunctions</span><span class="o">(),</span> <span class="kc">null</span><span class="o">);</span>
+<span class="n">vdb</span><span class="o">.</span><span class="na">addAttchment</span><span class="o">(</span><span class="n">QueryMetadataInterface</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">tm</span><span class="o">);</span>
+<span class="n">MetadataValidator</span> <span class="n">validator</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MetadataValidator</span><span class="o">(</span><span class="n">typeMap</span><span class="o">,</span> <span class="n">parser</span><span class="o">);</span>
+<span class="n">ValidatorReport</span> <span class="n">report</span> <span class="o">=</span> <span class="n">validator</span><span class="o">.</span><span class="na">validate</span><span class="o">(</span><span class="n">vdb</span><span class="o">,</span> <span class="n">systemStore</span><span class="o">);</span>
+<span class="k">if</span> <span class="o">(</span><span class="n">report</span><span class="o">.</span><span class="na">hasItems</span><span class="o">())</span> <span class="o">{</span>
+   <span class="k">throw</span> <span class="k">new</span> <span class="n">TeiidRuntimeException</span><span class="o">(</span><span class="n">report</span><span class="o">.</span><span class="na">getFailureMessage</span><span class="o">());</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+
+
+<br/>
+<ul class="btn pull-right">
+<div class="bdsharebuttonbox">
+  <a href="#" class="bds_more" data-cmd="more"></a>
+  <a title="分享到QQ空间" href="#" class="bds_qzone" data-cmd="qzone"></a>
+  <a title="分享到新浪微博" href="#" class="bds_tsina" data-cmd="tsina"></a>
+  <a title="分享到腾讯微博" href="#" class="bds_tqq" data-cmd="tqq"></a>
+  <a title="分享到人人网" href="#" class="bds_renren" data-cmd="renren"></a>
+  <a title="分享到微信" href="#" class="bds_weixin" data-cmd="weixin"></a>
+</div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"分享ksoong.org的文章「Understanding Teiid Metadata」 - ksoong.org","bdDesc":"","bdMini":"2","bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</ul>
+
+<div class="ds-thread" data-thread-key="ksoong2015032601" data-title="Understanding Teiid Metadata" data-url="ksoong.org/teiid-metadata"></div>
+
+	    <ul class="pager">
+		
+		<li class="previous"><a href="/rhel7-commands">&laquo;&nbsp;Linux 命令集合</a></li>
+		
+		
+		<li class="next"><a href="/teiid-getstart-code">Get Start Teiid From Source...&nbsp;&raquo;</a></li>
+		
+	    </ul>
+
+
+        </div>
+        <aside id="sidebar" role="complementary">
+          <div class="subscribe">
+            <h2 class="icon news">
+              <a href="/feed.xml">Subscribe</a>
+            </h2>
+          </div>
+          <nav class="latest">
+            <h2>Latest Posts</h2>
+            <ul>
+            
+              <li>
+                <div class="title">
+                  <a href="/wfl-ds">WildFly Data Sources Configuration</a>
+                </div>
+                <div class="meta">
+                  Apr 26, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-transactions">Transaction in Teiid</a>
+                </div>
+                <div class="meta">
+                  Apr 20, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-getstart-code">Get Start Teiid From Source...</a>
+                </div>
+                <div class="meta">
+                  Apr 7, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-metadata">Understanding Teiid Metadata</a>
+                </div>
+                <div class="meta">
+                  Mar 27, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/rhel7-commands">Linux 命令集合</a>
+                </div>
+                <div class="meta">
+                  Mar 17, 2016
+                </div>
+              </li>
+             
+            </ul>
+            
+                        
+          </nav>
+          <nav class="tags">
+            <h2>Categories</h2>
+            <div class="tag-cloud">
+              
+              <span class="tag tag-1">
+                <a href="/categories/jekyll">Jekyll(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/jboss">Jboss(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/java">Java(18)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/css">Css(1)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/database">Database(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/javaee">Javaee(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/linux">Linux(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/teiid">Teiid(40)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/maven">Maven(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/netty">Netty(7)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/data">Data(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/git">Git(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/other">Other(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/performance">Performance(4)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/security">Security(3)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/docker">Docker(4)</a>
+              </span>
+              
+              
+            </div>
+          </nav>
+        </aside>
+      </div>
+
+
+    </div>
+    <footer>
+      <div class="container">
+        <div class="project">
+          <p class="bottom">
+            ©
+            Copyright 2009-2016 ksoong.
+            <br>
+            <i class="icon-fire"></i>
+            Mixed with <a href="http://twitter.github.com/bootstrap">Bootstrap</a>.
+            <br>
+            <i class="icon-share-alt"></i>
+            Website and docs licensed under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
+            <br>
+            Code released under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, v2.0</a>.
+          </p>
+        </div>
+        <div class="footer-nav">
+          <h4>Learn</h4>
+          <ul>
+            <li>
+              <a href="http://www.jboss.org/">JBoss</a>
+            </li>
+            <li>
+              <a href="http://infinispan.org/">Infinispan</a>
+            </li>
+            <li>
+              <a href="http://teiid.org/">Teiid</a>
+            </li>
+            <li>
+              <a href="https://github.com/kylinsoong">Github</a>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="sponser">
+          <div class="follow-us">
+            <h4>Stay Informed</h4>
+            <ul>
+              <li>
+                <a href="https://plus.google.com/103933729718268414460?rel=author"><img alt="Google+" src="/css/googleplus-16.png" title="Follow ksoong.org on Google+"></a>
+              </li>
+              <li>
+                <a href="http://www.weibo.com/kylinsoong"><img alt="Weibo" src="/css/weibo_logo.jpg" title="Follow me on Weibo"></a>
+              </li>
+	      <li>
+                <a href="https://github.com/kylinsoong"><img alt="Github" src="/css/Octocat.jpg" title="Fork me on Github"></a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+        <a class="visible-desktop" href="#" id="toTop">Top</a>
+      </div>
+        <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1258751305'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1258751305%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+    </footer>
+  
+ 
+    <script src="/css/jquery-1.11.1.min.js"></script>
+    <script src="/css/bootstrap.js"></script>
+
+   <script>
+      $(function() {
+        $('html').addClass('ready');
+        prettify();
+        activateFooterGravity();
+        activateTooltips();
+        activateToTopControl();
+      });
+    </script>
+    <script src="/css/site.js"></script>
+
+    
+            
+            <script type="text/javascript">
+                var duoshuoQuery = {short_name:"ksoong"};
+                (function() {
+                    var ds = document.createElement('script');
+                    ds.type = 'text/javascript';
+                    ds.async = true;
+                    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+                    ds.charset = 'UTF-8';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+                })();
+            </script>
+            
+        
+
+
+</body>
+</html>

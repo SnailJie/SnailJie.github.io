@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html class="ready" lang="en"><head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="shenma-site-verification" content="8a69823d7371d1eec4379853d25200cd_1448504990"> 
+    <title>Kylin Soong . Blog</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="/feed.xml" rel="alternate" title="Kylin Soong . Blog Atom feed" type="application/atom+xml">
+    <link href="/css/screen.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.js"></script>
+    <![endif]-->
+    <link href="/favicon.ico" rel="shortcut icon">
+
+</head>
+
+  <body class="blog index">
+    <header class="navbar navbar-fixed-top" id="banner" role="banner">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-target=".nav-collapse" data-toggle="collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/">
+            <span class="logo"></span>
+            <span class="name">ksoong</span>
+          </a>
+          <nav class="nav-collapse" role="navigation">
+            <ul class="nav">
+              <li><a href="/">Home</a></li>
+	      <!--
+              <li><a href="/lab">Labs</a></li>
+              <li><a href="/blog/">Blog</a></li>
+	      -->
+	      <li><a href="/books">Books</a></li>
+              <li><a href="/archive">Archives</a></li>
+              <li><a href="/slide">Slides</a></li>
+              <li><a href="/about">About</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+    <div style="min-height: 250px;" id="main" role="main">
+      
+<div id="content-header">
+        <div class="container">
+         <h1>
+              <a href="/blog">Blog</a>
+              <!--a href="#">&raquo;</a>
+              <a href="/teiid-uml-diagram">Teiid Code Analysis - UML Diagrams</a-->
+          </h1>
+        </div>
+</div>
+      <div class="container">
+        <div id="content">
+          
+<h2 class="title">
+                 <a class="post-link" href="/teiid-uml-diagram">Teiid Code Analysis - UML Diagrams</a>
+              </h2>
+ 
+<header class="post">
+              <div class="byline">
+                <span class="author">Posted by
+                <a href="/about">Kylin Soong</a> on</span>
+                <span class="dateinline">May 23, 2015</span>
+		<i class="icon-tags"></i> categorized as <a class="tag" href="/categories/teiid">teiid</a>
+              </div>
+            </header>
+
+ 
+<ul id="markdown-toc">
+  <li><a href="#client" id="markdown-toc-client">Client</a>    <ul>
+      <li><a href="#orgteiidclientdqp" id="markdown-toc-orgteiidclientdqp">org.teiid.client.DQP</a></li>
+      <li><a href="#orgteiidclientsecurityilogon" id="markdown-toc-orgteiidclientsecurityilogon">org.teiid.client.security.ILogon</a></li>
+      <li><a href="#orgteiidnetsocketobjectchannel" id="markdown-toc-orgteiidnetsocketobjectchannel">org.teiid.net.socket.ObjectChannel</a></li>
+      <li><a href="#orgteiidnetsocketserverconnection" id="markdown-toc-orgteiidnetsocketserverconnection">org.teiid.net.socket.ServerConnection</a></li>
+      <li><a href="#orgteiidjdbcconnectionprofile" id="markdown-toc-orgteiidjdbcconnectionprofile">org.teiid.jdbc.ConnectionProfile</a></li>
+    </ul>
+  </li>
+  <li><a href="#transport" id="markdown-toc-transport">Transport</a>    <ul>
+      <li><a href="#orgteiidtransportclientserviceregistry" id="markdown-toc-orgteiidtransportclientserviceregistry">org.teiid.transport.ClientServiceRegistry</a></li>
+    </ul>
+  </li>
+  <li><a href="#api" id="markdown-toc-api">API</a>    <ul>
+      <li><a href="#orgteiidmetadataabstractmetadatarecord" id="markdown-toc-orgteiidmetadataabstractmetadatarecord">org.teiid.metadata.AbstractMetadataRecord</a></li>
+      <li><a href="#orgteiidmetadatametadatarepositoryfc" id="markdown-toc-orgteiidmetadatametadatarepositoryfc">org.teiid.metadata.MetadataRepository&lt;F,C&gt;</a></li>
+      <li><a href="#orgteiidquerymetadatacompositemetadatastore" id="markdown-toc-orgteiidquerymetadatacompositemetadatastore">org.teiid.query.metadata.CompositeMetadataStore</a></li>
+      <li><a href="#teiid-language-api" id="markdown-toc-teiid-language-api">Teiid Language API</a></li>
+    </ul>
+  </li>
+  <li><a href="#engine" id="markdown-toc-engine">Engine</a>    <ul>
+      <li><a href="#teiid-query-sql-api" id="markdown-toc-teiid-query-sql-api">Teiid Query Sql API</a></li>
+      <li><a href="#orgteiiddqpinternalprocessrequestworkitem" id="markdown-toc-orgteiiddqpinternalprocessrequestworkitem">org.teiid.dqp.internal.process.RequestWorkItem</a></li>
+      <li><a href="#orgteiiddqpinternalprocessrequest" id="markdown-toc-orgteiiddqpinternalprocessrequest">org.teiid.dqp.internal.process.Request</a></li>
+      <li><a href="#orgteiidqueryutilcommandcontext" id="markdown-toc-orgteiidqueryutilcommandcontext">org.teiid.query.util.CommandContext</a></li>
+      <li><a href="#orgteiidqueryoptimizerrelationaloptimizerrule" id="markdown-toc-orgteiidqueryoptimizerrelationaloptimizerrule">org.teiid.query.optimizer.relational.OptimizerRule</a></li>
+      <li><a href="#orgteiiddqpinternalprocessthreadreuseexecutor" id="markdown-toc-orgteiiddqpinternalprocessthreadreuseexecutor">org.teiid.dqp.internal.process.ThreadReuseExecutor</a></li>
+      <li><a href="#orgteiidquerymetadataquerymetadatainterface" id="markdown-toc-orgteiidquerymetadataquerymetadatainterface">org.teiid.query.metadata.QueryMetadataInterface</a></li>
+      <li><a href="#orgteiidqueryoptimizercapabilitiescapabilitiesfinder" id="markdown-toc-orgteiidqueryoptimizercapabilitiescapabilitiesfinder">org.teiid.query.optimizer.capabilities.CapabilitiesFinder</a></li>
+      <li><a href="#orgteiidqueryresolvercommandresolver" id="markdown-toc-orgteiidqueryresolvercommandresolver">org.teiid.query.resolver.CommandResolver</a></li>
+      <li><a href="#orgteiidqueryoptimizercommandplanner" id="markdown-toc-orgteiidqueryoptimizercommandplanner">org.teiid.query.optimizer.CommandPlanner</a></li>
+      <li><a href="#orgteiidqueryprocessorprocessorplan" id="markdown-toc-orgteiidqueryprocessorprocessorplan">org.teiid.query.processor.ProcessorPlan</a></li>
+      <li><a href="#orgteiidqueryprocessorprocessordatamanager" id="markdown-toc-orgteiidqueryprocessorprocessordatamanager">org.teiid.query.processor.ProcessorDataManager</a></li>
+      <li><a href="#orgteiidqueryprocessorrelationalaccessnode" id="markdown-toc-orgteiidqueryprocessorrelationalaccessnode">org.teiid.query.processor.relational.AccessNode</a></li>
+      <li><a href="#orgteiiddqpinternaldatamgrconnectorwork" id="markdown-toc-orgteiiddqpinternaldatamgrconnectorwork">org.teiid.dqp.internal.datamgr.ConnectorWork</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="client">Client</h2>
+
+<h3 id="orgteiidclientdqp">org.teiid.client.DQP</h3>
+
+<p><img src="/assets/blog/teiid-uml-dqp.png" alt="UML of DQP" /></p>
+
+<ul>
+  <li>DQP is the client core interface, client own a DQP Proxy to interact with Teiid Server</li>
+</ul>
+
+<h3 id="orgteiidclientsecurityilogon">org.teiid.client.security.ILogon</h3>
+
+<p><img src="/assets/blog/teiid-uml-ilogon.png" alt="UML of ILogon" /></p>
+
+<ul>
+  <li>ILogon is the interface for Client generoc logon</li>
+</ul>
+
+<h3 id="orgteiidnetsocketobjectchannel">org.teiid.net.socket.ObjectChannel</h3>
+
+<p><img src="/assets/blog/teiid-uml-objectChannel.png" alt="UML of ObjectChannel" /></p>
+
+<ul>
+  <li>ObjectChannel is the key interface for socket write and read, it has 2 implementation</li>
+  <li>OioObjectChannel is client implementation for socket read and write, which it wrapped a Socket client</li>
+  <li>ObjectChannelImpl is the server implementation for socket read and write, which it wrapped a Netty Server</li>
+</ul>
+
+<h3 id="orgteiidnetsocketserverconnection">org.teiid.net.socket.ServerConnection</h3>
+
+<p><img src="/assets/blog/teiid-net-connection.png" alt="Teiid Client Socket Connection" /></p>
+
+<ul>
+  <li>SocketServerConnection - Represents a client connection that maintains session state and allows for service fail over. Implements a sticky random selection policy.</li>
+</ul>
+
+<h3 id="orgteiidjdbcconnectionprofile">org.teiid.jdbc.ConnectionProfile</h3>
+
+<p><img src="/assets/blog/teiid-connection-profile.png" alt="Teiid Connection profile" /></p>
+
+<h2 id="transport">Transport</h2>
+
+<h3 id="orgteiidtransportclientserviceregistry">org.teiid.transport.ClientServiceRegistry</h3>
+
+<p><img src="/assets/blog/teiid-client-registry.png" alt="Teiid Client Registry" /></p>
+
+<h2 id="api">API</h2>
+
+<h3 id="orgteiidmetadataabstractmetadatarecord">org.teiid.metadata.AbstractMetadataRecord</h3>
+
+<p><img src="/assets/blog/teiid-metadata.png" alt="Teiid MetaData API Hierarchy" /></p>
+
+<p><strong>Example - Schema</strong></p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">MetadataStore</span> <span class="n">metadataStore</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MetadataStore</span><span class="o">();</span>
+<span class="n">Schema</span> <span class="n">schema</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Schema</span><span class="o">();</span>
+<span class="n">schema</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="s">"name"</span><span class="o">);</span>
+<span class="n">metadataStore</span><span class="o">.</span><span class="na">addSchema</span><span class="o">(</span><span class="n">schema</span><span class="o">);</span>
+</code></pre>
+</div>
+
+<blockquote>
+  <p>NOTE: A Schema mainly contain Table, Procedure, FunctionMethod.</p>
+</blockquote>
+
+<p><strong>Example - Table</strong></p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">Table</span> <span class="n">table</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Table</span><span class="o">();</span>
+<span class="n">table</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="s">"name"</span><span class="o">);</span>
+<span class="n">table</span><span class="o">.</span><span class="na">setSupportsUpdate</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+<span class="n">table</span><span class="o">.</span><span class="na">setTableType</span><span class="o">(</span><span class="n">org</span><span class="o">.</span><span class="na">teiid</span><span class="o">.</span><span class="na">metadata</span><span class="o">.</span><span class="na">Table</span><span class="o">.</span><span class="na">Type</span><span class="o">.</span><span class="na">Table</span><span class="o">);</span>
+<span class="n">schema</span><span class="o">.</span><span class="na">addTable</span><span class="o">(</span><span class="n">table</span><span class="o">);</span>
+</code></pre>
+</div>
+
+<p><strong>Example - Column</strong></p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">Table</span> <span class="n">table</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Table</span><span class="o">();</span>
+<span class="o">...</span>        
+<span class="n">Column</span> <span class="n">column</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Column</span><span class="o">();</span>
+<span class="n">column</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="s">"name"</span><span class="o">);</span>
+<span class="n">column</span><span class="o">.</span><span class="na">setRuntimeType</span><span class="o">(</span><span class="n">DataTypeManager</span><span class="o">.</span><span class="na">DefaultDataTypes</span><span class="o">.</span><span class="na">STRING</span><span class="o">);</span>
+<span class="n">column</span><span class="o">.</span><span class="na">setSearchType</span><span class="o">(</span><span class="n">SearchType</span><span class="o">.</span><span class="na">Searchable</span><span class="o">);</span> 
+<span class="n">column</span><span class="o">.</span><span class="na">setNullType</span><span class="o">(</span><span class="n">NullType</span><span class="o">.</span><span class="na">Nullable</span><span class="o">);</span>
+<span class="n">column</span><span class="o">.</span><span class="na">setPosition</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+<span class="n">column</span><span class="o">.</span><span class="na">setUpdatable</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+<span class="n">column</span><span class="o">.</span><span class="na">setLength</span><span class="o">(</span><span class="mi">100</span><span class="o">);</span>
+<span class="n">table</span><span class="o">.</span><span class="na">addColumn</span><span class="o">(</span><span class="n">column</span><span class="o">);</span>
+</code></pre>
+</div>
+
+<h3 id="orgteiidmetadatametadatarepositoryfc">org.teiid.metadata.MetadataRepository&lt;F,C&gt;</h3>
+
+<p><img src="/assets/blog/teiid-metadatarepo.png" alt="Teiid MetaData API Hierarchy" /></p>
+
+<h3 id="orgteiidquerymetadatacompositemetadatastore">org.teiid.query.metadata.CompositeMetadataStore</h3>
+
+<p><img src="/assets/blog/teiid-uml-MetadataStore.png" alt="org.teiid.query.metadata.CompositeMetadataStore" /></p>
+
+<ul>
+  <li>MetadataStore is a sample holder for metadata, which mainly contain Schemas(<code class="highlighter-rouge">org.teiid.metadata.Schema</code>) and DataTypes(<code class="highlighter-rouge">org.teiid.metadata.Datatype</code>).</li>
+  <li>CompositeMetadataStore add function of merge MetadataStore together.</li>
+</ul>
+
+<h3 id="teiid-language-api">Teiid Language API</h3>
+
+<p>Refer to <a href="http://ksoong.org/teiid-language-api/">link</a></p>
+
+<h2 id="engine">Engine</h2>
+
+<h3 id="teiid-query-sql-api">Teiid Query Sql API</h3>
+
+<p>Refer to <a href="http://ksoong.org/teiid-query-sql-api/">link</a></p>
+
+<h3 id="orgteiiddqpinternalprocessrequestworkitem">org.teiid.dqp.internal.process.RequestWorkItem</h3>
+
+<p><img src="/assets/blog/teiid-requestWorkItem.png" alt="RequestWorkItem" /></p>
+
+<ul>
+  <li>RequestWorkItem - Compiles results and other information for the client.  There is quite a bit of logic surrounding forming batches to prevent buffer growth, send multiple batches at a time, partial batches, etc.  There is also special handling for the update count case, which needs to read the entire result before sending it back to the client.</li>
+  <li>AbstractWorkItem - Represents a task that performs work that may take more than one processing pass to complete. During processing the WorkItem may receive events asynchronously through the moreWork method.</li>
+</ul>
+
+<h3 id="orgteiiddqpinternalprocessrequest">org.teiid.dqp.internal.process.Request</h3>
+
+<p><img src="/assets/blog/teiid-dqp-process-request.png" alt="Request UML" /></p>
+
+<h3 id="orgteiidqueryutilcommandcontext">org.teiid.query.util.CommandContext</h3>
+
+<p><img src="/assets/blog/teiid-uml-commandcontext.png" alt="org.teiid.query.util.CommandContext" /></p>
+
+<ul>
+  <li>CommandContext defines the context that a command is processing in.  For example, this defines who is processing the command and why. Also, this class (or subclasses) provide a means to pass context-specific information between users of the query processor framework.</li>
+</ul>
+
+<h3 id="orgteiidqueryoptimizerrelationaloptimizerrule">org.teiid.query.optimizer.relational.OptimizerRule</h3>
+
+<p><img src="/assets/blog/teiid-uml-OptimizerRule.png" alt="OptimizerRule" /></p>
+
+<h3 id="orgteiiddqpinternalprocessthreadreuseexecutor">org.teiid.dqp.internal.process.ThreadReuseExecutor</h3>
+
+<p><img src="/assets/blog/teiid-threadreuseexecutor.png" alt="ThreadReuseExecutor" /></p>
+
+<h3 id="orgteiidquerymetadataquerymetadatainterface">org.teiid.query.metadata.QueryMetadataInterface</h3>
+
+<p><img src="/assets/blog/teiid-querymetadatainterface.png" alt="QueryMetadataInterface" /></p>
+
+<ul>
+  <li>QueryMetadataInterface interface defines the way that query components access metadata. Any user of a query component will need to implement this interface. Many  of these methods take or return things of type “Object”. Typically, these objects represent a metadata-implementation-specific metadata ID. The interface define several methods:</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>Object getElementID(String elementName)throws TeiidComponentException, QueryMetadataException;
+Object getGroupID(String groupName)throws TeiidComponentException, QueryMetadataException;
+Object getModelID(String modelName)throws TeiidComponentException, QueryMetadataException;
+Collection getGroupsForPartialName(String partialGroupName)throws TeiidComponentException, QueryMetadataException;
+Object getModelID(Object groupOrElementID)throws TeiidComponentException, QueryMetadataException;
+String getFullName(Object metadataID)throws TeiidComponentException, QueryMetadataException;
+String getName(Object metadataID) throws TeiidComponentException, QueryMetadataException;
+List getElementIDsInGroupID(Object groupID)throws TeiidComponentException, QueryMetadataException;
+Object getGroupIDForElementID(Object elementID)throws TeiidComponentException, QueryMetadataException;
+...
+</code></pre>
+</div>
+
+<h3 id="orgteiidqueryoptimizercapabilitiescapabilitiesfinder">org.teiid.query.optimizer.capabilities.CapabilitiesFinder</h3>
+
+<p><img src="/assets/blog/teiid-capabilitiesfinder.png" alt="CapabilitiesFinder" /></p>
+
+<p>The CapabilitiesFinder describes how to find connector capabilities.</p>
+
+<h3 id="orgteiidqueryresolvercommandresolver">org.teiid.query.resolver.CommandResolver</h3>
+
+<p><img src="/assets/blog/teiid-commandresolver.png" alt="CommandResolver" /></p>
+
+<h3 id="orgteiidqueryoptimizercommandplanner">org.teiid.query.optimizer.CommandPlanner</h3>
+
+<p><img src="/assets/blog/teiid-CommandPlanner.png" alt="CommandPlanner" /></p>
+
+<h3 id="orgteiidqueryprocessorprocessorplan">org.teiid.query.processor.ProcessorPlan</h3>
+
+<p><img src="/assets/blog/teiid-uml-processplan.png" alt="processPlan" /></p>
+
+<ul>
+  <li>ProcessorPlan - This class represents a processor plan. It is generic in that it abstracts the interface to the plan by the processor, meaning that the actual implementation of the plan or the types of processing done by the plan is not important to the processor.</li>
+</ul>
+
+<h3 id="orgteiidqueryprocessorprocessordatamanager">org.teiid.query.processor.ProcessorDataManager</h3>
+
+<p><img src="/assets/blog/teiid-processordatamanager.png" alt="ProcessorDataManager" /></p>
+
+<ul>
+  <li>TempTableDataManager - A proxy ProcessorDataManager used to handle temporary tables. This isn’t handled as a connector because of the temporary metadata and  the create/drop handling (which doesn’t have push down support).</li>
+  <li>DataTierManagerImpl - A full ProcessorDataManager implementation that controls access to ConnectorManager and handles system queries.</li>
+</ul>
+
+<h3 id="orgteiidqueryprocessorrelationalaccessnode">org.teiid.query.processor.relational.AccessNode</h3>
+
+<p><img src="/assets/blog/teiid-uml-AccessNode.png" alt="AccessNode" /></p>
+
+<h3 id="orgteiiddqpinternaldatamgrconnectorwork">org.teiid.dqp.internal.datamgr.ConnectorWork</h3>
+
+<p><img src="/assets/blog/teiid-connectorwork.png" alt="ConnectorWork" /></p>
+
+<ul>
+  <li>ConnectorWork - Represents a connector execution in batched form.</li>
+</ul>
+
+
+<br/>
+<ul class="btn pull-right">
+<div class="bdsharebuttonbox">
+  <a href="#" class="bds_more" data-cmd="more"></a>
+  <a title="分享到QQ空间" href="#" class="bds_qzone" data-cmd="qzone"></a>
+  <a title="分享到新浪微博" href="#" class="bds_tsina" data-cmd="tsina"></a>
+  <a title="分享到腾讯微博" href="#" class="bds_tqq" data-cmd="tqq"></a>
+  <a title="分享到人人网" href="#" class="bds_renren" data-cmd="renren"></a>
+  <a title="分享到微信" href="#" class="bds_weixin" data-cmd="weixin"></a>
+</div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"分享ksoong.org的文章「Teiid Code Analysis - UML Diagrams」 - ksoong.org","bdDesc":"","bdMini":"2","bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</ul>
+
+<div class="ds-thread" data-thread-key="ksoong2015052201" data-title="Teiid Code Analysis - UML Diagrams" data-url="ksoong.org/teiid-uml-diagram"></div>
+
+	    <ul class="pager">
+		
+		<li class="previous"><a href="/teiid-s-diagram">&laquo;&nbsp;Teiid Code Analysis - Sequence...</a></li>
+		
+		
+		<li class="next"><a href="/teiid-dqp">Understanding Teiid Engine&nbsp;&raquo;</a></li>
+		
+	    </ul>
+
+
+        </div>
+        <aside id="sidebar" role="complementary">
+          <div class="subscribe">
+            <h2 class="icon news">
+              <a href="/feed.xml">Subscribe</a>
+            </h2>
+          </div>
+          <nav class="latest">
+            <h2>Latest Posts</h2>
+            <ul>
+            
+              <li>
+                <div class="title">
+                  <a href="/wfl-ds">WildFly Data Sources Configuration</a>
+                </div>
+                <div class="meta">
+                  Apr 26, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-transactions">Transaction in Teiid</a>
+                </div>
+                <div class="meta">
+                  Apr 20, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-getstart-code">Get Start Teiid From Source...</a>
+                </div>
+                <div class="meta">
+                  Apr 7, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-metadata">Understanding Teiid Metadata</a>
+                </div>
+                <div class="meta">
+                  Mar 27, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/rhel7-commands">Linux 命令集合</a>
+                </div>
+                <div class="meta">
+                  Mar 17, 2016
+                </div>
+              </li>
+             
+            </ul>
+            
+                        
+          </nav>
+          <nav class="tags">
+            <h2>Categories</h2>
+            <div class="tag-cloud">
+              
+              <span class="tag tag-1">
+                <a href="/categories/jekyll">Jekyll(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/jboss">Jboss(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/java">Java(18)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/css">Css(1)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/database">Database(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/javaee">Javaee(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/linux">Linux(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/teiid">Teiid(40)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/maven">Maven(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/netty">Netty(7)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/data">Data(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/git">Git(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/other">Other(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/performance">Performance(4)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/security">Security(3)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/docker">Docker(4)</a>
+              </span>
+              
+              
+            </div>
+          </nav>
+        </aside>
+      </div>
+
+
+    </div>
+    <footer>
+      <div class="container">
+        <div class="project">
+          <p class="bottom">
+            ©
+            Copyright 2009-2016 ksoong.
+            <br>
+            <i class="icon-fire"></i>
+            Mixed with <a href="http://twitter.github.com/bootstrap">Bootstrap</a>.
+            <br>
+            <i class="icon-share-alt"></i>
+            Website and docs licensed under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
+            <br>
+            Code released under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, v2.0</a>.
+          </p>
+        </div>
+        <div class="footer-nav">
+          <h4>Learn</h4>
+          <ul>
+            <li>
+              <a href="http://www.jboss.org/">JBoss</a>
+            </li>
+            <li>
+              <a href="http://infinispan.org/">Infinispan</a>
+            </li>
+            <li>
+              <a href="http://teiid.org/">Teiid</a>
+            </li>
+            <li>
+              <a href="https://github.com/kylinsoong">Github</a>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="sponser">
+          <div class="follow-us">
+            <h4>Stay Informed</h4>
+            <ul>
+              <li>
+                <a href="https://plus.google.com/103933729718268414460?rel=author"><img alt="Google+" src="/css/googleplus-16.png" title="Follow ksoong.org on Google+"></a>
+              </li>
+              <li>
+                <a href="http://www.weibo.com/kylinsoong"><img alt="Weibo" src="/css/weibo_logo.jpg" title="Follow me on Weibo"></a>
+              </li>
+	      <li>
+                <a href="https://github.com/kylinsoong"><img alt="Github" src="/css/Octocat.jpg" title="Fork me on Github"></a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+        <a class="visible-desktop" href="#" id="toTop">Top</a>
+      </div>
+        <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1258751305'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1258751305%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+    </footer>
+  
+ 
+    <script src="/css/jquery-1.11.1.min.js"></script>
+    <script src="/css/bootstrap.js"></script>
+
+   <script>
+      $(function() {
+        $('html').addClass('ready');
+        prettify();
+        activateFooterGravity();
+        activateTooltips();
+        activateToTopControl();
+      });
+    </script>
+    <script src="/css/site.js"></script>
+
+    
+            
+            <script type="text/javascript">
+                var duoshuoQuery = {short_name:"ksoong"};
+                (function() {
+                    var ds = document.createElement('script');
+                    ds.type = 'text/javascript';
+                    ds.async = true;
+                    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+                    ds.charset = 'UTF-8';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+                })();
+            </script>
+            
+        
+
+
+</body>
+</html>

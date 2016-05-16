@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html class="ready" lang="en"><head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="shenma-site-verification" content="8a69823d7371d1eec4379853d25200cd_1448504990"> 
+    <title>Kylin Soong . Blog</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="/feed.xml" rel="alternate" title="Kylin Soong . Blog Atom feed" type="application/atom+xml">
+    <link href="/css/screen.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.js"></script>
+    <![endif]-->
+    <link href="/favicon.ico" rel="shortcut icon">
+
+</head>
+
+  <body class="blog index">
+    <header class="navbar navbar-fixed-top" id="banner" role="banner">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-target=".nav-collapse" data-toggle="collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/">
+            <span class="logo"></span>
+            <span class="name">ksoong</span>
+          </a>
+          <nav class="nav-collapse" role="navigation">
+            <ul class="nav">
+              <li><a href="/">Home</a></li>
+	      <!--
+              <li><a href="/lab">Labs</a></li>
+              <li><a href="/blog/">Blog</a></li>
+	      -->
+	      <li><a href="/books">Books</a></li>
+              <li><a href="/archive">Archives</a></li>
+              <li><a href="/slide">Slides</a></li>
+              <li><a href="/about">About</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+    <div style="min-height: 250px;" id="main" role="main">
+      
+<div id="content-header">
+        <div class="container">
+         <h1>
+              <a href="/blog">Blog</a>
+              <!--a href="#">&raquo;</a>
+              <a href="/java-logging">Logging in Java</a-->
+          </h1>
+        </div>
+</div>
+      <div class="container">
+        <div id="content">
+          
+<h2 class="title">
+                 <a class="post-link" href="/java-logging">Logging in Java</a>
+              </h2>
+ 
+<header class="post">
+              <div class="byline">
+                <span class="author">Posted by
+                <a href="/about">Kylin Soong</a> on</span>
+                <span class="dateinline">Nov 28, 2014</span>
+		<i class="icon-tags"></i> categorized as <a class="tag" href="/categories/java">java</a>
+              </div>
+            </header>
+
+ 
+<p>This article first will talk some basic concepts in Java Util Logging, then give 2 examples:</p>
+
+<ul>
+  <li><strong>Setting the Logging Configuration with configuration file</strong></li>
+  <li><strong>Setting the Logging Configuration Programmatically</strong></li>
+</ul>
+
+<h2 id="concepts">Concepts</h2>
+
+<p>Java contains the Java Logging API. This logging API allows you to configure which message types are written. Individual classes can use this logger to write messages to the configured log files.</p>
+
+<p>The java.util.logging package provides the logging capabilities via the Logger class.  To create a logger in your Java code, you can use the following snippet:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>import java.util.logging.Logger;
+
+private final static Logger logger = Logger.getLogger(MyLoggerTestClass.class.getName()); 
+</code></pre>
+</div>
+
+<h3 id="logger-level">Logger Level</h3>
+
+<p>The log levels define the severity of a message. The <code class="highlighter-rouge">java.util.logging.Level</code> class is used to define which messages should be written to the log. The levels in descending order are:</p>
+
+<ul>
+  <li>SEVERE (highest value)</li>
+  <li>WARNING</li>
+  <li>INFO</li>
+  <li>CONFIG</li>
+  <li>FINE</li>
+  <li>FINER</li>
+  <li>FINEST  (lowest value)</li>
+</ul>
+
+<h3 id="handler">Handler</h3>
+
+<p>Each logger can have access to several handlers. The handler receives the log message from the logger and exports it to a certain target. By default, java util logging have 3 handlers:</p>
+
+<ul>
+  <li>ConsoleHandler: Write the log message to console</li>
+  <li>FileHandler: Writes the log message to file</li>
+  <li>SocketHandler: Writes the log message to socket</li>
+</ul>
+
+<h3 id="formatter">Formatter</h3>
+
+<p>Each handler’s output can be configured with a formatter, by default, java util logging have 2 formatter:</p>
+
+<ul>
+  <li>SimpleFormatter: Generate all messages as text</li>
+  <li>XMLFormatter: Generates XML output for the log messages</li>
+</ul>
+
+<p>Below is is a sample to build a customized formatter:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>class MyFormatter extends Formatter {
+	
+	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm SSS");
+
+	public String format(LogRecord record) {
+		StringBuffer sb = new StringBuffer();
+		sb.append(format.format(new Date(record.getMillis())) + " ");
+		sb.append(getLevelString(record.getLevel()) + " ");
+		sb.append("[" + record.getLoggerName() + "]  (");
+		sb.append(Thread.currentThread().getName() + ") ");
+		sb.append(record.getMessage() + "\n");
+		return sb.toString();
+	}
+
+	private String getLevelString(Level level) {
+		String name = level.toString();
+		int size = name.length();
+		for(int i = size; i &lt; 7 ; i ++){
+			name += " ";
+		}
+		return name;
+	}
+}
+</code></pre>
+</div>
+
+<h2 id="setting-the-logging-configuration-with-configuration-file">Setting the Logging Configuration with configuration file</h2>
+
+<p>Setting the Logging Configuration need a <code class="highlighter-rouge">logging properties</code>, and including it via VM argument:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>-Djava.util.logging.config.file="logging.properties" 
+</code></pre>
+</div>
+
+<blockquote>
+  <p>Note that there is a sample properties under jre/lib</p>
+</blockquote>
+
+<p>Base on jre/lib/logging.properties, change the following 2 lines:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>.level= FINEST
+java.util.logging.ConsoleHandler.formatter = MyFormatter
+</code></pre>
+</div>
+
+<h2 id="setting-the-logging-configuration-programmatically">Setting the Logging Configuration Programmatically</h2>
+
+<p>Below is a sample for setting the Logging Configuration Programmatically:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>Logger rootLogger = Logger.getLogger("");
+for(Handler handler : rootLogger.getHandlers()){
+	// use customized MyFormatter, change rootLogger's level from INFO to SEVERE
+	handler.setFormatter(new MyFormatter());
+	handler.setLevel(Level.SEVERE);
+}
+
+Logger logger = Logger.getLogger("com.mylogger");
+logger.setLevel(Level.FINEST);
+ConsoleHandler handler = new ConsoleHandler();
+handler.setFormatter(new MyFormatter());
+handler.setLevel(Level.FINEST);
+logger.addHandler(handler);
+logger.setUseParentHandlers(false);
+</code></pre>
+</div>
+
+<h2 id="an-example-for-using-above-setting">An example for using above setting</h2>
+
+<p>Run below code</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>public static void main(String[] args) {
+	Logger logger = Logger.getLogger("com.mylogger.x.y");
+			
+	logger.finest("This is finest test message");
+	logger.finer("This is finer test message");
+	logger.fine("This is fine test message");
+	logger.config("This is config test message");
+	logger.info("This is info test message");
+	logger.warning("This is warning test message");
+	logger.severe("This is severe test message");	
+}
+</code></pre>
+</div>
+
+<p>will out put</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>2015-05-21 16:39 331 FINEST  [com.mylogger.x.y] (main) This is finest test message
+2015-05-21 16:39 332 FINER   [com.mylogger.x.y] (main) This is finer test message
+2015-05-21 16:39 332 FINE    [com.mylogger.x.y] (main) This is fine test message
+2015-05-21 16:39 332 CONFIG  [com.mylogger.x.y] (main) This is config test message
+2015-05-21 16:39 332 INFO    [com.mylogger.x.y] (main) This is info test message
+2015-05-21 16:39 333 WARNING [com.mylogger.x.y] (main) This is warning test message
+2015-05-21 16:39 333 SEVERE  [com.mylogger.x.y] (main) This is severe test message
+</code></pre>
+</div>
+
+
+
+<br/>
+<ul class="btn pull-right">
+<div class="bdsharebuttonbox">
+  <a href="#" class="bds_more" data-cmd="more"></a>
+  <a title="分享到QQ空间" href="#" class="bds_qzone" data-cmd="qzone"></a>
+  <a title="分享到新浪微博" href="#" class="bds_tsina" data-cmd="tsina"></a>
+  <a title="分享到腾讯微博" href="#" class="bds_tqq" data-cmd="tqq"></a>
+  <a title="分享到人人网" href="#" class="bds_renren" data-cmd="renren"></a>
+  <a title="分享到微信" href="#" class="bds_weixin" data-cmd="weixin"></a>
+</div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"分享ksoong.org的文章「Logging in Java」 - ksoong.org","bdDesc":"","bdMini":"2","bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</ul>
+
+<div class="ds-thread" data-thread-key="ksoong2014112701" data-title="Logging in Java" data-url="ksoong.org/java-logging"></div>
+
+	    <ul class="pager">
+		
+		<li class="previous"><a href="/hbase-java">&laquo;&nbsp;HBase Quick Start</a></li>
+		
+		
+		<li class="next"><a href="/hbase-datamodel">HBase Data Model&nbsp;&raquo;</a></li>
+		
+	    </ul>
+
+
+        </div>
+        <aside id="sidebar" role="complementary">
+          <div class="subscribe">
+            <h2 class="icon news">
+              <a href="/feed.xml">Subscribe</a>
+            </h2>
+          </div>
+          <nav class="latest">
+            <h2>Latest Posts</h2>
+            <ul>
+            
+              <li>
+                <div class="title">
+                  <a href="/wfl-ds">WildFly Data Sources Configuration</a>
+                </div>
+                <div class="meta">
+                  Apr 26, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-transactions">Transaction in Teiid</a>
+                </div>
+                <div class="meta">
+                  Apr 20, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-getstart-code">Get Start Teiid From Source...</a>
+                </div>
+                <div class="meta">
+                  Apr 7, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-metadata">Understanding Teiid Metadata</a>
+                </div>
+                <div class="meta">
+                  Mar 27, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/rhel7-commands">Linux 命令集合</a>
+                </div>
+                <div class="meta">
+                  Mar 17, 2016
+                </div>
+              </li>
+             
+            </ul>
+            
+                        
+          </nav>
+          <nav class="tags">
+            <h2>Categories</h2>
+            <div class="tag-cloud">
+              
+              <span class="tag tag-1">
+                <a href="/categories/jekyll">Jekyll(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/jboss">Jboss(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/java">Java(18)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/css">Css(1)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/database">Database(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/javaee">Javaee(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/linux">Linux(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/teiid">Teiid(40)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/maven">Maven(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/netty">Netty(7)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/data">Data(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/git">Git(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/other">Other(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/performance">Performance(4)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/security">Security(3)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/docker">Docker(4)</a>
+              </span>
+              
+              
+            </div>
+          </nav>
+        </aside>
+      </div>
+
+
+    </div>
+    <footer>
+      <div class="container">
+        <div class="project">
+          <p class="bottom">
+            ©
+            Copyright 2009-2016 ksoong.
+            <br>
+            <i class="icon-fire"></i>
+            Mixed with <a href="http://twitter.github.com/bootstrap">Bootstrap</a>.
+            <br>
+            <i class="icon-share-alt"></i>
+            Website and docs licensed under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
+            <br>
+            Code released under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, v2.0</a>.
+          </p>
+        </div>
+        <div class="footer-nav">
+          <h4>Learn</h4>
+          <ul>
+            <li>
+              <a href="http://www.jboss.org/">JBoss</a>
+            </li>
+            <li>
+              <a href="http://infinispan.org/">Infinispan</a>
+            </li>
+            <li>
+              <a href="http://teiid.org/">Teiid</a>
+            </li>
+            <li>
+              <a href="https://github.com/kylinsoong">Github</a>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="sponser">
+          <div class="follow-us">
+            <h4>Stay Informed</h4>
+            <ul>
+              <li>
+                <a href="https://plus.google.com/103933729718268414460?rel=author"><img alt="Google+" src="/css/googleplus-16.png" title="Follow ksoong.org on Google+"></a>
+              </li>
+              <li>
+                <a href="http://www.weibo.com/kylinsoong"><img alt="Weibo" src="/css/weibo_logo.jpg" title="Follow me on Weibo"></a>
+              </li>
+	      <li>
+                <a href="https://github.com/kylinsoong"><img alt="Github" src="/css/Octocat.jpg" title="Fork me on Github"></a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+        <a class="visible-desktop" href="#" id="toTop">Top</a>
+      </div>
+        <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1258751305'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1258751305%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+    </footer>
+  
+ 
+    <script src="/css/jquery-1.11.1.min.js"></script>
+    <script src="/css/bootstrap.js"></script>
+
+   <script>
+      $(function() {
+        $('html').addClass('ready');
+        prettify();
+        activateFooterGravity();
+        activateTooltips();
+        activateToTopControl();
+      });
+    </script>
+    <script src="/css/site.js"></script>
+
+    
+            
+            <script type="text/javascript">
+                var duoshuoQuery = {short_name:"ksoong"};
+                (function() {
+                    var ds = document.createElement('script');
+                    ds.type = 'text/javascript';
+                    ds.async = true;
+                    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+                    ds.charset = 'UTF-8';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+                })();
+            </script>
+            
+        
+
+
+</body>
+</html>

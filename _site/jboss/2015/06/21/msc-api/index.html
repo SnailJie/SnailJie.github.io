@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html class="ready" lang="en"><head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="shenma-site-verification" content="8a69823d7371d1eec4379853d25200cd_1448504990"> 
+    <title>Kylin Soong . Blog</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="/feed.xml" rel="alternate" title="Kylin Soong . Blog Atom feed" type="application/atom+xml">
+    <link href="/css/screen.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.js"></script>
+    <![endif]-->
+    <link href="/favicon.ico" rel="shortcut icon">
+
+</head>
+
+  <body class="blog index">
+    <header class="navbar navbar-fixed-top" id="banner" role="banner">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-target=".nav-collapse" data-toggle="collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/">
+            <span class="logo"></span>
+            <span class="name">ksoong</span>
+          </a>
+          <nav class="nav-collapse" role="navigation">
+            <ul class="nav">
+              <li><a href="/">Home</a></li>
+	      <!--
+              <li><a href="/lab">Labs</a></li>
+              <li><a href="/blog/">Blog</a></li>
+	      -->
+	      <li><a href="/books">Books</a></li>
+              <li><a href="/archive">Archives</a></li>
+              <li><a href="/slide">Slides</a></li>
+              <li><a href="/about">About</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+    <div style="min-height: 250px;" id="main" role="main">
+      
+<div id="content-header">
+        <div class="container">
+         <h1>
+              <a href="/blog">Blog</a>
+              <!--a href="#">&raquo;</a>
+              <a href="/jboss/2015/06/21/msc-api/">JBoss MSC API</a-->
+          </h1>
+        </div>
+</div>
+      <div class="container">
+        <div id="content">
+          
+<h2 class="title">
+                 <a class="post-link" href="/jboss/2015/06/21/msc-api/">JBoss MSC API</a>
+              </h2>
+ 
+<header class="post">
+              <div class="byline">
+                <span class="author">Posted by
+                <a href="/about">Kylin Soong</a> on</span>
+                <span class="dateinline">Jun 21, 2015</span>
+		<i class="icon-tags"></i> categorized as <a class="tag" href="/categories/jboss">jboss</a>
+              </div>
+            </header>
+
+ 
+<ul id="markdown-toc">
+  <li><a href="#overview" id="markdown-toc-overview">Overview</a></li>
+  <li><a href="#injector-" id="markdown-toc-injector-">Injector 接口</a>    <ul>
+      <li><a href="#injector--1" id="markdown-toc-injector--1">Injector 接口类图</a></li>
+      <li><a href="#injector--2" id="markdown-toc-injector--2">Injector 接口示例</a></li>
+    </ul>
+  </li>
+  <li><a href="#value-" id="markdown-toc-value-">Value 接口</a>    <ul>
+      <li><a href="#value--1" id="markdown-toc-value--1">Value 接口类图</a></li>
+      <li><a href="#value--2" id="markdown-toc-value--2">Value 接口示例</a></li>
+    </ul>
+  </li>
+  <li><a href="#service-" id="markdown-toc-service-">Service 接口</a>    <ul>
+      <li><a href="#service" id="markdown-toc-service">Service</a></li>
+      <li><a href="#servicecontainer" id="markdown-toc-servicecontainer">ServiceContainer</a></li>
+      <li><a href="#servicecontainer-1" id="markdown-toc-servicecontainer-1">ServiceContainer</a></li>
+      <li><a href="#containerexecutor" id="markdown-toc-containerexecutor">ContainerExecutor</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="overview">Overview</h2>
+
+<p><a href="https://github.com/jboss-msc/jboss-msc">JBoss MSC</a> API 由三个部分组成:</p>
+
+<ul>
+  <li>Injector 接口</li>
+  <li>Value 接口</li>
+  <li>Service 接口</li>
+</ul>
+
+<p>本文按顺序从这三个方面介绍 <a href="https://github.com/jboss-msc/jboss-msc">JBoss MSC</a> API。</p>
+
+<h2 id="injector-">Injector 接口</h2>
+
+<p><strong>org.jboss.msc.inject.Injector</strong> is a receiver for values that are injected from another source, typically connected to a service lifecycle. 它定义了两个方法:</p>
+
+<ul>
+  <li>inject(T value) throws InjectionException - Inject the given value.</li>
+  <li>uninject() - Uninject the given value (in other words, cancel or undo a previous injection).  Only called after <code class="highlighter-rouge">inject()</code> has been called.</li>
+</ul>
+
+<h3 id="injector--1">Injector 接口类图</h3>
+
+<p><img src="/assets/blog/msc-inject.png" alt="MSC Inject" /></p>
+
+<h3 id="injector--2">Injector 接口示例</h3>
+
+<p><strong>示例.1</strong> AtomicReferenceInjector<T> inject value to `java.util.concurrent.atomic.AtomicReference`</T></p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>final AtomicReference&lt;String&gt; reference = new AtomicReference&lt;String&gt;();
+final Injector&lt;String&gt; injector = new AtomicReferenceInjector&lt;String&gt;(reference);
+injector.inject("Hello World");
+System.out.println(reference.get());
+injector.uninject();
+</code></pre>
+</div>
+
+<p>运行如上代码 Console 端输出 String <code class="highlighter-rouge">Hello World</code></p>
+
+<p><strong>示例.2</strong> FieldInjector<T> inject value to POJO class's file.</T></p>
+
+<p>SimplePojo 有 public Field <code class="highlighter-rouge">description</code> 如下:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>public class SimplePojo {
+
+	public String description;
+}
+</code></pre>
+</div>
+
+<p>如下代码演示 FieldInjector<T> inject value to `description`:</T></p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>final Field field = SimplePojo.class.getField("description");
+final SimplePojo pojo = new SimplePojo();
+final Injector&lt;String&gt; injector = new FieldInjector&lt;String&gt;(Values.immediateValue(pojo), field);
+injector.inject("Injection of description field");
+System.out.println(pojo.description);
+injector.uninject();
+</code></pre>
+</div>
+
+<p>运行如上代码 Console 端输出 String <code class="highlighter-rouge">Injection of description field</code></p>
+
+<p><strong>示例.3</strong> MethodInjector<T> invokes a method</T></p>
+
+<p>SimplePojo 有 public Method <code class="highlighter-rouge">testMethod</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>public void testMethod(String value) {
+	System.out.println(value);
+}
+</code></pre>
+</div>
+
+<p>如下代码演示 MethodInjector invoke <code class="highlighter-rouge">testMethod</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>Value&lt;SimplePojo&gt; target = new ImmediateValue&lt;&gt;(new SimplePojo());
+List&lt;Value&lt;String&gt;&gt; arguments =new ArrayList&lt;&gt;();
+arguments.add(new ImmediateValue&lt;String&gt;("Hello World"));
+final Injector&lt;String&gt; injector = new MethodInjector&lt;String&gt;(SimplePojo.class.getMethod("testMethod", String.class), target, Values.immediateValue("String"), arguments);
+injector.inject(null);
+</code></pre>
+</div>
+
+<p>运行如上代码 Console 端输出 String <code class="highlighter-rouge">Hello World</code>.</p>
+
+<p><strong>示例.4</strong> SetMethodInjector<T> call setter method</T></p>
+
+<p>SimplePojo 有 public Method <code class="highlighter-rouge">setId</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>private Integer id;
+
+public Integer getId() {
+	return id;
+}
+
+public void setId(Integer id) {
+	this.id = id;
+}
+</code></pre>
+</div>
+
+<p>如下代码演示 SetMethodInjector call <code class="highlighter-rouge">setId</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>Value&lt;SimplePojo&gt; target = new ImmediateValue&lt;&gt;(new SimplePojo());
+Method method = SimplePojo.class.getMethod("setId", Integer.class);
+final Injector&lt;Integer&gt; injector = SetMethodInjector.&lt;Integer&gt;create(target, method);
+injector.inject(1000);
+System.out.println(target.getValue().getId());
+injector.uninject();
+</code></pre>
+</div>
+
+<p>运行如上代码 Console 端输出 Integer <code class="highlighter-rouge">1000</code>.</p>
+
+<p><strong>示例.5</strong> CastingInjector<T> casts the value to a specific type</T></p>
+
+<p>SimplePojo 有 public Field <code class="highlighter-rouge">listField</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>public List&lt;String&gt; listField;
+</code></pre>
+</div>
+
+<p>如下代码演示 CastingInjector<T> casts the value to a specific type:</T></p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>final Field field = SimplePojo.class.getField("listField");
+List&lt;String&gt; list = new ArrayList&lt;&gt;();
+SimplePojo pojo = new SimplePojo();
+list.add("Hello World");
+final Injector&lt;List&gt; fieldInjector = new FieldInjector&lt;&gt;(Values.immediateValue(pojo), field);
+final Injector&lt;Object&gt; castingInjector = Injectors.cast(fieldInjector, List.class);
+castingInjector.inject(list);
+System.out.println(pojo.listField.get(0));
+castingInjector.uninject();
+</code></pre>
+</div>
+
+<p>运行如上代码 Console 端输出 String <code class="highlighter-rouge">Hello World</code>.</p>
+
+<h2 id="value-">Value 接口</h2>
+
+<p><strong>org.jboss.msc.value.Value</strong> is an ndirect value.  A value may be available trivially (without any computation), or it may involve a complex calculation to produce.  The value may also be time-sensitive, such that it is only available under certain circumstances (e.g. when the corresponding service is “up”).</p>
+
+<h3 id="value--1">Value 接口类图</h3>
+
+<p><img src="/assets/blog/msc-value.png" alt="MSC Value" /></p>
+
+<h3 id="value--2">Value 接口示例</h3>
+
+<p><strong>示例.1</strong> CachedValue</p>
+
+<p>运行</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>Value&lt;String&gt; value = new CachedValue&lt;&gt;(new ImmediateValue&lt;&gt;("Hello World"));
+System.out.println(value.getValue());
+</code></pre>
+</div>
+
+<p>输出 <code class="highlighter-rouge">Hello World</code></p>
+
+<p><strong>示例.2</strong> CheckedValue</p>
+
+<p>运行</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>Value&lt;String&gt; value = new CheckedValue&lt;&gt;(String.class, new ImmediateValue&lt;&gt;("Hello World"));
+System.out.println(value.getValue());
+</code></pre>
+</div>
+
+<p>输出 <code class="highlighter-rouge">Hello World</code></p>
+
+<p><strong>示例.3</strong> ClassOfValue</p>
+
+<p>运行</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>Value&lt;Class&lt;? extends String&gt;&gt; value = new ClassOfValue&lt;&gt;(new ImmediateValue&lt;&gt;(""));
+System.out.println(value.getValue());
+</code></pre>
+</div>
+
+<p>输出 <code class="highlighter-rouge">class java.lang.String</code></p>
+
+<p><strong>示例.4</strong> ListItemValue</p>
+
+<p>运行</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>List&lt;String&gt; list = new ArrayList&lt;String&gt;();
+list.add("Hello World");
+Value&lt;String&gt; value = new ListItemValue&lt;&gt;(new ImmediateValue&lt;List&lt;? extends String&gt;&gt;(list), new ImmediateValue&lt;&gt;(0));
+System.out.println(value.getValue());
+</code></pre>
+</div>
+
+<p>输出 <code class="highlighter-rouge">Hello World</code></p>
+
+<p><strong>示例.5</strong> ConstructedValue</p>
+
+<p>如下代码</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>Constructor&lt;SimplePojo&gt; constructor = SimplePojo.class.getConstructor(new Class[]{});
+Value&lt;SimplePojo&gt; value = new ConstructedValue&lt;&gt;(constructor, Collections.emptyList());
+System.out.println(value.getValue());
+</code></pre>
+</div>
+
+<p>construct a SimplePojo Object.</p>
+
+<p><strong>示例.6</strong> EnvironmentPropertyValue</p>
+
+<p>运行</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>Value&lt;String&gt; value = new EnvironmentPropertyValue("PATH");
+System.out.println(value.getValue());
+</code></pre>
+</div>
+
+<p>输出系统参数 PATH 对应的值</p>
+
+<p><strong>示例.7</strong> FieldValue</p>
+
+<p>运行</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>SimplePojo pojo = new SimplePojo();
+pojo.description = "Hello World";
+Field field = SimplePojo.class.getField("description");
+FieldValue&lt;Integer&gt; value = new FieldValue&lt;Integer&gt;(field, new ImmediateValue&lt;&gt;(pojo));
+System.out.println(value.getValue());
+</code></pre>
+</div>
+
+<p>输出 <code class="highlighter-rouge">Hello World</code></p>
+
+<p><strong>示例.8</strong> SystemPropertyValue</p>
+
+<p>运行</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>Value&lt;String&gt; value = new SystemPropertyValue("user.home");
+System.out.println(value.getValue());
+</code></pre>
+</div>
+
+<p>输出当前用户目录</p>
+
+<h2 id="service-">Service 接口</h2>
+
+<h3 id="service">Service</h3>
+
+<p>A service is a thing which can be started and stopped.  A service may be started or stopped from any thread. In general, injections will always happen from the same thread that will call <code class="highlighter-rouge">start()</code> method, and uninjections will always happen from the same thread that had called <code class="highlighter-rouge">stop()</code> method. However no other guarantees are made with respect to locking or thread safety; a robust service implementation should always take care to protect any mutable state appropriately.</p>
+
+<p>The value type specified by this service is used by default by consumers of this service, and should represent the public interface of this service, which may or may not be the same as the implementing type of this service.</p>
+
+<p><img src="/assets/blog/Service.gif" alt="MSC Service" /></p>
+
+<p>When writing MSC service implementations, <code class="highlighter-rouge">start()</code> and <code class="highlighter-rouge">stop()</code> methods must never block.  This means these methods must not:</p>
+
+<ul>
+  <li>Use network connections</li>
+  <li>Wait for network connections</li>
+  <li>Sleep</li>
+  <li>Wait on a condition</li>
+  <li>Wait on a count down latch</li>
+  <li>Call any method which may do any of the above</li>
+  <li>Wait for termination of a thread pool or other service</li>
+  <li>Wait for another service to change state</li>
+</ul>
+
+<p>If your service start/stop does any of these things, you must use the asynchronous start/stop mechanism LifecycleContext#asynchronous() and do one of the following:</p>
+
+<ul>
+  <li>Initiate your task in start()/stop(), and utilize a callback (NIO, ThreadPoolExecutor.terminated(), etc.) to call LifecycleContext#complete() when your start/stop completes instead of blocking.</li>
+  <li>Delegate your blocking task to a thread pool which calls LifecycleContext#complete() when done.</li>
+  <li>Use proper dependencies instead of explicitly waiting for services in your start/stop.</li>
+</ul>
+
+<blockquote>
+  <p>Note that using LifecycleContext#execute(Runnable) to execute the blocking task is also not permissible.</p>
+</blockquote>
+
+<h3 id="servicecontainer">ServiceContainer</h3>
+
+<p>A Service usually reference with a ServiceController</p>
+
+<p><img src="/assets/blog/ServiceController.gif" alt="MSC ServiceController" /></p>
+
+<p>Use the controller we can get a service’s parent service, associated service container, service controller’s current mode, service state, etc.</p>
+
+<p>A ServiceContainer used to manages a set of running services.</p>
+
+<h3 id="servicecontainer-1">ServiceContainer</h3>
+
+<p>ServiceContainer 接口类图如下</p>
+
+<p><img src="/assets/blog/ServiceContainer.gif" alt="MSC ServiceContainer" /></p>
+
+<ul>
+  <li>ServiceContainer - ServiceContainer 即是 JBoss MSC 的抽象，它抽象的是一个模块化的容器，它设计用来管理一系列服务</li>
+  <li>ServiceTarget - 提供了添加服务，添加依赖等方法，另外这些添加只有在ServiceBuilder 的 install() 方法后才生效</li>
+  <li>ServiceRegistry - 服务注册接口，可根据服务名获取一个服务，或获取所有服务名列表</li>
+</ul>
+
+<p>另外，ServiceContainer 包含一个工厂类，用来创建 ServiceContainer，工厂类中 create() 方法如下：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>public static ServiceContainer create()  
+public static ServiceContainer create(String name)  
+public static ServiceContainer create(int coreSize, long keepAliveTime, TimeUnit keepAliveTimeUnit)  
+public static ServiceContainer create(String name, int coreSize, long keepAliveTime, TimeUnit keepAliveTimeUnit)  
+public static ServiceContainer create(boolean autoShutdown)  
+public static ServiceContainer create(String name, boolean autoShutdown)  
+public static ServiceContainer create(int coreSize, long keepAliveTime, TimeUnit keepAliveTimeUnit, boolean autoShutdown)  
+public static ServiceContainer create(String name, int coreSize, long keepAliveTime, TimeUnit keepAliveTimeUnit, boolean autoShutdown)
+</code></pre>
+</div>
+
+<h3 id="containerexecutor">ContainerExecutor</h3>
+
+<p>ContainerExecutor 接口类图如下</p>
+
+<p><img src="/assets/blog/msc-threadpool.png" alt="MSC ThreadPool" /></p>
+
+<p>ServiceContainer 接口的实现类 ServiceContainerImpl 中有一个 ContainerExecutor 属性，其中在实例化 ServiceContainerImpl 时 ContainerExecutor 被初始化，ContainerExecutor 实现了 ThreadPoolExecutor。</p>
+
+
+
+<br/>
+<ul class="btn pull-right">
+<div class="bdsharebuttonbox">
+  <a href="#" class="bds_more" data-cmd="more"></a>
+  <a title="分享到QQ空间" href="#" class="bds_qzone" data-cmd="qzone"></a>
+  <a title="分享到新浪微博" href="#" class="bds_tsina" data-cmd="tsina"></a>
+  <a title="分享到腾讯微博" href="#" class="bds_tqq" data-cmd="tqq"></a>
+  <a title="分享到人人网" href="#" class="bds_renren" data-cmd="renren"></a>
+  <a title="分享到微信" href="#" class="bds_weixin" data-cmd="weixin"></a>
+</div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"分享ksoong.org的文章「JBoss MSC API」 - ksoong.org","bdDesc":"","bdMini":"2","bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</ul>
+
+<div class="ds-thread" data-thread-key="ksoong2015062001" data-title="JBoss MSC API" data-url="ksoong.org/jboss/2015/06/21/msc-api/"></div>
+
+	    <ul class="pager">
+		
+		<li class="previous"><a href="/java-timer">&laquo;&nbsp;Java 执行 scheduled task</a></li>
+		
+		
+		<li class="next"><a href="/jboss/2015/06/22/msc-examples/">JBoss MSC 示例&nbsp;&raquo;</a></li>
+		
+	    </ul>
+
+
+        </div>
+        <aside id="sidebar" role="complementary">
+          <div class="subscribe">
+            <h2 class="icon news">
+              <a href="/feed.xml">Subscribe</a>
+            </h2>
+          </div>
+          <nav class="latest">
+            <h2>Latest Posts</h2>
+            <ul>
+            
+              <li>
+                <div class="title">
+                  <a href="/wfl-ds">WildFly Data Sources Configuration</a>
+                </div>
+                <div class="meta">
+                  Apr 26, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-transactions">Transaction in Teiid</a>
+                </div>
+                <div class="meta">
+                  Apr 20, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-getstart-code">Get Start Teiid From Source...</a>
+                </div>
+                <div class="meta">
+                  Apr 7, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-metadata">Understanding Teiid Metadata</a>
+                </div>
+                <div class="meta">
+                  Mar 27, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/rhel7-commands">Linux 命令集合</a>
+                </div>
+                <div class="meta">
+                  Mar 17, 2016
+                </div>
+              </li>
+             
+            </ul>
+            
+                        
+          </nav>
+          <nav class="tags">
+            <h2>Categories</h2>
+            <div class="tag-cloud">
+              
+              <span class="tag tag-1">
+                <a href="/categories/jekyll">Jekyll(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/jboss">Jboss(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/java">Java(18)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/css">Css(1)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/database">Database(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/javaee">Javaee(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/linux">Linux(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/teiid">Teiid(40)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/maven">Maven(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/netty">Netty(7)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/data">Data(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/git">Git(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/other">Other(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/performance">Performance(4)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/security">Security(3)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/docker">Docker(4)</a>
+              </span>
+              
+              
+            </div>
+          </nav>
+        </aside>
+      </div>
+
+
+    </div>
+    <footer>
+      <div class="container">
+        <div class="project">
+          <p class="bottom">
+            ©
+            Copyright 2009-2016 ksoong.
+            <br>
+            <i class="icon-fire"></i>
+            Mixed with <a href="http://twitter.github.com/bootstrap">Bootstrap</a>.
+            <br>
+            <i class="icon-share-alt"></i>
+            Website and docs licensed under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
+            <br>
+            Code released under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, v2.0</a>.
+          </p>
+        </div>
+        <div class="footer-nav">
+          <h4>Learn</h4>
+          <ul>
+            <li>
+              <a href="http://www.jboss.org/">JBoss</a>
+            </li>
+            <li>
+              <a href="http://infinispan.org/">Infinispan</a>
+            </li>
+            <li>
+              <a href="http://teiid.org/">Teiid</a>
+            </li>
+            <li>
+              <a href="https://github.com/kylinsoong">Github</a>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="sponser">
+          <div class="follow-us">
+            <h4>Stay Informed</h4>
+            <ul>
+              <li>
+                <a href="https://plus.google.com/103933729718268414460?rel=author"><img alt="Google+" src="/css/googleplus-16.png" title="Follow ksoong.org on Google+"></a>
+              </li>
+              <li>
+                <a href="http://www.weibo.com/kylinsoong"><img alt="Weibo" src="/css/weibo_logo.jpg" title="Follow me on Weibo"></a>
+              </li>
+	      <li>
+                <a href="https://github.com/kylinsoong"><img alt="Github" src="/css/Octocat.jpg" title="Fork me on Github"></a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+        <a class="visible-desktop" href="#" id="toTop">Top</a>
+      </div>
+        <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1258751305'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1258751305%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+    </footer>
+  
+ 
+    <script src="/css/jquery-1.11.1.min.js"></script>
+    <script src="/css/bootstrap.js"></script>
+
+   <script>
+      $(function() {
+        $('html').addClass('ready');
+        prettify();
+        activateFooterGravity();
+        activateTooltips();
+        activateToTopControl();
+      });
+    </script>
+    <script src="/css/site.js"></script>
+
+    
+            
+            <script type="text/javascript">
+                var duoshuoQuery = {short_name:"ksoong"};
+                (function() {
+                    var ds = document.createElement('script');
+                    ds.type = 'text/javascript';
+                    ds.async = true;
+                    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+                    ds.charset = 'UTF-8';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+                })();
+            </script>
+            
+        
+
+
+</body>
+</html>

@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html class="ready" lang="en"><head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="shenma-site-verification" content="8a69823d7371d1eec4379853d25200cd_1448504990"> 
+    <title>Kylin Soong . Blog</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="/feed.xml" rel="alternate" title="Kylin Soong . Blog Atom feed" type="application/atom+xml">
+    <link href="/css/screen.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.js"></script>
+    <![endif]-->
+    <link href="/favicon.ico" rel="shortcut icon">
+
+</head>
+
+  <body class="blog index">
+    <header class="navbar navbar-fixed-top" id="banner" role="banner">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-target=".nav-collapse" data-toggle="collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/">
+            <span class="logo"></span>
+            <span class="name">ksoong</span>
+          </a>
+          <nav class="nav-collapse" role="navigation">
+            <ul class="nav">
+              <li><a href="/">Home</a></li>
+	      <!--
+              <li><a href="/lab">Labs</a></li>
+              <li><a href="/blog/">Blog</a></li>
+	      -->
+	      <li><a href="/books">Books</a></li>
+              <li><a href="/archive">Archives</a></li>
+              <li><a href="/slide">Slides</a></li>
+              <li><a href="/about">About</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+    <div style="min-height: 250px;" id="main" role="main">
+      
+<div id="content-header">
+        <div class="container">
+         <h1>
+              <a href="/blog">Blog</a>
+              <!--a href="#">&raquo;</a>
+              <a href="/teiid-vdb">虚拟数据库(VDB)介绍</a-->
+          </h1>
+        </div>
+</div>
+      <div class="container">
+        <div id="content">
+          
+<h2 class="title">
+                 <a class="post-link" href="/teiid-vdb">虚拟数据库(VDB)介绍</a>
+              </h2>
+ 
+<header class="post">
+              <div class="byline">
+                <span class="author">Posted by
+                <a href="/about">Kylin Soong</a> on</span>
+                <span class="dateinline">Nov 6, 2014</span>
+		<i class="icon-tags"></i> categorized as <a class="tag" href="/categories/teiid">teiid</a>
+              </div>
+            </header>
+
+ 
+<p><a href="teiid.org">Teiid</a> 是一个数据虚拟化系统，它的核心是虚拟数据库(VDB)，本文结合一些实际案例来介绍一下 VDB。主要内容包括：</p>
+
+<ul>
+  <li>QuickStart 示例</li>
+  <li>VDB 定义</li>
+</ul>
+
+<h2 id="quickstart-">QuickStart 示例</h2>
+
+<p>QuickStart 示例包括 teiid-embedded-samples 和 teiid-quickstarts:</p>
+
+<ul>
+  <li><a href="https://github.com/jbosschina/teiid-embedded-samples">teiid-embedded-samples</a></li>
+  <li><a href="https://github.com/teiid/teiid-quickstarts/tree/master/webservices-as-a-datasource">teiid-quickstarts</a></li>
+</ul>
+
+<p>上面示例中 Teiid 通过 VDB 将数据源（关系数据库，WebService，No-SQL数据库，In-Memory 缓存/数据网格）中的数据保存在 View 中，User Application 通过 Teiid JDBC Driver 使用 View 中数据。上面所有示例中 VDB 都是通过 -vdb.xml 来定义的，接下来我们来介绍 VDB 的定义。</p>
+
+<h2 id="vdb-">VDB 定义</h2>
+
+<p>VDB 或虚拟数据库是通过一个 XML 文件 -vdb.xml 定义的。<a href="http://teiiddesigner.jboss.org/">Teiid Designer</a> 创建的 .vdb 文件中 VDB 的定义也是 XML，它通常路径为 .vdb/META-INF/vdb.xml。如下为一个 -vdb.xml 定义例子：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>&lt;vdb name="${vdb-name}" version="${vdb-version}"&gt;
+ 
+    &lt;!-- VDB properties --&gt;
+    &lt;property name="${property-name}" value="${property-value}" /&gt;
+ 
+    &lt;!-- UDF defined in an AS module,  see Developers Guide --&gt;
+    &lt;property name ="lib" value ="{module-name}"&gt;&lt;/property&gt;
+ 
+    &lt;import-vdb name="..." version="..." import-data-policies="true|false"/&gt;
+ 
+    &lt;!-- define a model fragment for each data source --&gt;
+    &lt;model visible="true" name="${model-name}" type="${model-type}" &gt;
+ 
+        &lt;property name="..." value="..." /&gt;
+ 
+        &lt;source name="${source-name}" translator-name="${translator-name}" connection-jndi-name="${deployed-jndi-name}"&gt;
+ 
+        &lt;metadata type="${repository-type}"&gt;raw text&lt;/metadata&gt;
+ 
+    &lt;/model&gt;
+ 
+   &lt;!-- define a model with multiple sources - see Multi-Source Models --&gt;
+   &lt;model name="${model-name}" path="/Test/Customers.xmi"&gt;
+        &lt;property name="multisource" value="true"/&gt;
+        . . .
+        &lt;source name="${source-name}"
+            translator-name="${translator-name}" connection-jndi-name="${deployed-jndi-name}"/&gt;
+        &lt;source . . . /&gt;
+        &lt;source . . . /&gt;
+    &lt;/model&gt;
+ 
+    &lt;!-- see Reference Guide - Data Roles --&gt;
+    &lt;data-role name="${role-name}"&gt;
+        &lt;description&gt;${role-description}&lt;/description&gt;
+        ….
+    &lt;/data-role&gt;
+ 
+    &lt;!-- create translator instances that override default properties --&gt;
+    &lt;translator name="${translator-name}" type="${translator-type}" /&gt;
+ 
+        &lt;property name="..." value="..." /&gt;
+ 
+    &lt;/translator&gt;
+&lt;/vdb&gt;
+</code></pre>
+</div>
+
+<blockquote>
+  <p>上面 -vdb.xml 中定义属性值如 ${xx.xx}，它可以通过 Java System Properties 替换，如果 JVM 启动时设定了相关的属性，则 VDB 在加载时动态替换 ${xx.xx} 为设定的相关属性值。</p>
+</blockquote>
+
+<p>如上 -vdb.xml 包括一些属性和元素，接下来我们逐一介绍。</p>
+
+<h3 id="section">属性</h3>
+
+<p>-vdb.xml 属性有：</p>
+
+<ul>
+  <li>name - VDB 的名字</li>
+  <li>version - VDB 的版本号</li>
+</ul>
+
+<blockquote>
+  <p>如上属性决定了 JDBC 连接 URL，JDBC URL 通过 VDB 的 name 和 version 连接到相关 VDB。</p>
+</blockquote>
+
+<h3 id="property-">Property 元素</h3>
+
+<ul>
+  <li>cache-metadata - 可以是 “true” 或 “false”，默认值为 “false”。如果值为 “false” Teiid 将在每次 VDB 加载时获取元数据，值为 “true” 则保存元数据到 PROFILE/data/teiid</li>
+  <li>query-timeout - 设定默认查询 VDB 的 timeout 时间，单位为毫秒。默认值为 0，0意思是 Teiid 的默认 timeout 值被使用。该值可以在客户端被重新设定。</li>
+  <li>lib - Teiid 支持用户自定义方法，该属性指定自定义方法所需相关 jar 包路径</li>
+  <li>security-domain - 设定 VDB security domain，如果不设定，则 transport security domain 被使用</li>
+  <li>connection.XXX - 数据源连接相关的属性</li>
+  <li>authentication-type - 设定认证类型，可以是 GSS, USERPASSWORD</li>
+  <li>password-pattern - 正则表达式限制用户名和密码，如果 USERPASSWORD 认证方式被使用</li>
+  <li>gss-pattern - 如果 GSS 认证方式被使用，类似 password-pattern 正则表达式来限制用户名</li>
+</ul>
+
+<h3 id="import-vdb-">import-vdb 元素</h3>
+
+<p>import-vdb 元素有如下属性：</p>
+
+<ul>
+  <li>name - 要引入 VDB 的名字</li>
+  <li>version - 要引入 VDB 的版本号</li>
+  <li>import-data-policies - 控制是否引入数据，默认 “true”</li>
+</ul>
+
+<h3 id="model-">Model 元素</h3>
+
+<p>Model 元素所包括的属性：</p>
+
+<ul>
+  <li>name - Model 元素的名字，一个 VDB 可以有多个 Model，但需要名字唯一</li>
+  <li>visibility - 该属性默认值为 “true”，如果设定为 “false” 则表明 Model 不会被 JDBC query 看到。</li>
+</ul>
+
+<p>Model 元素子元素包括：</p>
+
+<ul>
+  <li>Property 元素 - Model 相关的一些属性如 cache-metadata，modelClass 等</li>
+  <li>Source 元素 - 绑定一个 translator，并且连接数据源</li>
+  <li>Metadata 元素 - 指定元数据，可以是视图创建 DDL 语句</li>
+</ul>
+
+<h3 id="translator-">Translator 元素</h3>
+
+<p>Translator 元素所包括的属性：</p>
+
+<ul>
+  <li>name - Translator 的名字</li>
+  <li>type - Translator 的类型，可以是 ws, file, ldap, oracle, sqlserver, db2, derby 等</li>
+</ul>
+
+<p>Translator 元素也可以通过 Property 子元素定义一些相关属性。</p>
+
+
+
+<br/>
+<ul class="btn pull-right">
+<div class="bdsharebuttonbox">
+  <a href="#" class="bds_more" data-cmd="more"></a>
+  <a title="分享到QQ空间" href="#" class="bds_qzone" data-cmd="qzone"></a>
+  <a title="分享到新浪微博" href="#" class="bds_tsina" data-cmd="tsina"></a>
+  <a title="分享到腾讯微博" href="#" class="bds_tqq" data-cmd="tqq"></a>
+  <a title="分享到人人网" href="#" class="bds_renren" data-cmd="renren"></a>
+  <a title="分享到微信" href="#" class="bds_weixin" data-cmd="weixin"></a>
+</div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"分享ksoong.org的文章「虚拟数据库(VDB)介绍」 - ksoong.org","bdDesc":"","bdMini":"2","bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</ul>
+
+<div class="ds-thread" data-thread-key="ksoong2014110501" data-title="虚拟数据库(VDB)介绍" data-url="ksoong.org/teiid-vdb"></div>
+
+	    <ul class="pager">
+		
+		<li class="previous"><a href="/database/2014/11/02/mysql-row-size/">&laquo;&nbsp;Mysql rows and size counting...</a></li>
+		
+		
+		<li class="next"><a href="/ldap-java">Java on top of LDAP...&nbsp;&raquo;</a></li>
+		
+	    </ul>
+
+
+        </div>
+        <aside id="sidebar" role="complementary">
+          <div class="subscribe">
+            <h2 class="icon news">
+              <a href="/feed.xml">Subscribe</a>
+            </h2>
+          </div>
+          <nav class="latest">
+            <h2>Latest Posts</h2>
+            <ul>
+            
+              <li>
+                <div class="title">
+                  <a href="/wfl-ds">WildFly Data Sources Configuration</a>
+                </div>
+                <div class="meta">
+                  Apr 26, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-transactions">Transaction in Teiid</a>
+                </div>
+                <div class="meta">
+                  Apr 20, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-getstart-code">Get Start Teiid From Source...</a>
+                </div>
+                <div class="meta">
+                  Apr 7, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-metadata">Understanding Teiid Metadata</a>
+                </div>
+                <div class="meta">
+                  Mar 27, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/rhel7-commands">Linux 命令集合</a>
+                </div>
+                <div class="meta">
+                  Mar 17, 2016
+                </div>
+              </li>
+             
+            </ul>
+            
+                        
+          </nav>
+          <nav class="tags">
+            <h2>Categories</h2>
+            <div class="tag-cloud">
+              
+              <span class="tag tag-1">
+                <a href="/categories/jekyll">Jekyll(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/jboss">Jboss(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/java">Java(18)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/css">Css(1)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/database">Database(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/javaee">Javaee(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/linux">Linux(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/teiid">Teiid(40)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/maven">Maven(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/netty">Netty(7)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/data">Data(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/git">Git(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/other">Other(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/performance">Performance(4)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/security">Security(3)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/docker">Docker(4)</a>
+              </span>
+              
+              
+            </div>
+          </nav>
+        </aside>
+      </div>
+
+
+    </div>
+    <footer>
+      <div class="container">
+        <div class="project">
+          <p class="bottom">
+            ©
+            Copyright 2009-2016 ksoong.
+            <br>
+            <i class="icon-fire"></i>
+            Mixed with <a href="http://twitter.github.com/bootstrap">Bootstrap</a>.
+            <br>
+            <i class="icon-share-alt"></i>
+            Website and docs licensed under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
+            <br>
+            Code released under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, v2.0</a>.
+          </p>
+        </div>
+        <div class="footer-nav">
+          <h4>Learn</h4>
+          <ul>
+            <li>
+              <a href="http://www.jboss.org/">JBoss</a>
+            </li>
+            <li>
+              <a href="http://infinispan.org/">Infinispan</a>
+            </li>
+            <li>
+              <a href="http://teiid.org/">Teiid</a>
+            </li>
+            <li>
+              <a href="https://github.com/kylinsoong">Github</a>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="sponser">
+          <div class="follow-us">
+            <h4>Stay Informed</h4>
+            <ul>
+              <li>
+                <a href="https://plus.google.com/103933729718268414460?rel=author"><img alt="Google+" src="/css/googleplus-16.png" title="Follow ksoong.org on Google+"></a>
+              </li>
+              <li>
+                <a href="http://www.weibo.com/kylinsoong"><img alt="Weibo" src="/css/weibo_logo.jpg" title="Follow me on Weibo"></a>
+              </li>
+	      <li>
+                <a href="https://github.com/kylinsoong"><img alt="Github" src="/css/Octocat.jpg" title="Fork me on Github"></a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+        <a class="visible-desktop" href="#" id="toTop">Top</a>
+      </div>
+        <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1258751305'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1258751305%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+    </footer>
+  
+ 
+    <script src="/css/jquery-1.11.1.min.js"></script>
+    <script src="/css/bootstrap.js"></script>
+
+   <script>
+      $(function() {
+        $('html').addClass('ready');
+        prettify();
+        activateFooterGravity();
+        activateTooltips();
+        activateToTopControl();
+      });
+    </script>
+    <script src="/css/site.js"></script>
+
+    
+            
+            <script type="text/javascript">
+                var duoshuoQuery = {short_name:"ksoong"};
+                (function() {
+                    var ds = document.createElement('script');
+                    ds.type = 'text/javascript';
+                    ds.async = true;
+                    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+                    ds.charset = 'UTF-8';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+                })();
+            </script>
+            
+        
+
+
+</body>
+</html>

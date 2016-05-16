@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html class="ready" lang="en"><head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="shenma-site-verification" content="8a69823d7371d1eec4379853d25200cd_1448504990"> 
+    <title>Kylin Soong . Blog</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="/feed.xml" rel="alternate" title="Kylin Soong . Blog Atom feed" type="application/atom+xml">
+    <link href="/css/screen.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.js"></script>
+    <![endif]-->
+    <link href="/favicon.ico" rel="shortcut icon">
+
+</head>
+
+  <body class="blog index">
+    <header class="navbar navbar-fixed-top" id="banner" role="banner">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-target=".nav-collapse" data-toggle="collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/">
+            <span class="logo"></span>
+            <span class="name">ksoong</span>
+          </a>
+          <nav class="nav-collapse" role="navigation">
+            <ul class="nav">
+              <li><a href="/">Home</a></li>
+	      <!--
+              <li><a href="/lab">Labs</a></li>
+              <li><a href="/blog/">Blog</a></li>
+	      -->
+	      <li><a href="/books">Books</a></li>
+              <li><a href="/archive">Archives</a></li>
+              <li><a href="/slide">Slides</a></li>
+              <li><a href="/about">About</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+    <div style="min-height: 250px;" id="main" role="main">
+      
+<div id="content-header">
+        <div class="container">
+         <h1>
+              <a href="/blog">Blog</a>
+              <!--a href="#">&raquo;</a>
+              <a href="/jboss/2015/04/07/wildfly-standalone/">调试 WildFly Standalone 启动过程</a-->
+          </h1>
+        </div>
+</div>
+      <div class="container">
+        <div id="content">
+          
+<h2 class="title">
+                 <a class="post-link" href="/jboss/2015/04/07/wildfly-standalone/">调试 WildFly Standalone 启动过程</a>
+              </h2>
+ 
+<header class="post">
+              <div class="byline">
+                <span class="author">Posted by
+                <a href="/about">Kylin Soong</a> on</span>
+                <span class="dateinline">Apr 7, 2015</span>
+		<i class="icon-tags"></i> categorized as <a class="tag" href="/categories/jboss">jboss</a>
+              </div>
+            </header>
+
+ 
+<p>本文内容包括：</p>
+
+<ul>
+  <li>jboss-modules.jar 启动 org.jboss.as.server.Main</li>
+  <li>JBoss MSC 启动 Services</li>
+  <li>Controller Boot Thread</li>
+</ul>
+
+<h2 id="jboss-modulesjar--orgjbossasservermain">jboss-modules.jar 启动 org.jboss.as.server.Main</h2>
+
+<p>当完成 WildFly 安装，我们会发现在根目录下有一个 <code class="highlighter-rouge">jboss-modules.jar</code>，该 jar 负责加载 WildFly 启动所需相关的 jar 包，以及启动 WildFly，我们到根目录下运行：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>java -jar jboss-modules.jar -version
+</code></pre>
+</div>
+
+<p>会输出相应 JBoss Modules 版本信息，如果以如下方式运行</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>java -jar jboss-modules.jar -mp modules org.jboss.as.standalone
+</code></pre>
+</div>
+
+<p>则 <code class="highlighter-rouge">jboss-modules.jar</code> 会在 modules 目录下找到 <code class="highlighter-rouge">org.jboss.as.standalone</code> Module，运行该 Module 定义的 Main 方法。如下为 WildFly 启动脚本 standalone.sh 的部分内容，</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>         -jar \"$JBOSS_HOME/jboss-modules.jar\" \
+         -mp \"${JBOSS_MODULEPATH}\" \
+         org.jboss.as.standalone \
+</code></pre>
+</div>
+
+<p>在 WildFly 根目录下查看 <code class="highlighter-rouge">org.jboss.as.standalone</code> Module 的配置文件 modules/system/layers/base/org/jboss/as/standalone/main/module.xml, 我们可以发现 <code class="highlighter-rouge">jboss-modules.jar</code> 启动的 Main 方法为 org.jboss.as.server.Main</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>&lt;module xmlns="urn:jboss:module:1.3" name="org.jboss.as.standalone"&gt;
+    &lt;main-class name="org.jboss.as.server.Main"/&gt;
+</code></pre>
+</div>
+
+<p><strong>通过如下三步调试 jboss modules</strong></p>
+
+<p><strong>Steps.1</strong> 编辑 standalone.conf，添加如下 JVM 调试参数</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>JAVA_OPTS="$JAVA_OPTS -agentlib:jdwp=transport=dt_socket,address=8787,server=y,suspend=y"
+</code></pre>
+</div>
+
+<p><strong>Steps.2</strong> 添加 <code class="highlighter-rouge">jboss-modules.jar</code> 到当前 classpath</p>
+
+<p><strong>Steps.3</strong> 在 org.jboss.modules.Main 类 main() 方法中添加断点后，启动 JBoss，开始调试，如下图</p>
+
+<p><img src="/assets/blog/standalone-start-modules-main.png" alt="standalone startup modules main" /></p>
+
+<h2 id="jboss-msc--services">JBoss MSC 启动 Services</h2>
+
+<p>运行 org.jboss.as.server.Main 会启动 WildFly 内核 JBoss MSC，随后 JBoss MSC 启动一系列 Services，如</p>
+
+<ul>
+  <li>ApplicationServerService - the root service for an Application Server process</li>
+  <li>ServerService - Service for the Controls reads of and modifications to a management model for an AS server instance.</li>
+</ul>
+
+<p><strong>通过如下三步调式 JBoss MSC</strong></p>
+
+<p><strong>Steps.1</strong> 添加系统变量控制 MSC 线程数</p>
+
+<p>MSC 是一个容器，它可启动工作线程，这些工作线程用来启动 WildFly 服务，我们可以通过如下系统变量控制 MSC 线程数：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>-Dorg.jboss.server.bootstrap.maxThreads=1
+</code></pre>
+</div>
+
+<p>如上，MSC 启动后共有一个工作线程。</p>
+
+<blockquote>
+  <p><strong>org.jboss.server.bootstrap.maxThreads</strong> 参数在调式过程中非常有用，WildFly 默认 JBoss MSC 的线程数为物理processor数（cores * 2）</p>
+</blockquote>
+
+<p><strong>Steps.2</strong> 添加相关 jar 包</p>
+
+<p>Maven 项目中添加如下依赖：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>            &lt;dependency&gt;
+                &lt;groupId&gt;org.wildfly&lt;/groupId&gt;
+                &lt;artifactId&gt;wildfly-controller&lt;/artifactId&gt;
+            &lt;/dependency&gt;
+            &lt;dependency&gt;
+                &lt;groupId&gt;org.wildfly&lt;/groupId&gt;
+                &lt;artifactId&gt;wildfly-server&lt;/artifactId&gt;
+            &lt;/dependency&gt;
+</code></pre>
+</div>
+
+<p><strong>Steps.3</strong> 在 <code class="highlighter-rouge">org.jboss.as.server.Main</code> 中添加调试断点开始调试如下：</p>
+
+<p><img src="/assets/blog/standalone-start-main.png" alt="standalone startup main" /></p>
+
+<h2 id="controller-boot-thread">Controller Boot Thread</h2>
+
+<p>ServerService 启动了 Controller Boot Thread，该线程负责启动一系列 Services 包括：</p>
+
+<ul>
+  <li>jboss.deployment.extension-index(org.jboss.as.server.moduleservice.ExtensionIndexService)</li>
+  <li>jboss.server.suspend-controller(org.jboss.as.server.suspend.SuspendController)</li>
+  <li>jboss.server.graceful-shutdown-service(org.jboss.as.server.GracefulShutdownService)</li>
+  <li>
+    <p>jboss.http.listener.registry(org.jboss.as.remoting.HttpListenerRegistryService)</p>
+  </li>
+  <li>Model Defined Services</li>
+</ul>
+
+<p>在 Controller Boot Thread 完成启动所有 Services 后会日志输出启动了多少个 Service，以及多少个是 lazy 的，如下为一示例:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>16:19:33,431 INFO  [org.jboss.as] (Controller Boot Thread) JBAS015874: WildFly 8.2.0.Final "Tweek" started in 4334ms - Started 313 of 374 services (102 services are lazy, passive or on-demand)
+</code></pre>
+</div>
+
+<p>如上为默认 WildFly 启动的所有 services 的个数为 374，其中大多数 services 是 Model Defined Services（配置文件中定义的，JEE 相关的 services）。</p>
+
+<p><strong>调式Controller Boot Thread</strong></p>
+
+<p>我们可以在 <code class="highlighter-rouge">org.jboss.as.controller.AbstractControllerService</code> start 方法中添加断点，调式 Controller Boot Thread 的启动和运行：</p>
+
+<p><img src="/assets/blog/standalone-start-controller-boot.png" alt="standalone startup controller boot" /></p>
+
+<h2 id="section">总结</h2>
+
+<p>如下图所示</p>
+
+<p><img src="/assets/blog/standalone-start-process.png" alt="standalone startup process" /></p>
+
+<p>WildFly 启动过程是启动了一系列 Services，这些 Services 通过 JBoss MSC 管理.</p>
+
+
+<br/>
+<ul class="btn pull-right">
+<div class="bdsharebuttonbox">
+  <a href="#" class="bds_more" data-cmd="more"></a>
+  <a title="分享到QQ空间" href="#" class="bds_qzone" data-cmd="qzone"></a>
+  <a title="分享到新浪微博" href="#" class="bds_tsina" data-cmd="tsina"></a>
+  <a title="分享到腾讯微博" href="#" class="bds_tqq" data-cmd="tqq"></a>
+  <a title="分享到人人网" href="#" class="bds_renren" data-cmd="renren"></a>
+  <a title="分享到微信" href="#" class="bds_weixin" data-cmd="weixin"></a>
+</div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"分享ksoong.org的文章「调试 WildFly Standalone 启动过程」 - ksoong.org","bdDesc":"","bdMini":"2","bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</ul>
+
+<div class="ds-thread" data-thread-key="ksoong2015040601" data-title="调试 WildFly Standalone 启动过程" data-url="ksoong.org/jboss/2015/04/07/wildfly-standalone/"></div>
+
+	    <ul class="pager">
+		
+		<li class="previous"><a href="/jboss/2015/04/05/staxmapper/">&laquo;&nbsp;JBoss staxmapper</a></li>
+		
+		
+		<li class="next"><a href="/en-learning">English Learning&nbsp;&raquo;</a></li>
+		
+	    </ul>
+
+
+        </div>
+        <aside id="sidebar" role="complementary">
+          <div class="subscribe">
+            <h2 class="icon news">
+              <a href="/feed.xml">Subscribe</a>
+            </h2>
+          </div>
+          <nav class="latest">
+            <h2>Latest Posts</h2>
+            <ul>
+            
+              <li>
+                <div class="title">
+                  <a href="/wfl-ds">WildFly Data Sources Configuration</a>
+                </div>
+                <div class="meta">
+                  Apr 26, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-transactions">Transaction in Teiid</a>
+                </div>
+                <div class="meta">
+                  Apr 20, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-getstart-code">Get Start Teiid From Source...</a>
+                </div>
+                <div class="meta">
+                  Apr 7, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-metadata">Understanding Teiid Metadata</a>
+                </div>
+                <div class="meta">
+                  Mar 27, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/rhel7-commands">Linux 命令集合</a>
+                </div>
+                <div class="meta">
+                  Mar 17, 2016
+                </div>
+              </li>
+             
+            </ul>
+            
+                        
+          </nav>
+          <nav class="tags">
+            <h2>Categories</h2>
+            <div class="tag-cloud">
+              
+              <span class="tag tag-1">
+                <a href="/categories/jekyll">Jekyll(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/jboss">Jboss(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/java">Java(18)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/css">Css(1)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/database">Database(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/javaee">Javaee(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/linux">Linux(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/teiid">Teiid(40)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/maven">Maven(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/netty">Netty(7)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/data">Data(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/git">Git(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/other">Other(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/performance">Performance(4)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/security">Security(3)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/docker">Docker(4)</a>
+              </span>
+              
+              
+            </div>
+          </nav>
+        </aside>
+      </div>
+
+
+    </div>
+    <footer>
+      <div class="container">
+        <div class="project">
+          <p class="bottom">
+            ©
+            Copyright 2009-2016 ksoong.
+            <br>
+            <i class="icon-fire"></i>
+            Mixed with <a href="http://twitter.github.com/bootstrap">Bootstrap</a>.
+            <br>
+            <i class="icon-share-alt"></i>
+            Website and docs licensed under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
+            <br>
+            Code released under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, v2.0</a>.
+          </p>
+        </div>
+        <div class="footer-nav">
+          <h4>Learn</h4>
+          <ul>
+            <li>
+              <a href="http://www.jboss.org/">JBoss</a>
+            </li>
+            <li>
+              <a href="http://infinispan.org/">Infinispan</a>
+            </li>
+            <li>
+              <a href="http://teiid.org/">Teiid</a>
+            </li>
+            <li>
+              <a href="https://github.com/kylinsoong">Github</a>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="sponser">
+          <div class="follow-us">
+            <h4>Stay Informed</h4>
+            <ul>
+              <li>
+                <a href="https://plus.google.com/103933729718268414460?rel=author"><img alt="Google+" src="/css/googleplus-16.png" title="Follow ksoong.org on Google+"></a>
+              </li>
+              <li>
+                <a href="http://www.weibo.com/kylinsoong"><img alt="Weibo" src="/css/weibo_logo.jpg" title="Follow me on Weibo"></a>
+              </li>
+	      <li>
+                <a href="https://github.com/kylinsoong"><img alt="Github" src="/css/Octocat.jpg" title="Fork me on Github"></a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+        <a class="visible-desktop" href="#" id="toTop">Top</a>
+      </div>
+        <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1258751305'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1258751305%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+    </footer>
+  
+ 
+    <script src="/css/jquery-1.11.1.min.js"></script>
+    <script src="/css/bootstrap.js"></script>
+
+   <script>
+      $(function() {
+        $('html').addClass('ready');
+        prettify();
+        activateFooterGravity();
+        activateTooltips();
+        activateToTopControl();
+      });
+    </script>
+    <script src="/css/site.js"></script>
+
+    
+            
+            <script type="text/javascript">
+                var duoshuoQuery = {short_name:"ksoong"};
+                (function() {
+                    var ds = document.createElement('script');
+                    ds.type = 'text/javascript';
+                    ds.async = true;
+                    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+                    ds.charset = 'UTF-8';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+                })();
+            </script>
+            
+        
+
+
+</body>
+</html>

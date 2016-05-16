@@ -1,0 +1,1612 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Kylin Soong . Blog</title>
+    <description>Kylin Soong Blog</description>
+    <link>ksoong.org/</link>
+    <atom:link href="ksoong.org/feed.xml" rel="self" type="application/rss+xml" />
+    <pubDate>Mon, 16 May 2016 00:14:14 +0800</pubDate>
+    <lastBuildDate>Mon, 16 May 2016 00:14:14 +0800</lastBuildDate>
+    <generator>Jekyll v3.1.3</generator>
+    
+      <item>
+        <title>WildFly Data Sources Configuration</title>
+        <description>&lt;ul id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#mariadb&quot; id=&quot;markdown-toc-mariadb&quot;&gt;MariaDB&lt;/a&gt;    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#add-mariadb-driver-as-a-module&quot; id=&quot;markdown-toc-add-mariadb-driver-as-a-module&quot;&gt;Add MariaDB Driver as a Module&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#add-xa-data-source&quot; id=&quot;markdown-toc-add-xa-data-source&quot;&gt;Add XA Data Source&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#add-non-xa-data-source&quot; id=&quot;markdown-toc-add-non-xa-data-source&quot;&gt;Add non-XA Data Source&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;mariadb&quot;&gt;MariaDB&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://downloads.mariadb.org/connector-java/&quot;&gt;Download Driver&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Alternatively, the maven dependency below can pull MariaDB Driver.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&amp;lt;dependency&amp;gt;
+    &amp;lt;groupId&amp;gt;org.mariadb.jdbc&amp;lt;/groupId&amp;gt;	
+    &amp;lt;artifactId&amp;gt;mariadb-java-client&amp;lt;/artifactId&amp;gt;
+    &amp;lt;version&amp;gt;1.4.3&amp;lt;/version&amp;gt;
+&amp;lt;/dependency&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;add-mariadb-driver-as-a-module&quot;&gt;Add MariaDB Driver as a Module&lt;/h3&gt;
+
+&lt;p&gt;Copy &lt;strong&gt;mariadb-java-client-VERSION.jar&lt;/strong&gt; which downloaded above to WildFly Home.&lt;/p&gt;
+
+&lt;p&gt;Download &lt;a href=&quot;/assets/download/cli/module-add-mariadb.cli&quot;&gt;module-add-mariadb.cli&lt;/a&gt; to WildFly Home, modify &lt;code class=&quot;highlighter-rouge&quot;&gt;--resources&lt;/code&gt; to correct the driver version, execute CLI:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ ./bin/jboss-cli.sh --connect --file=module-add-mariadb.cli
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;NOTE: module &lt;code class=&quot;highlighter-rouge&quot;&gt;org.mariadb.jdbc&lt;/code&gt; be created, which should match &lt;code class=&quot;highlighter-rouge&quot;&gt;driver-module&lt;/code&gt; in adding Driver&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Corresponding to add module, download &lt;a href=&quot;/assets/download/cli/module-remove-mariadb.cli&quot;&gt;module-remove-mariadb.cli&lt;/a&gt; to WildFly Home, removing module via CLI:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ ./bin/jboss-cli.sh --connect --file=module-remove-mariadb.cli
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;add-xa-data-source&quot;&gt;Add XA Data Source&lt;/h3&gt;
+
+&lt;p&gt;Download &lt;a href=&quot;/assets/download/cli/create-mariadb-xa-ds.cli&quot;&gt;create-mariadb-xa-ds.cli&lt;/a&gt;. Modify &lt;code class=&quot;highlighter-rouge&quot;&gt;driver-module&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;user-name&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;password&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;DatabaseName&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;PortNumber&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;ServerName&lt;/code&gt; to match your scenarios, copy it to WildFly Home. Execute CLI below will create MariaDB XA Data Source in WildFly:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ ./bin/jboss-cli.sh --connect --file=create-mariadb-xa-ds.cli
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Corresponding to create, download &lt;a href=&quot;/assets/download/cli/remove-mariadb-xa-ds.cli&quot;&gt;remove-mariadb-xa-ds.cli&lt;/a&gt;, copy it to WildFly Home, Execute CLI below will remove &lt;code class=&quot;highlighter-rouge&quot;&gt;MariaDBXADS&lt;/code&gt; which created above:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ ./bin/jboss-cli.sh --connect --file=remove-mariadb-xa-ds.cli
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;add-non-xa-data-source&quot;&gt;Add non-XA Data Source&lt;/h3&gt;
+
+&lt;p&gt;Download &lt;a href=&quot;/assets/download/cli/create-mariadb-ds.cli&quot;&gt;create-mariadb-ds.cli&lt;/a&gt;. Modify &lt;code class=&quot;highlighter-rouge&quot;&gt;driver-module&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;user-name&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;password&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;connection-url&lt;/code&gt; to match your scenarios, copy it to WildFly Home. Execute CLI below will add a non-XA Data Source in WildFly:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ ./bin/jboss-cli.sh --connect --file=create-mariadb-ds.cli
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Corresponding to create, download &lt;a href=&quot;/assets/download/cli/remove-mariadb-ds.cli&quot;&gt;remove-mariadb-ds.cli&lt;/a&gt;, copy it to WildFly Home, Execute CLI below will remove &lt;code class=&quot;highlighter-rouge&quot;&gt;MariaDBDS&lt;/code&gt; which created above:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ ./bin/jboss-cli.sh --connect --file=remove-mariadb-ds.cli
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+</description>
+        <pubDate>Tue, 26 Apr 2016 02:40:12 +0800</pubDate>
+        <link>ksoong.org/wfl-ds</link>
+        <guid isPermaLink="true">ksoong.org/wfl-ds</guid>
+        
+        
+        <category>jboss</category>
+        
+      </item>
+    
+      <item>
+        <title>Transaction in Teiid</title>
+        <description>&lt;ul id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#warming-up&quot; id=&quot;markdown-toc-warming-up&quot;&gt;Warming up&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#prerequisites&quot; id=&quot;markdown-toc-prerequisites&quot;&gt;Prerequisites&lt;/a&gt;    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#xadatasource-and-xaresource&quot; id=&quot;markdown-toc-xadatasource-and-xaresource&quot;&gt;XADataSource and XAResource&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;warming-up&quot;&gt;Warming up&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;Question:&lt;/strong&gt; How does teiid support&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Atomic transaction (R/W)&lt;/li&gt;
+  &lt;li&gt;Distributed transaction when the underlying systems are different technologies - two phase commit&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;strong&gt;Answer 1:&lt;/strong&gt; Teiid can use XA datasources. For example, using it insert into Oracle and SQL Server atomically.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Answer 2:&lt;/strong&gt; From &lt;a href=&quot;https://issues.jboss.org/browse/TEIID-3907&quot;&gt;TEIID-3907&lt;/a&gt;, In Teiid, the transaction manager will fully support xa with all xa sources and a single local transaction resource. Beyond that however there is no built-in support for compensating transactions with non-XA sources.  There has been work in Narayana on compensating transactions though that could be used by custom web apps consuming Teiid. We would like to eventually offer compensating options for some of our updatable non-XA sources, but it hasn’t had sufficient priority yet.&lt;/p&gt;
+
+&lt;h2 id=&quot;prerequisites&quot;&gt;Prerequisites&lt;/h2&gt;
+
+&lt;p&gt;This section will list some basic prerequisites, backgroud technologies for understanding Teiid Transaction.&lt;/p&gt;
+
+&lt;h3 id=&quot;xadatasource-and-xaresource&quot;&gt;XADataSource and XAResource&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/blog/teiid/teiid-uml-XADataSource.png&quot; alt=&quot;Teid XA Datasource&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;javax.sql.DataSource&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;javax.sql.DataSource&lt;/code&gt;  interface is the preferred way to expose a JDBC interface. It is a highly abstracted interface, exposing only two methods&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Connection getConnection() throws SQLException;
+Connection getConnection(String username, String password)throws SQLException;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;javax.sql.XADataSource&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;In the context of XA transactions, a JDBC data source can be exposed as a &lt;code class=&quot;highlighter-rouge&quot;&gt;javax.sql.XADataSource&lt;/code&gt; object. The main difference between an &lt;code class=&quot;highlighter-rouge&quot;&gt;XADataSource&lt;/code&gt; object and a plain &lt;code class=&quot;highlighter-rouge&quot;&gt;DataSource&lt;/code&gt; object is that the &lt;code class=&quot;highlighter-rouge&quot;&gt;XADataSource&lt;/code&gt; object returns a &lt;code class=&quot;highlighter-rouge&quot;&gt;javax.sql.XAConnection&lt;/code&gt; object, which you can use to access and enlist an &lt;code class=&quot;highlighter-rouge&quot;&gt;XAResource&lt;/code&gt; object. The methods exposed:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;XAConnection getXAConnection() throws SQLException;
+XAConnection getXAConnection(String user, String password) throws SQLException;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+</description>
+        <pubDate>Wed, 20 Apr 2016 01:00:00 +0800</pubDate>
+        <link>ksoong.org/teiid-transactions</link>
+        <guid isPermaLink="true">ksoong.org/teiid-transactions</guid>
+        
+        
+        <category>teiid</category>
+        
+      </item>
+    
+      <item>
+        <title>Get Start Teiid From Source Code</title>
+        <description>&lt;ul id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#install-from-source-code&quot; id=&quot;markdown-toc-install-from-source-code&quot;&gt;Install from source code&lt;/a&gt;    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#to-build-teiid&quot; id=&quot;markdown-toc-to-build-teiid&quot;&gt;To build Teiid&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#to-install-teiid&quot; id=&quot;markdown-toc-to-install-teiid&quot;&gt;To install Teiid&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#create-user&quot; id=&quot;markdown-toc-create-user&quot;&gt;Create User&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#run-quick-start&quot; id=&quot;markdown-toc-run-quick-start&quot;&gt;Run Quick Start&lt;/a&gt;    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#dynamicvdb-datafederation&quot; id=&quot;markdown-toc-dynamicvdb-datafederation&quot;&gt;dynamicvdb-datafederation&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#dynamicvdb-materialization&quot; id=&quot;markdown-toc-dynamicvdb-materialization&quot;&gt;dynamicvdb-materialization&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;install-from-source-code&quot;&gt;Install from source code&lt;/h2&gt;
+
+&lt;h3 id=&quot;to-build-teiid&quot;&gt;To build Teiid&lt;/h3&gt;
+
+&lt;p&gt;The following are prerequisites to build Teiid:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;install JDK 1.7 or higher&lt;/li&gt;
+  &lt;li&gt;install maven 3 - &lt;a href=&quot;http://maven.apache.org/download.html&quot;&gt;http://maven.apache.org/download.html&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;Set Up Git - &lt;a href=&quot;https://help.github.com/articles/set-up-git/&quot;&gt;https://help.github.com/articles/set-up-git/&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;Create a github account and fork Teiid&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Enter the following:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ git clone https://github.com/&amp;lt;yourname&amp;gt;/teiid.git
+$ cd teiid
+$ mvn clean install -P release -Dmaven.javadoc.skip=true -s settings.xml
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;to-install-teiid&quot;&gt;To install Teiid&lt;/h3&gt;
+&lt;p&gt;Standalone Mode&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ unzip build/target/teiid-9.0.0.Alpha3-SNAPSHOT-wildfly-server.zip
+$ cd teiid-9.0.0.Alpha3-SNAPSHOT/
+$ ./bin/standalone.sh  
+$ ./bin/jboss-cli.sh --connect --file=bin/scripts/teiid-standalone-mode-install.cli  
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;Domain Mode&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ unzip build/target/teiid-9.0.0.Alpha3-SNAPSHOT-wildfly-server.zip
+$ cd teiid-9.0.0.Alpha3-SNAPSHOT/
+$ ./bin/domain.sh  
+$ ./bin/jboss-cli.sh --connect --file=bin/scripts/teiid-domain-mode-install.cli 
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;create-user&quot;&gt;Create User&lt;/h2&gt;
+
+&lt;p&gt;The User including dashboardUser, teiidUser, restUser, odataUser, ManagementUser, use create-user script to create:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ ./bin/add-user.sh -a -u dashboardAdmin -p password1! -g admin  
+$ ./bin/add-user.sh -a -u teiidUser -p password1! -g user  
+$ ./bin/add-user.sh -a -u restUser -p password1! -g rest  
+$ ./bin/add-user.sh -a -u odataUser -p password1! -g odata  
+$ ./bin/add-user.sh admin password1!  
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;run-quick-start&quot;&gt;Run Quick Start&lt;/h2&gt;
+
+&lt;p&gt;If teiid-quickstart not exist under WildFly Home, Clone it to WildFly Home:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ git clone https://github.com/teiid/teiid-quickstarts.git
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;dynamicvdb-datafederation&quot;&gt;dynamicvdb-datafederation&lt;/h3&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ cp -r teiid-quickstarts/dynamicvdb-datafederation/src/teiidfiles/ ./
+$ ./bin/jboss-cli.sh --connect --file=teiid-quickstarts/dynamicvdb-datafederation/src/scripts/setup.cli
+$ cd standalone/deployments/
+$ cp ../../teiid-quickstarts/dynamicvdb-datafederation/src/vdb/portfolio-vdb.xml* ./
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://github.com/kylinsoong/teiid-test/blob/master/client/src/main/java/org/teiid/test/jdbc/client/PortfolioCient.java&quot;&gt;PortfolioCient&lt;/a&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;dynamicvdb-materialization&quot;&gt;dynamicvdb-materialization&lt;/h3&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ cd standalone/deployments/
+$ cp ../../teiid-quickstarts/dynamicvdb-materialization/src/vdb/portfolio* ./
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://github.com/kylinsoong/teiid-test/blob/master/client/src/main/java/org/teiid/test/jdbc/client/PortfolioMaterializeClient.java&quot;&gt;PortfolioMaterializeClient&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://github.com/kylinsoong/teiid-test/blob/master/client/src/main/java/org/teiid/test/jdbc/client/PortfolioInterMaterializeClient.java&quot;&gt;PortfolioInterMaterializeClient&lt;/a&gt;&lt;/p&gt;
+</description>
+        <pubDate>Thu, 07 Apr 2016 01:00:00 +0800</pubDate>
+        <link>ksoong.org/teiid-getstart-code</link>
+        <guid isPermaLink="true">ksoong.org/teiid-getstart-code</guid>
+        
+        
+        <category>teiid</category>
+        
+      </item>
+    
+      <item>
+        <title>Understanding Teiid Metadata</title>
+        <description>&lt;ul id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#systemmetadata-loading-in-vdbrepository-startup&quot; id=&quot;markdown-toc-systemmetadata-loading-in-vdbrepository-startup&quot;&gt;SystemMetadata loading in VDBRepository startup&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#metadata-operations-in-vdb-deploying&quot; id=&quot;markdown-toc-metadata-operations-in-vdb-deploying&quot;&gt;Metadata operations in VDB deploying&lt;/a&gt;    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#assign-metadata-repositories&quot; id=&quot;markdown-toc-assign-metadata-repositories&quot;&gt;Assign Metadata Repositories&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#metadata-loading&quot; id=&quot;markdown-toc-metadata-loading&quot;&gt;Metadata loading&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#vdb-finish-deploy&quot; id=&quot;markdown-toc-vdb-finish-deploy&quot;&gt;VDB finish deploy&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#examples&quot; id=&quot;markdown-toc-examples&quot;&gt;Examples&lt;/a&gt;    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#load-classpath-ddl-file&quot; id=&quot;markdown-toc-load-classpath-ddl-file&quot;&gt;Load classpath ddl file&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;systemmetadata-loading-in-vdbrepository-startup&quot;&gt;SystemMetadata loading in VDBRepository startup&lt;/h2&gt;
+
+&lt;p&gt;In Teiid, every VDB reference a VDBRepository, once VDBRepository startup, it will load System Metadata, &lt;code class=&quot;highlighter-rouge&quot;&gt;SystemMetadata&lt;/code&gt; is the API to operate with SystemMetadata:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;SystemMetadata.getInstance().getSystemStore();
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The System Metadata defined in &lt;a href=&quot;https://raw.githubusercontent.com/teiid/teiid/master/engine/src/main/resources/org/teiid/metadata/types.dat&quot;&gt;types.dat&lt;/a&gt;, &lt;a href=&quot;https://raw.githubusercontent.com/teiid/teiid/master/engine/src/main/resources/org/teiid/metadata/SYS.sql&quot;&gt;SYS.sql&lt;/a&gt;, &lt;a href=&quot;https://raw.githubusercontent.com/teiid/teiid/master/engine/src/main/resources/org/teiid/metadata/SYSADMIN.sql&quot;&gt;SYSADMIN.sql&lt;/a&gt;, the loading order like:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;a href=&quot;https://raw.githubusercontent.com/teiid/teiid/master/engine/src/main/resources/org/teiid/metadata/types.dat&quot;&gt;types.dat&lt;/a&gt; - define all supported datatypes&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://raw.githubusercontent.com/teiid/teiid/master/engine/src/main/resources/org/teiid/metadata/SYS.sql&quot;&gt;SYS.sql&lt;/a&gt; - Contain &lt;strong&gt;System Tables:&lt;/strong&gt; Columns, DataTypes, KeyColumns, Keys, ProcedureParams, Procedures, FunctionParams, Functions, Properties, ReferenceKeyColumns, Schemas, Tables, VirtualDatabases; &lt;strong&gt;System Procedures:&lt;/strong&gt; getXMLSchemas, ARRAYITERATE; &lt;strong&gt;System Views:&lt;/strong&gt; spatial_ref_sys, GEOMETRY_COLUMNS&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://raw.githubusercontent.com/teiid/teiid/master/engine/src/main/resources/org/teiid/metadata/SYSADMIN.sql&quot;&gt;SYSADMIN.sql&lt;/a&gt; - Contain &lt;strong&gt;Tables:&lt;/strong&gt; Usage, MatViews, VDBResources, Triggers, Views, StoredProcedures; &lt;strong&gt;Procedures:&lt;/strong&gt; isLoggable, logMsg, refreshMatView, refreshMatViewRow, refreshMatViewRows, setColumnStats, setProperty, setTableStats, matViewStatus, loadMatView, updateMatView&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;metadata-operations-in-vdb-deploying&quot;&gt;Metadata operations in VDB deploying&lt;/h2&gt;
+
+&lt;p&gt;There are 3 phases of Metadata operations in VDB deploying:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Assign Metadata Repositories&lt;/li&gt;
+  &lt;li&gt;Metadata loading&lt;/li&gt;
+  &lt;li&gt;VDB finish deploy&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;assign-metadata-repositories&quot;&gt;Assign Metadata Repositories&lt;/h3&gt;
+
+&lt;p&gt;Assign Metadata Repositories means assign a &lt;a href=&quot;http://ksoong.org/teiid-uml-diagram#orgteiidmetadatametadatarepositoryfc&quot;&gt;MetadataRepository&lt;/a&gt; to each Model which contained in a VDB definition. Assuming a VDB contain 4 Models and the processing of assign Metadata Repositories likes&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/blog/teiid/teiid-assign-repository.png&quot; alt=&quot;Assign Metadata Repositories&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;As above figure, the VDB contain 4 Models:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;MarketData&lt;/code&gt; - define a source point to a csv file, which assigned a ChainingMetadataRepository contain a NativeMetadataRepository and a DirectQueryMetadataRepository&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Accounts&lt;/code&gt; - define a source point to a RDBMS, which assigned a ChainingMetadataRepository contain a NativeMetadataRepository and a DirectQueryMetadataRepository&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Stocks&lt;/code&gt; - is a virtual model, contains a DDL text metadata, which assigned a ChainingMetadataRepository contain a MetadataRepositoryWrapper and a MaterializationMetadataRepository, a MetadataRepositoryWrapper contain a DDLMetadataRepository and DDL Text String&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;StocksMatModel&lt;/code&gt; - is a virtual model, contains a DDL text metadata, which assigned a ChainingMetadataRepository contain a MetadataRepositoryWrapper and a MaterializationMetadataRepository, a MetadataRepositoryWrapper contain a DDLMetadataRepository and DDL Text String&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;All ChainingMetadataRepository, NativeMetadataRepository, DirectQueryMetadataRepository, MetadataRepositoryWrapper, DDLMetadataRepository and MaterializationMetadataRepository are sub-class of MetadataRepository, more details refer to &lt;a href=&quot;http://ksoong.org/teiid-uml-diagram#orgteiidmetadatametadatarepositoryfc&quot;&gt;UML diagram&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&quot;metadata-loading&quot;&gt;Metadata loading&lt;/h3&gt;
+
+&lt;p&gt;Once &lt;a href=&quot;#Assign Metadata Repositories&quot;&gt;Assign Metadata Repositories&lt;/a&gt; finished, each Model has reference a &lt;a href=&quot;http://ksoong.org/teiid-uml-diagram#orgteiidmetadatametadatarepositoryfc&quot;&gt;MetadataRepository&lt;/a&gt;, it’s loadMetadata() methods be invoked, the following is the 4 models load metadata sequence diagram:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;MarketData Load Metadata&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/blog/teiid/teiid-file-load-metadata.png&quot; alt=&quot;MarketData Load Metadata&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Accounts Load Metadata&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/blog/teiid/teiid-jdbc-load-metadata.png&quot; alt=&quot;Accounts Load Metadata&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Stocks/StocksMatModel Load Metadata&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/blog/teiid/teiid-mat-load-metadata.png&quot; alt=&quot;Stocks Load Metadata&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;A MetadataFactory used in each Model’s Metadata loading, MetadataFactory can merge each other, a MetadataFactory contains dataTypes, vdbResources, grants and a Schema, which related with tables, procedures, functions.&lt;/p&gt;
+
+&lt;p&gt;Once the last Model’s Metadata loading finished, VDBRepository’s finishDeployment() will be invoked, relate below section for more.&lt;/p&gt;
+
+&lt;h3 id=&quot;vdb-finish-deploy&quot;&gt;VDB finish deploy&lt;/h3&gt;
+
+&lt;p&gt;As below figure, the VDB finish deploy mainly contains:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;init runtime metadata API and attach it to VDB&lt;/li&gt;
+  &lt;li&gt;validate the DDL SQL String which exist in VDB’s virtual model&lt;/li&gt;
+  &lt;li&gt;invoke VDBLifeCycleListener’s finishedDeployment()&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/blog/teiid/teiid-metadata-finished.png&quot; alt=&quot;VDB finish deploy&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Appendix-1: buildTransformationMetaData()&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Build runtime metadata API &lt;code class=&quot;highlighter-rouge&quot;&gt;QueryMetadataInterface1&lt;/code&gt;’s implementation &lt;code class=&quot;highlighter-rouge&quot;&gt;TransformationMetadata&lt;/code&gt;, this interface used by query components in runtime to access metadata. This implementation related with a VDB via VDB attachment:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;TransformationMetadata metadata = buildTransformationMetaData(mergedVDB, getVisibilityMap(), mergedStore, getUDF(), systemFunctions, this.additionalStores);
+QueryMetadataInterface qmi = metadata;
+mergedVDB.addAttchment(QueryMetadataInterface.class, qmi);
+mergedVDB.addAttchment(TransformationMetadata.class, metadata);
+mergedVDB.addAttchment(MetadataStore.class, mergedStore);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;Appendix-2: Metadata Validator&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Validate the SQL commands which existed in virtual model’s DDL text metadata String.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Appendix-3: MaterializationManager&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Refer to &lt;a href=&quot;http://ksoong.org/teiid-mat-view&quot;&gt;teiid-mat-view&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;examples&quot;&gt;Examples&lt;/h2&gt;
+
+&lt;p&gt;This section contain examples to quick understand the Teiid Metadata.&lt;/p&gt;
+
+&lt;h3 id=&quot;load-classpath-ddl-file&quot;&gt;Load classpath ddl file&lt;/h3&gt;
+
+&lt;p&gt;Assuming &lt;code class=&quot;highlighter-rouge&quot;&gt;customer.ddl&lt;/code&gt; file under classpath, which define a series of Metadata, this example demonstrates how to load metadata from a classpath file.&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;VDBMetaData&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;vdb&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;VDBMetaData&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;vdb&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;setName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;ExampleVDB&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;vdb&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;setVersion&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;Properties&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;p&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Properties&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;QueryParser&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;parser&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;QueryParser&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+        
+&lt;span class=&quot;n&quot;&gt;Map&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Datatype&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;typeMap&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SystemMetadata&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getInstance&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getRuntimeTypeMap&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+        
+&lt;span class=&quot;n&quot;&gt;ModelMetaData&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;mmd&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ModelMetaData&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;mmd&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;setName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;ExampleMode&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;vdb&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;addModel&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;mmd&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;MetadataFactory&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;factory&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;MetadataFactory&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;vdb&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;vdb&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getVersion&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;ExampleMode&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;typeMap&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;p&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;parser&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;parseDDL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;factory&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;loadReader&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;customer.ddl&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;MetadataStore&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;systemStore&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;factory&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;asMetadataStore&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+     
+&lt;span class=&quot;n&quot;&gt;TransformationMetadata&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tm&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;TransformationMetadata&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;vdb&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;CompositeMetadataStore&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;systemStore&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SystemFunctionManager&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;typeMap&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getSystemFunctions&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;vdb&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;addAttchment&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;QueryMetadataInterface&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tm&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;MetadataValidator&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;validator&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;MetadataValidator&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;typeMap&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;parser&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;ValidatorReport&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;report&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;validator&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;validate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;vdb&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;systemStore&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;report&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;hasItems&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;())&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+   &lt;span class=&quot;k&quot;&gt;throw&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;TeiidRuntimeException&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;report&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getFailureMessage&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+</description>
+        <pubDate>Sun, 27 Mar 2016 01:00:00 +0800</pubDate>
+        <link>ksoong.org/teiid-metadata</link>
+        <guid isPermaLink="true">ksoong.org/teiid-metadata</guid>
+        
+        
+        <category>teiid</category>
+        
+      </item>
+    
+      <item>
+        <title>Linux 命令集合</title>
+        <description>&lt;ul id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#local-and-remote-logins&quot; id=&quot;markdown-toc-local-and-remote-logins&quot;&gt;Local and Remote Logins&lt;/a&gt;    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#using-ssh-key-based-authentication&quot; id=&quot;markdown-toc-using-ssh-key-based-authentication&quot;&gt;Using SSH Key-based Authentication&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#creating-and-viewing-an-sos-report&quot; id=&quot;markdown-toc-creating-and-viewing-an-sos-report&quot;&gt;Creating and Viewing an SoS Report&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#file-system-navigation&quot; id=&quot;markdown-toc-file-system-navigation&quot;&gt;File System Navigation&lt;/a&gt;    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#command-line-file-management&quot; id=&quot;markdown-toc-command-line-file-management&quot;&gt;Command-Line File Management&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#making-links-between-files&quot; id=&quot;markdown-toc-making-links-between-files&quot;&gt;Making Links Between Files&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#users-and-groups&quot; id=&quot;markdown-toc-users-and-groups&quot;&gt;Users and Groups&lt;/a&gt;    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#running-commands-as-root&quot; id=&quot;markdown-toc-running-commands-as-root&quot;&gt;Running Commands as root&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#creating-users-using-command-line-tools&quot; id=&quot;markdown-toc-creating-users-using-command-line-tools&quot;&gt;Creating Users Using Command-line Tools&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#managing-groups-using-command-line-tools&quot; id=&quot;markdown-toc-managing-groups-using-command-line-tools&quot;&gt;Managing Groups Using Command-line Tools&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#managing-user-password-aging&quot; id=&quot;markdown-toc-managing-user-password-aging&quot;&gt;Managing User Password Aging&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#using-identity-management-services&quot; id=&quot;markdown-toc-using-identity-management-services&quot;&gt;Using Identity Management Services&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#file-permissions&quot; id=&quot;markdown-toc-file-permissions&quot;&gt;File Permissions&lt;/a&gt;    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#managing-file-security-from-the-command-line&quot; id=&quot;markdown-toc-managing-file-security-from-the-command-line&quot;&gt;Managing File Security from the Command Line&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#controlling-new-file-permissions-and-ownership&quot; id=&quot;markdown-toc-controlling-new-file-permissions-and-ownership&quot;&gt;Controlling New File Permissions and Ownership&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#posix-access-control-lists-acls&quot; id=&quot;markdown-toc-posix-access-control-lists-acls&quot;&gt;POSIX Access Control Lists (ACLs)&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#using-acls-to-grant-and-limit-access&quot; id=&quot;markdown-toc-using-acls-to-grant-and-limit-access&quot;&gt;Using ACLs to Grant and Limit Access&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#selinux-permissions&quot; id=&quot;markdown-toc-selinux-permissions&quot;&gt;Selinux Permissions&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#process-management&quot; id=&quot;markdown-toc-process-management&quot;&gt;Process Management&lt;/a&gt;    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#killing-processes&quot; id=&quot;markdown-toc-killing-processes&quot;&gt;Killing Processes&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#monitoring-process-activity&quot; id=&quot;markdown-toc-monitoring-process-activity&quot;&gt;Monitoring Process Activity&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#updating-software-packages&quot; id=&quot;markdown-toc-updating-software-packages&quot;&gt;Updating Software Packages&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;local-and-remote-logins&quot;&gt;Local and Remote Logins&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;The ways of quiting shell Session:&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;exit&lt;/code&gt; command&lt;/li&gt;
+  &lt;li&gt;pressing &lt;code class=&quot;highlighter-rouge&quot;&gt;Ctrl+d&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;using-ssh-key-based-authentication&quot;&gt;Using SSH Key-based Authentication&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Create an SSH key pair in local server&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ ssh-keygen 
+Generating public/private rsa key pair.
+Enter file in which to save the key (/home/kylin/.ssh/id_rsa): /home/kylin/.ssh/id_t_rsa                  
+Enter passphrase (empty for no passphrase): 
+Enter same passphrase again: 
+Your identification has been saved in /home/kylin/.ssh/id_t_rsa.
+Your public key has been saved in /home/kylin/.ssh/id_t_rsa.pub.
+...
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Send the SSH public key to the remote server&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;[kylin@ksoong ~]$ ssh-copy-id -i ~/.ssh/id_t_rsa.pub root@10.66.218.46
+/bin/ssh-copy-id: INFO: attempting to log in with the new key(s), to filter out any that are already installed
+/bin/ssh-copy-id: INFO: 1 key(s) remain to be installed -- if you are prompted now it is to install the new keys
+root@10.66.218.46&#39;s password: 
+
+Number of key(s) added: 1
+
+Now try logging into the machine, with:   &quot;ssh &#39;root@10.66.218.46&#39;&quot;
+and check to make sure that only the key(s) you wanted were added.
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Login into remote server&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ ssh root@10.66.218.46
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;creating-and-viewing-an-sos-report&quot;&gt;Creating and Viewing an SoS Report&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;If currently working as a non-root user, switch to root.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ su -
+Password: 
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Run the sosreport command. This may take many minutes on larger systems.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# sosreport
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Change directory to /var/tmp, and unpack the archive.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# cd /var/tmp
+# tar -xvJf sosreport-*.tar.xz
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Change directory to the resulting subdirectory and browse the files found there.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# cd sosreport-ksoong-20160306161748
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;file-system-navigation&quot;&gt;File System Navigation&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/blog/linux-file-system.png&quot; alt=&quot;Linux File System&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/blog/linux-file-system-desc.png&quot; alt=&quot;Linux File System DESC&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;command-line-file-management&quot;&gt;Command-Line File Management&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Create Files&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ touch song1.mp3 song2.mp3 song3.mp3 song4.mp3 song5.mp3
+$ touch snap1.jpg snap2.jpg snap3.jpg snap4.jpg snap5.jpg
+$ touch film1.avi film2.avi film3.avi film4.avi film5.avi
+$ ls -l
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Move Files&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ mv song1.mp3 song2.mp3 song3.mp3 song4.mp3 song5.mp3 Music/
+$ mv snap1.jpg snap2.jpg snap3.jpg snap4.jpg snap5.jpg Pictures/
+$ mv film1.avi film2.avi film3.avi film4.avi film5.avi Videos/
+$ ls -l Music/ Videos/ Pictures/
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Create Directories&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ mkdir friends family work
+$ rmdir friends family work
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;making-links-between-files&quot;&gt;Making Links Between Files&lt;/h3&gt;
+
+&lt;p&gt;This Section will demonstrate how to use hard links and soft links to make multiple names point to the same file.&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;The command &lt;code class=&quot;highlighter-rouge&quot;&gt;ln&lt;/code&gt; creates new hard links to existing files. The command expects an existing file as the first argument, followed by one or more additional hard links.&lt;/li&gt;
+  &lt;li&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;ln -s&lt;/code&gt; command creates a soft link, which is also called a “symbolic link”. A soft link is not a regular file, but a special type of file that points to an existing file or directory. Unlike hard links, soft links can point to a directory, and the target to which a soft link points can be on a different file system.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Create an additional hard link&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# ln /usr/share/doc/qemu/qmp-commands.txt /root/qmp-commands.txt
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Verify the link count on the newly created link&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# ls -l /root/qmp-commands.txt 
+-rw-r--r--. 2 root root 65630 Nov 18  2013 /root/qmp-commands.txt
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Verify the link count on the original file&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# ls -l /usr/share/doc/qemu/qmp-commands.txt 
+-rw-r--r--. 2 root root 65630 Nov 18  2013 /usr/share/doc/qemu/qmp-commands.txt
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Create the soft link&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# ln -s /tmp/ /root/tmpdir
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Verify the newly created link with&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# ls -l
+lrwxrwxrwx. 1 root root     5 Mar  6 16:06 tmpdir -&amp;gt; /tmp/
+# cd tmpdir/
+# ls -lR
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;users-and-groups&quot;&gt;Users and Groups&lt;/h2&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;strong&gt;/etc/passwd&lt;/strong&gt; - store information about local users&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;/etc/group&lt;/strong&gt; - store information about local groups&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;strong&gt;Useful Commands:&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ id
+$ ps au
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;The &lt;strong&gt;id&lt;/strong&gt; command is used to show information about the current logged-in user.&lt;/li&gt;
+  &lt;li&gt;The &lt;strong&gt;ps&lt;/strong&gt; command is used to view process information. Add the &lt;strong&gt;a&lt;/strong&gt; option to view all processes with a terminal. To view the user associated with a process, include the &lt;strong&gt;u&lt;/strong&gt; option.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;running-commands-as-root&quot;&gt;Running Commands as root&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;View the user and group information and display the current working directory.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ id
+uid=1000(kylin) gid=1000(kylin) groups=1000(kylin),987(docker) context=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+$ pwd
+/home/kylin
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;View the variables which specify the home directory and the locations searched for executable files.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ echo $HOME
+/home/kylin
+$ echo $PATH
+/usr/lib64/qt-3.3/bin:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/usr/local/rvm/bin:/home/kylin/.local/bin:/home/kylin/bin:/home/kylin/tools/apache-maven-3.2.5/bin:/usr/java/jdk1.8.0_25/bin:/home/kylin/tools/apache-ant-1.9.4/bin:/home/kylin/tools/node-v0.12.6-linux-x64/bin
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Become the root user at the shell prompt.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ su -
+Password: 
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;View the user and group information and display the current working directory.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# id
+uid=0(root) gid=0(root) groups=0(root) context=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+# pwd
+/root
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;View the variables which specify the home directory and the locations searched for executable files.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# echo $HOME
+/root
+# echo $PATH
+/usr/lib64/qt-3.3/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/.cabal/bin:/usr/local/rvm/bin:/root/bin
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Exit the root&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# exit
+logout
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;creating-users-using-command-line-tools&quot;&gt;Creating Users Using Command-line Tools&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Add a user&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# adduser student
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Execute &lt;code class=&quot;highlighter-rouge&quot;&gt;tail -2 /etc/passwd&lt;/code&gt; can confirm new added user from file.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Use the passwd command to add a login password&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# passwd student
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;managing-groups-using-command-line-tools&quot;&gt;Managing Groups Using Command-line Tools&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Create a group&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# groupadd artists
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Execute &lt;code class=&quot;highlighter-rouge&quot;&gt;tail -5 /etc/group&lt;/code&gt; will confirm new added group.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Add a user to a group&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# usermod -G student student
+# id student 
+uid=1001(student) gid=1002(student) groups=1002(student)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;managing-user-password-aging&quot;&gt;Managing User Password Aging&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Lock/Unlock a user&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# usermod -L student
+$ su - student 
+Password: 
+su: Authentication failure
+
+# usermod -U student
+$ su - student 
+Password: 
+Last login: Tue Mar  8 15:30:03 CST 2016 on pts/1
+Last failed login: Tue Mar  8 15:30:41 CST 2016 on pts/3
+There was 1 failed login attempt since the last successful login.
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Change the password policy to require a new password every 90 days&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# chage -M 90 student
+# chage -l student 
+Last password change					: Mar 08, 2016
+Password expires					: Jun 06, 2016
+Password inactive					: never
+Account expires						: never
+Minimum number of days between password change		: 0
+Maximum number of days between password change		: 90
+Number of days of warning before password expires	: 7
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;using-identity-management-services&quot;&gt;Using Identity Management Services&lt;/h3&gt;
+
+&lt;p&gt;//TODO–&lt;/p&gt;
+
+&lt;h2 id=&quot;file-permissions&quot;&gt;File Permissions&lt;/h2&gt;
+
+&lt;h3 id=&quot;managing-file-security-from-the-command-line&quot;&gt;Managing File Security from the Command Line&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;login to root, create a directory&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# mkdir /home/kylin-text
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Change the group ownership to kylin&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# chown :kylin /home/kylin-text/
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Ensure the permissions of kylin-text allows group members to create and delete files.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# chmod g+w /home/kylin-text/
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Ensure the permissions of ateam-text forbids others from accessing its files.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# chmod 770 /home/kylin-text/
+# ls -ld /home/kylin-text/
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Verify the setting&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# exit
+logout
+$ cd /home/kylin-text/
+$ touch samplefile1
+$ ls -l samplefile1 
+-rw-rw-r--. 1 kylin kylin 0 Mar 10 11:27 samplefile1
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;controlling-new-file-permissions-and-ownership&quot;&gt;Controlling New File Permissions and Ownership&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;show umask&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;[student@ksoong ~]$ umask 
+0002
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;check default umask affects permissions&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;[student@ksoong ~]$ mkdir /tmp/shared
+[student@ksoong ~]$ ls -ld /tmp/shared/
+drwxrwxr-x. 2 student student 40 Mar 10 11:46 /tmp/shared/
+[student@ksoong ~]$ touch /tmp/shared/defaults
+[student@ksoong ~]$ ls -l /tmp/shared/defaults
+-rw-rw-r--. 1 student student 0 Mar 10 11:47 /tmp/shared/defaults
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;do some change&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;[student@ksoong ~]$ chmod g+s /tmp/shared/
+[student@ksoong ~]$ ls -ld /tmp/shared/
+drwxrwsr-x. 2 student student 60 Mar 10 11:47 /tmp/shared/
+[student@ksoong ~]$ umask 27
+[student@ksoong ~]$ touch /tmp/shared/sameplefile2
+[student@ksoong ~]$ ls -l /tmp/shared/sameplefile2 
+-rw-r-----. 1 student student 0 Mar 10 11:52 /tmp/shared/sameplefile2
+[student@ksoong ~]$ umask 
+0027
+[student@ksoong ~]$ umask 7
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;posix-access-control-lists-acls&quot;&gt;POSIX Access Control Lists (ACLs)&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;View file ACLs&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ getfacl gcviewer.properties 
+# file: gcviewer.properties
+# owner: kylin
+# group: kylin
+user::rw-
+group::rw-
+other::r--
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;using-acls-to-grant-and-limit-access&quot;&gt;Using ACLs to Grant and Limit Access&lt;/h3&gt;
+
+&lt;p&gt;//TODO–&lt;/p&gt;
+
+&lt;h2 id=&quot;selinux-permissions&quot;&gt;Selinux Permissions&lt;/h2&gt;
+
+&lt;p&gt;//TODO–&lt;/p&gt;
+
+&lt;h2 id=&quot;process-management&quot;&gt;Process Management&lt;/h2&gt;
+
+&lt;h3 id=&quot;killing-processes&quot;&gt;Killing Processes&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Start 3 processes&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ (while true; do echo -n &quot;game &quot; &amp;gt;&amp;gt; ~/outfile; sleep 1; done) &amp;amp;
+$ (while true; do echo -n &quot;set &quot; &amp;gt;&amp;gt; ~/outfile; sleep 1; done) &amp;amp;
+$ (while true; do echo -n &quot;match &quot; &amp;gt;&amp;gt; ~/outfile; sleep 1; done) &amp;amp;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Check all running processes&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ tail -f outfile 
+$ jobs
+[1]   Running                 ( while true; do
+    echo -n &quot;game &quot; &amp;gt;&amp;gt; ~/outfile; sleep 1;
+done ) &amp;amp;
+[2]-  Running                 ( while true; do
+    echo -n &quot;set &quot; &amp;gt;&amp;gt; ~/outfile; sleep 1;
+done ) &amp;amp;
+[3]+  Running                 ( while true; do
+    echo -n &quot;match &quot; &amp;gt;&amp;gt; ~/outfile; sleep 1;
+done ) &amp;amp;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Kill process&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ kill -SIGTERM 7174
+$ kill -SIGTERM 7187
+$ kill -SIGTERM 7220
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;monitoring-process-activity&quot;&gt;Monitoring Process Activity&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Check cpu info&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ grep &quot;model name&quot; /proc/cpuinfo 
+model name	: Intel(R) Core(TM) i5-4200U CPU @ 1.60GHz
+model name	: Intel(R) Core(TM) i5-4200U CPU @ 1.60GHz
+model name	: Intel(R) Core(TM) i5-4200U CPU @ 1.60GHz
+model name	: Intel(R) Core(TM) i5-4200U CPU @ 1.60GHz
+$ grep &quot;model name&quot; /proc/cpuinfo | wc -l
+4
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;top commands&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;top
+$ top -H -p 16943
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;updating-software-packages&quot;&gt;Updating Software Packages&lt;/h2&gt;
+
+</description>
+        <pubDate>Thu, 17 Mar 2016 00:14:12 +0800</pubDate>
+        <link>ksoong.org/rhel7-commands</link>
+        <guid isPermaLink="true">ksoong.org/rhel7-commands</guid>
+        
+        
+        <category>linux</category>
+        
+      </item>
+    
+      <item>
+        <title>Netty 4 源码分析</title>
+        <description>&lt;ul id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#eventloopgroup&quot; id=&quot;markdown-toc-eventloopgroup&quot;&gt;EventLoopGroup&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#bootstrap&quot; id=&quot;markdown-toc-bootstrap&quot;&gt;Bootstrap&lt;/a&gt;    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#serverbootstrap&quot; id=&quot;markdown-toc-serverbootstrap&quot;&gt;ServerBootstrap&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;eventloopgroup&quot;&gt;EventLoopGroup&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/blog/netty4-uml-EventLoopGroup.png&quot; alt=&quot;io.netty.channel.EventLoopGroup&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;API Usage Example:&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;NamedThreadFactory nettyPool = new NamedThreadFactory(&quot;NIO&quot;);
+int maxWorkers = Math.max(4, 2 * Runtime.getRuntime().availableProcessors());
+SelectorProvider provider = SelectorProvider.provider();
+EventLoopGroup workerGroup = new NioEventLoopGroup(maxWorkers, nettyPool, provider);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;一个 EventLoopGroup 实际就是一个 EventLoop 线程组，负责管理 EventLoop 的申请和释放。EventLoopGroup 管理的线程数可以通过构造函数设置，如果没有设置，默认取&lt;code class=&quot;highlighter-rouge&quot;&gt;-Dio.netty.eventLoopThreads&lt;/code&gt;， 如果该系统参数也没有指定，则为可用的CPU内核数 × 2。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/blog/netty4-seq-NioEventLoopGroup.png&quot; alt=&quot;EventLoopGroup init sequence&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;bootstrap&quot;&gt;Bootstrap&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/blog/netty4-uml-Bootstrap.png&quot; alt=&quot;UML of Bootstrap&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;A Bootstrap class is a helper class that makes it easy to bootstrap a &lt;code class=&quot;highlighter-rouge&quot;&gt;Channel&lt;/code&gt;. It contains two implementation, ServerBootstrap and Bootstrap, in the following secion we will use Netty Echo Example to explain the Bootstrap.&lt;/p&gt;
+
+&lt;h3 id=&quot;serverbootstrap&quot;&gt;ServerBootstrap&lt;/h3&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ServerBootstrap bootstrap = new ServerBootstrap();
+bootstrap.group(bossGroup, workerGroup)
+         .channel(NioServerSocketChannel.class)
+         .option(ChannelOption.SO_BACKLOG, 100)
+         .handler(new LoggingHandler(LogLevel.INFO))
+         .childHandler(new ChannelInitializer&amp;lt;SocketChannel&amp;gt;(){
+                @Override
+                protected void initChannel(SocketChannel ch) throws Exception {
+                    ChannelPipeline p = ch.pipeline();
+                    p.addLast(new EchoServerHandler());
+        }});
+            
+ChannelFuture f = bootstrap.bind(PORT).sync();
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;通常情况下，服务端的创建是在用户进程启动的时候进行，因此一般由Main函数或者启动类负责创建，服务端的创建由业务线程负责完成。在创建服务端的时候实例化了2个EventLoopGroup，bossGroup 和 workerGroup:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;bossGroup 线程组实际就是 Acceptor 线程池，负责处理客户端的 TCP 连接请求，如果系统只有一个服务端端口需要监听，则建议 bossGroup 线程组线程数设置为 1。&lt;/li&gt;
+  &lt;li&gt;workerGroup是真正负责I/O读写操作的线程组，通过ServerBootstrap的group方法进行设置，用于后续的Channel绑定。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/blog/netty4-seq-ServerBootstrap.png&quot; alt=&quot;ServerBootstrap&quot; /&gt;&lt;/p&gt;
+</description>
+        <pubDate>Sat, 05 Mar 2016 02:25:30 +0800</pubDate>
+        <link>ksoong.org/netty4-uml</link>
+        <guid isPermaLink="true">ksoong.org/netty4-uml</guid>
+        
+        
+        <category>netty</category>
+        
+      </item>
+    
+      <item>
+        <title>Big Data Specialization</title>
+        <description>&lt;ul id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#introduction-to-big-data&quot; id=&quot;markdown-toc-introduction-to-big-data&quot;&gt;Introduction to Big Data&lt;/a&gt;    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#getting-started-in-hadoop&quot; id=&quot;markdown-toc-getting-started-in-hadoop&quot;&gt;Getting Started in Hadoop&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#hadoop-platform-and-application-framework&quot; id=&quot;markdown-toc-hadoop-platform-and-application-framework&quot;&gt;Hadoop Platform and Application Framework&lt;/a&gt;    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#big-data-hadoop-stack&quot; id=&quot;markdown-toc-big-data-hadoop-stack&quot;&gt;Big Data Hadoop Stack&lt;/a&gt;        &lt;ul&gt;
+          &lt;li&gt;&lt;a href=&quot;#apache-sqoop&quot; id=&quot;markdown-toc-apache-sqoop&quot;&gt;Apache Sqoop&lt;/a&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;a href=&quot;#apache-flume&quot; id=&quot;markdown-toc-apache-flume&quot;&gt;Apache Flume&lt;/a&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#overview-of-the-hadoop-stack&quot; id=&quot;markdown-toc-overview-of-the-hadoop-stack&quot;&gt;Overview of the Hadoop Stack&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;introduction-to-big-data&quot;&gt;Introduction to Big Data&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://www.linkedin.com/in/natasha-balac-1992964&quot;&gt;Natasha Balac&lt;/a&gt;. SDSC - &lt;a href=&quot;http://www.sdsc.edu/&quot;&gt;San Diego Supercomputer Center&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Outpacing Time&lt;/strong&gt; - &lt;em&gt;Predicting the Future to Solve Tomorrow’s Business Challenges&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/blog/bigddata-data-to-insight.png&quot; alt=&quot;Data Source to Insight&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Big Data is making the world &lt;strong&gt;go around&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/blog/using-it-is-hardest-part.jpg&quot; alt=&quot;world go around&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Data Growth&lt;/strong&gt; - Driven by Unstructured Data.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/blog/bigdata-tendencias-storage.jpg&quot; alt=&quot;Unstructured Data&quot; /&gt;&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;strong&gt;Zettabyte&lt;/strong&gt; - 1 « 70 -&amp;gt; 1 * (2^70)&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Exabyte&lt;/strong&gt; - 1 « 60 -&amp;gt; 1 * (2^60)&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Petabyte&lt;/strong&gt; - 1 « 50 -&amp;gt; 1 * (2^50)&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Terabyte&lt;/strong&gt; - 1 « 40 -&amp;gt; 1 * (2^40)&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Gigabyte&lt;/strong&gt; - 1 « 30 -&amp;gt; 1 * (2^30)&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;getting-started-in-hadoop&quot;&gt;Getting Started in Hadoop&lt;/h3&gt;
+
+&lt;p&gt;&lt;strong&gt;Hardware and Software Requirements&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Fedora 20, VirtualBox 5+&lt;/li&gt;
+  &lt;li&gt;intel CORE i5, 8GB RAM, 20GB Disk&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.cloudera.com/content/www/en-us/downloads/quickstart_vms/5-4.html?src=Coursera&quot;&gt;Cloudera QuickStart VM&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;Install Cloudera QuickStart VM with VirtualBox&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Go to &lt;a href=&quot;https://www.virtualbox.org/wiki/Downloads&quot;&gt;https://www.virtualbox.org/wiki/Downloads&lt;/a&gt; to download and install VirtualBox for your computer. A alternative way, download &lt;a href=&quot;/assets/download/virtualbox.repo&quot;&gt;virtualbox.repo&lt;/a&gt;, yum install via execute &lt;code class=&quot;highlighter-rouge&quot;&gt;yum install VirtualBox-5.0&lt;/code&gt;.&lt;/li&gt;
+  &lt;li&gt;Download the VirtualBox VM from &lt;a href=&quot;https://downloads.cloudera.com/demo_vm/virtualbox/cloudera-quickstart-vm-5.4.2-0-virtualbox.zip&quot;&gt;https://downloads.cloudera.com/demo_vm/virtualbox/cloudera-quickstart-vm-5.4.2-0-virtualbox.zip&lt;/a&gt;.&lt;/li&gt;
+  &lt;li&gt;Unzip the VirtualBox VM&lt;/li&gt;
+  &lt;li&gt;Start VirtualBox&lt;/li&gt;
+  &lt;li&gt;Import the VM to VirtualBox&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;strong&gt;Additional Resource&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;a href=&quot;http://hadoop.apache.org/&quot;&gt;Apache Hadoop web site&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-common/FileSystemShell.html&quot;&gt;Apache Hadoop shell command guide&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.cloudera.com/documentation/enterprise/latest/topics/cloudera_quickstart_vm.html&quot;&gt;More about Cloudera QuickStart Virtual Machine&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;strong&gt;Why Hadoop?&lt;/strong&gt; - Low-cost, Scalable, Fault tolerant, Flexible&lt;/p&gt;
+
+&lt;h2 id=&quot;hadoop-platform-and-application-framework&quot;&gt;Hadoop Platform and Application Framework&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/blog/hadoop-logo.jpg&quot; alt=&quot;Hadoop logo&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Apache Hadoop is an open source software framework for storage and large scale processing of data-sets on clusters of commodity hardware.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://www.linkedin.com/in/cutting&quot;&gt;&lt;strong&gt;Doug Cutting&lt;/strong&gt;&lt;/a&gt;, &lt;a href=&quot;https://en.wikipedia.org/wiki/Mike_Cafarella&quot;&gt;&lt;strong&gt;Mike Cafarella&lt;/strong&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;big-data-hadoop-stack&quot;&gt;Big Data Hadoop Stack&lt;/h3&gt;
+
+&lt;p&gt;&lt;strong&gt;Highlights of Hadoop&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Moving Computation to Data&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/blog/hadoop-highlisht-movecomputationtodata.png&quot; alt=&quot;Hadoop highlight 1&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Scalability at Hadoop’s core&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/blog/haddop-highlisht-scalability.png&quot; alt=&quot;Hadoop highlight 2&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Reliability&lt;/li&gt;
+  &lt;li&gt;New Approach to Data - unstructured/semi-structured&lt;/li&gt;
+  &lt;li&gt;New Kinds of Analysis&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;Hadoop Modules&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/blog/hadoop-modules.png&quot; alt=&quot;Hadoop Modules&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;em&gt;Hadoop Common&lt;/em&gt; - contains libraries and utilities needed by other Hadoop modules.&lt;/li&gt;
+  &lt;li&gt;&lt;em&gt;Hadoop Distributed File System(HDFS)&lt;/em&gt; - is a distributed file system that stores data on a commodity machine. Providing very high aggregate bandwidth across the entire cluster.&lt;/li&gt;
+  &lt;li&gt;&lt;em&gt;Hadoop YARN&lt;/em&gt; - is a resource management platform responsible for managing compute resources in the cluster and using them in order to schedule users and applications.&lt;/li&gt;
+  &lt;li&gt;&lt;em&gt;Hadoop MapReduce&lt;/em&gt; is a programming model that scales data across a lot of different processes.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/blog/Hadoop-Echosystem.jpg&quot; alt=&quot;Hadoop-Echosystem.jpg&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Sqoop - &lt;a href=&quot;#Apache Sqoop&quot;&gt;Apache Sqoop&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;HBase - Column-oriented database management system, Key-value store, Based on Google Big Table, Can hold extremely large data, Dynamic data model, Not a Relational DBMS. &lt;a href=&quot;https://hbase.apache.org/&quot;&gt;hbase.apache.org&lt;/a&gt;.&lt;/li&gt;
+  &lt;li&gt;Pig - PIG Highlevel programming on top of Hadoop MapReduce, The language: Pig Latin, Data analysis problems as data flows, Originally developed at Yahoo 2006.&lt;/li&gt;
+  &lt;li&gt;Hive - Data warehouse software facilitates querying and managing large datasets residing in distributed storage.&lt;/li&gt;
+  &lt;li&gt;Oozie - A workflow scheduler system to manage Apache Hadoop jobs.&lt;/li&gt;
+  &lt;li&gt;Zookeeper - Provides operational services for a Hadoop cluster group services. Centralized service for: maintaining configuration information naming services, &lt;strong&gt;providing distributed synchronization and providing group services&lt;/strong&gt;&lt;/li&gt;
+  &lt;li&gt;Flume - &lt;a href=&quot;#Apache Flume&quot;&gt;Apache Flume&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;apache-sqoop&quot;&gt;Apache Sqoop&lt;/h4&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://sqoop.apache.org/&quot;&gt;sqoop.apache.org/&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/blog/apache-sqoop.jpg&quot; alt=&quot;Apache Sqoop&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Apache Sqoop is a tool that uses MapReduce to transfer data between Hadoop clusters and relational databases very efficiently. It works by spawning tasks on multiple data nodes to download various portions of the data in parallel. When you’re finished, each piece of data is replicated to ensure reliability, and spread out across the cluster to ensure you can process it in parallel on your cluster.&lt;/p&gt;
+
+&lt;p&gt;An Example:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ sqoop import-all-tables \
+    -m 1 \
+    --connect jdbc:mysql://quickstart:3306/test_db \
+    --username=test_user \
+    --password=test_pass \
+    --compression-codec=snappy \
+    --as-avrodatafile \
+    --warehouse-dir=/user/hive/warehouse
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h4 id=&quot;apache-flume&quot;&gt;Apache Flume&lt;/h4&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://flume.apache.org/&quot;&gt;flume.apache.org&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/blog/apache-flume.png&quot; alt=&quot;Apache Flume&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Flume is a scalable real-time framework that allows you to route, filter and aggregate in to all kinds of mini-operations on the data as you transfer it on its way to scalable processing platform like a Hadoop.&lt;/p&gt;
+
+&lt;h3 id=&quot;overview-of-the-hadoop-stack&quot;&gt;Overview of the Hadoop Stack&lt;/h3&gt;
+
+</description>
+        <pubDate>Sun, 21 Feb 2016 20:00:00 +0800</pubDate>
+        <link>ksoong.org/big-data</link>
+        <guid isPermaLink="true">ksoong.org/big-data</guid>
+        
+        
+        <category>data</category>
+        
+      </item>
+    
+      <item>
+        <title>Free Data Sources</title>
+        <description>&lt;p&gt;&lt;a href=&quot;http://www.forbes.com/sites/bernardmarr/2016/02/12/big-data-35-brilliant-and-free-data-sources-for-2016/#3d7ef9b76796&quot;&gt;Big Data: 35 Brilliant And Free Data Sources For 2016&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://govinfo.nlc.gov.cn/&quot;&gt;Chinese Government Public Information Online&lt;/a&gt;&lt;/p&gt;
+
+</description>
+        <pubDate>Sun, 14 Feb 2016 20:00:00 +0800</pubDate>
+        <link>ksoong.org/free-data-sourvces</link>
+        <guid isPermaLink="true">ksoong.org/free-data-sourvces</guid>
+        
+        
+        <category>data</category>
+        
+      </item>
+    
+      <item>
+        <title>Understanding Federated Planning</title>
+        <description>&lt;ul id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#planning-overview-example&quot; id=&quot;markdown-toc-planning-overview-example&quot;&gt;Planning Overview Example&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#query-planner-example&quot; id=&quot;markdown-toc-query-planner-example&quot;&gt;Query Planner Example&lt;/a&gt;    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#reading-a-debug-plan-example&quot; id=&quot;markdown-toc-reading-a-debug-plan-example&quot;&gt;Reading a Debug Plan Example&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#portfolio-example&quot; id=&quot;markdown-toc-portfolio-example&quot;&gt;Portfolio Example&lt;/a&gt;    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#direct-query-source-model-accounts&quot; id=&quot;markdown-toc-direct-query-source-model-accounts&quot;&gt;Direct Query Source Model Accounts&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;planning-overview-example&quot;&gt;Planning Overview Example&lt;/h2&gt;
+
+&lt;p&gt;In &lt;a href=&quot;https://teiid.gitbooks.io/documents/content/reference/Planning_Overview.html&quot;&gt;Planning Overview Document&lt;/a&gt;, there is a example for retrieving all engineering employees born since 1970 via&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;SELECT e.title, e.lastname FROM Employees AS e JOIN Departments AS d ON e.dept_id = d.dept_id WHERE year(e.birthday) &amp;gt;= 1970 AND d.dept_name = &#39;Engineering&#39;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;In this section we will look more details of this example.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/blog/query_plan_2.png&quot; alt=&quot;The start of logical plan&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;CANONICAL PLAN&lt;/code&gt; is the start of logical plan, it looks&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Project(groups=[pm1.EMPLOYEES AS e], props={PROJECT_COLS=[e.TITLE, e.LASTNAME]})
+  Select(groups=[pm1.DEPARTMENTS AS d], props={SELECT_CRITERIA=d.DEPT_NAME = &#39;Engineering&#39;})
+    Select(groups=[pm1.EMPLOYEES AS e], props={SELECT_CRITERIA=year(e.BIRTHDAY) &amp;gt;= 1970})
+      Join(groups=[pm1.EMPLOYEES AS e, pm1.DEPARTMENTS AS d], props={JOIN_TYPE=INNER JOIN, JOIN_STRATEGY=NESTED_LOOP, JOIN_CRITERIA=[e.DEPT_ID = d.DEPT_ID]})
+        Source(groups=[pm1.EMPLOYEES AS e])
+        Source(groups=[pm1.DEPARTMENTS AS d])
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The logical plan optimization including the following steps:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;GENERATE CANONICAL PLAN&lt;/li&gt;
+  &lt;li&gt;EXECUTING PlaceAccess&lt;/li&gt;
+  &lt;li&gt;EXECUTING PushSelectCriteria&lt;/li&gt;
+  &lt;li&gt;EXECUTING PushNonJoinCriteria&lt;/li&gt;
+  &lt;li&gt;EXECUTING CleanCriteria&lt;/li&gt;
+  &lt;li&gt;EXECUTING RaiseAccess&lt;/li&gt;
+  &lt;li&gt;EXECUTING CopyCriteria&lt;/li&gt;
+  &lt;li&gt;EXECUTING CleanCriteria&lt;/li&gt;
+  &lt;li&gt;EXECUTING PlanJoins&lt;/li&gt;
+  &lt;li&gt;EXECUTING PushSelectCriteria&lt;/li&gt;
+  &lt;li&gt;EXECUTING RaiseAccess&lt;/li&gt;
+  &lt;li&gt;EXECUTING RulePlanOuterJoins&lt;/li&gt;
+  &lt;li&gt;EXECUTING ChooseJoinStrategy&lt;/li&gt;
+  &lt;li&gt;EXECUTING ChooseDependent&lt;/li&gt;
+  &lt;li&gt;EXECUTING AssignOutputElements&lt;/li&gt;
+  &lt;li&gt;EXECUTING CalculateCost&lt;/li&gt;
+  &lt;li&gt;EXECUTING ImplementJoinStrategy&lt;/li&gt;
+  &lt;li&gt;EXECUTING MergeCriteria&lt;/li&gt;
+  &lt;li&gt;EXECUTING PlanSorts&lt;/li&gt;
+  &lt;li&gt;EXECUTING CollapseSource&lt;/li&gt;
+  &lt;li&gt;CONVERTING PLAN TREE TO PROCESS TREE&lt;/li&gt;
+  &lt;li&gt;OPTIMIZATION COMPLETE:&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;optimization complete will create a Processor Plan, it looks&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;AccessNode(0) output=[e.TITLE, e.LASTNAME] SELECT g_0.TITLE, g_0.LASTNAME FROM pm1.EMPLOYEES AS g_0, pm1.DEPARTMENTS AS g_1 WHERE (g_0.DEPT_ID = g_1.DEPT_ID) AND (year(g_0.BIRTHDAY) &amp;gt;= 1970) AND (g_1.DEPT_NAME = &#39;Engineering&#39;)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;a href=&quot;/assets/download/teiid-logicalplan-optimization-process-log&quot;&gt;Detailed logical plan optimization log&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;query-planner-example&quot;&gt;Query Planner Example&lt;/h2&gt;
+
+&lt;p&gt;In &lt;a href=&quot;https://teiid.gitbooks.io/documents/content/reference/Query_Planner.html&quot;&gt;Query Planner Document&lt;/a&gt;, ‘Canonical Plan and All Nodes’ section, the example query&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;SELECT max(pm1.g1.e1) FROM pm1.g1 WHERE e2 = 1
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;create a logical plan like&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/blog/teiid-query-plan-3.png&quot; alt=&quot;The start of logical plan 3&quot; /&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Project(groups=[anon_grp0], props={PROJECT_COLS=[anon_grp0.agg0 AS expr1]})
+  Group(groups=[anon_grp0], props={SYMBOL_MAP={anon_grp0.agg0=MAX(pm1.G1.E1)}})
+    Select(groups=[pm1.G1], props={SELECT_CRITERIA=pm1.G1.E2 = 1})
+      Source(groups=[pm1.G1])
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The logical plan optimization including the following steps:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;GENERATE CANONICAL&lt;/li&gt;
+  &lt;li&gt;EXECUTING PlaceAccess&lt;/li&gt;
+  &lt;li&gt;EXECUTING PushSelectCriteria&lt;/li&gt;
+  &lt;li&gt;EXECUTING CleanCriteria&lt;/li&gt;
+  &lt;li&gt;EXECUTING RaiseAccess&lt;/li&gt;
+  &lt;li&gt;EXECUTING PushAggregates&lt;/li&gt;
+  &lt;li&gt;EXECUTING AssignOutputElements&lt;/li&gt;
+  &lt;li&gt;EXECUTING CalculateCost&lt;/li&gt;
+  &lt;li&gt;EXECUTING MergeCriteria&lt;/li&gt;
+  &lt;li&gt;EXECUTING PlanSorts&lt;/li&gt;
+  &lt;li&gt;EXECUTING CollapseSource&lt;/li&gt;
+  &lt;li&gt;CONVERTING PLAN TREE TO PROCESS TREE&lt;/li&gt;
+  &lt;li&gt;OPTIMIZATION COMPLETE&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;a href=&quot;/assets/download/teiid-logicalplan-optimization-process-log-2&quot;&gt;Detailed logical plan optimization log&lt;/a&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;reading-a-debug-plan-example&quot;&gt;Reading a Debug Plan Example&lt;/h3&gt;
+
+&lt;p&gt;In &lt;a href=&quot;https://teiid.gitbooks.io/documents/content/reference/Query_Planner.html#_reading_a_debug_plan&quot;&gt;Reading a Debug Plan Document&lt;/a&gt;, the example query&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;SELECT e1 FROM (SELECT e1 FROM pm1.g1) AS x
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;canonical plan form like&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/blog/teiid-query-plan-4.png&quot; alt=&quot;The start of logical plan 4&quot; /&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Project(groups=[x], props={PROJECT_COLS=[x.E1]})
+  Source(groups=[x], props={NESTED_COMMAND=SELECT pm1.G1.E1 FROM pm1.G1, SYMBOL_MAP={x.E1=pm1.G1.E1}})
+    Project(groups=[pm1.G1], props={PROJECT_COLS=[pm1.G1.E1]})
+      Source(groups=[pm1.G1])
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The logical plan optimization including the following steps:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;GENERATE CANONICAL&lt;/li&gt;
+  &lt;li&gt;EXECUTING PlaceAccess&lt;/li&gt;
+  &lt;li&gt;EXECUTING AssignOutputElements&lt;/li&gt;
+  &lt;li&gt;EXECUTING MergeVirtual&lt;/li&gt;
+  &lt;li&gt;EXECUTING CleanCriteria&lt;/li&gt;
+  &lt;li&gt;EXECUTING RaiseAccess&lt;/li&gt;
+  &lt;li&gt;EXECUTING AssignOutputElements&lt;/li&gt;
+  &lt;li&gt;EXECUTING CalculateCost&lt;/li&gt;
+  &lt;li&gt;EXECUTING PlanSorts&lt;/li&gt;
+  &lt;li&gt;EXECUTING CollapseSource&lt;/li&gt;
+  &lt;li&gt;CONVERTING PLAN TREE TO PROCESS TREE&lt;/li&gt;
+  &lt;li&gt;OPTIMIZATION COMPLETE&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;a href=&quot;/assets/download/teiid-logicalplan-optimization-process-log-3&quot;&gt;Detailed logical plan optimization log&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;portfolio-example&quot;&gt;Portfolio Example&lt;/h2&gt;
+
+&lt;p&gt;Portfolio Example contains 2 data sources: h2 database(&lt;a href=&quot;https://raw.githubusercontent.com/kylinsoong/teiid-test/master/embedded/src/main/resources/data/customer-schema.sql&quot;&gt;customer-schema.sql&lt;/a&gt;) and text file(&lt;a href=&quot;https://raw.githubusercontent.com/kylinsoong/teiid-test/master/embedded/src/main/resources/data/marketdata-price.txt&quot;&gt;marketdata-price.txt&lt;/a&gt;), 2 data sources are Federated, &lt;a href=&quot;https://raw.githubusercontent.com/kylinsoong/teiid-test/master/embedded/src/main/resources/portfolio-vdb.xml&quot;&gt;portfolio-vdb.xml&lt;/a&gt; is the VDB which defined Source Model &lt;code class=&quot;highlighter-rouge&quot;&gt;MarketData&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;Accounts&lt;/code&gt; and View Model &lt;code class=&quot;highlighter-rouge&quot;&gt;Stocks&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3 id=&quot;direct-query-source-model-accounts&quot;&gt;Direct Query Source Model Accounts&lt;/h3&gt;
+
+&lt;p&gt;&lt;strong&gt;Query SQL&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;SELECT A.ID, A.SYMBOL, A.COMPANY_NAME from Accounts.Product AS A
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;Logical Plan&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/blog/teiid-query-plan-portfolio-1.png&quot; alt=&quot;teiid-query-plan-portfolio-1&quot; /&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Project(groups=[Accounts.PRODUCT AS A], props={PROJECT_COLS=[A.ID, A.SYMBOL, A.COMPANY_NAME]})
+  Source(groups=[Accounts.PRODUCT AS A])
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The logical plan optimization including the following steps:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;GENERATE CANONICAL&lt;/li&gt;
+  &lt;li&gt;EXECUTING PlaceAccess&lt;/li&gt;
+  &lt;li&gt;EXECUTING RaiseAccess&lt;/li&gt;
+  &lt;li&gt;EXECUTING AssignOutputElements&lt;/li&gt;
+  &lt;li&gt;EXECUTING CalculateCost&lt;/li&gt;
+  &lt;li&gt;EXECUTING PlanSorts&lt;/li&gt;
+  &lt;li&gt;EXECUTING CollapseSource&lt;/li&gt;
+  &lt;li&gt;CONVERTING PLAN TREE TO PROCESS TREE&lt;/li&gt;
+  &lt;li&gt;OPTIMIZATION COMPLETE&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;a href=&quot;/assets/download/teiid-portfolio-logical-plan-optimization-1&quot;&gt;Detailed logical plan optimization log&lt;/a&gt;&lt;/p&gt;
+
+</description>
+        <pubDate>Thu, 04 Feb 2016 01:00:00 +0800</pubDate>
+        <link>ksoong.org/teiid-planning</link>
+        <guid isPermaLink="true">ksoong.org/teiid-planning</guid>
+        
+        
+        <category>teiid</category>
+        
+      </item>
+    
+      <item>
+        <title>Java Transaction API and Examples</title>
+        <description>&lt;p&gt;This page contain examples of Java Transaction API.&lt;/p&gt;
+
+&lt;ul id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#transactionmanager&quot; id=&quot;markdown-toc-transactionmanager&quot;&gt;TransactionManager&lt;/a&gt;    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#example1-begin-commit&quot; id=&quot;markdown-toc-example1-begin-commit&quot;&gt;Example.1: begin(), commit()&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#example2-begin-rollback&quot; id=&quot;markdown-toc-example2-begin-rollback&quot;&gt;Example.2: begin(), rollback()&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#example3-begin-setrollbackonly-commit&quot; id=&quot;markdown-toc-example3-begin-setrollbackonly-commit&quot;&gt;Example.3: begin(), setRollbackOnly(), commit()&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#example4-begin-getstatus-commit&quot; id=&quot;markdown-toc-example4-begin-getstatus-commit&quot;&gt;Example.4: begin(), getStatus(), commit()&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#example5-settransactiontimeout-begin-commit&quot; id=&quot;markdown-toc-example5-settransactiontimeout-begin-commit&quot;&gt;Example.5: setTransactionTimeout(), begin(), commit()&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#example6-begin-gettransaction&quot; id=&quot;markdown-toc-example6-begin-gettransaction&quot;&gt;Example.6: begin(), getTransaction()&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#usertransaction&quot; id=&quot;markdown-toc-usertransaction&quot;&gt;UserTransaction&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#synchronization&quot; id=&quot;markdown-toc-synchronization&quot;&gt;Synchronization&lt;/a&gt;    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#example1-print-notes-before-and-after-the-transaction-completes&quot; id=&quot;markdown-toc-example1-print-notes-before-and-after-the-transaction-completes&quot;&gt;Example.1: Print notes before and after the transaction completes&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#xaresource&quot; id=&quot;markdown-toc-xaresource&quot;&gt;XAResource&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;transactionmanager&quot;&gt;TransactionManager&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/blog/teiid/jta-api-TransactionManager.png&quot; alt=&quot;TransactionManager&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;javax.transaction.TransactionManager&lt;/code&gt; interface defines the methods that allow an application server to manage transactions on behalf of the applications.&lt;/p&gt;
+
+&lt;p&gt;User applications should not use this interface directly, but use &lt;a href=&quot;#UserTransaction&quot;&gt;UserTransaction&lt;/a&gt; insted if they need to do their own transaction management.&lt;/p&gt;
+
+&lt;p&gt;Internally, the transaction manager associates transactions with threads, and the methods here operate on the transaction associated with the calling thread.&lt;/p&gt;
+
+&lt;h3 id=&quot;example1-begin-commit&quot;&gt;Example.1: begin(), commit()&lt;/h3&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;TransactionManager tm = getTransactionManager();
+tm.begin();
+tm.commit();
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;example2-begin-rollback&quot;&gt;Example.2: begin(), rollback()&lt;/h3&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;TransactionManager tm = getTransactionManager();
+tm.begin();
+tm.rollback();
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;example3-begin-setrollbackonly-commit&quot;&gt;Example.3: begin(), setRollbackOnly(), commit()&lt;/h3&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;TransactionManager tm = getTransactionManager();
+tm.begin();
+tm.setRollbackOnly();
+tm.commit();
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;NOTE: this will throw &lt;code class=&quot;highlighter-rouge&quot;&gt;javax.transaction.RollbackException&lt;/code&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;example4-begin-getstatus-commit&quot;&gt;Example.4: begin(), getStatus(), commit()&lt;/h3&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;TransactionManager tm = getTransactionManager();
+tm.begin();
+System.out.println(Status.STATUS_ACTIVE == tm.getStatus());
+tm.commit();
+System.out.println(Status.STATUS_NO_TRANSACTION == tm.getStatus());
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Run this code will output:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;true
+true
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;example5-settransactiontimeout-begin-commit&quot;&gt;Example.5: setTransactionTimeout(), begin(), commit()&lt;/h3&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;TransactionManager tm = getTransactionManager();
+tm.setTransactionTimeout(3);
+tm.begin();
+Thread.sleep(1000 * 5);
+tm.commit();
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;NOTE: this will throw &lt;code class=&quot;highlighter-rouge&quot;&gt;javax.transaction.RollbackException&lt;/code&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;example6-begin-gettransaction&quot;&gt;Example.6: begin(), getTransaction()&lt;/h3&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;TransactionManager tm = getTransactionManager();
+tm.begin();
+Transaction t = tm.getTransaction();
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;usertransaction&quot;&gt;UserTransaction&lt;/h2&gt;
+
+&lt;p&gt;//TODO&lt;/p&gt;
+
+&lt;h2 id=&quot;synchronization&quot;&gt;Synchronization&lt;/h2&gt;
+
+&lt;p&gt;The The transaction manager supports a &lt;code class=&quot;highlighter-rouge&quot;&gt;javax.transaction.Synchronization&lt;/code&gt; that allows the interested party to be notified before and after the transaction completes. Using the registerSynchronization method, the application server registers a Synchronization object for the transaction currently associated with the target Transaction object.&lt;/p&gt;
+
+&lt;h3 id=&quot;example1-print-notes-before-and-after-the-transaction-completes&quot;&gt;Example.1: Print notes before and after the transaction completes&lt;/h3&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;TransactionManager tm = getTransactionManager();
+tm.begin();
+Transaction t = tm.getTransaction();
+t.registerSynchronization(new Synchronization(){
+
+    public void beforeCompletion() {
+        System.out.println(&quot;transaction before completion&quot;);
+    }
+
+    public void afterCompletion(int status) {
+        System.out.println(&quot;transaction after completion, status: &quot; + status);
+    }
+            
+});
+tm.commit(); 
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Run this code will output:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;transaction before completion
+transaction after completion, status: 3
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;NOTE: status is 3 means &lt;code class=&quot;highlighter-rouge&quot;&gt;STATUS_COMMITTED&lt;/code&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;xaresource&quot;&gt;XAResource&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/blog/teiid/jta-api-XAResource.png&quot; alt=&quot;XAResource&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;javax.transaction.xa.XAResource&lt;/code&gt; interface is a Java mapping of the industry standard XA interface based on the &lt;strong&gt;X/Open CAE Specification (Distributed Transaction Processing: The XA Specification)&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;The XA interface defines the contract between a Resource Manager and a Transaction Manager in a distributed transaction processing (DTP) environment. An XA resource such as a JDBC driver or a JMS provider implements this interface to support association between a global transaction and a database or message service connection.&lt;/p&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;XAResource&lt;/code&gt; interface can be supported by any transactional resource that is intended to be used by application programs in an environment where transactions are controlled by an external transaction manager. An example of such a resource is a database management system. An application may access data through multiple database connections. Each database connection is enlisted with the transaction manager as a transactional resource. The transaction manager obtains an XAResource for each connection participating in a global transaction. The transaction manager uses the &lt;code class=&quot;highlighter-rouge&quot;&gt;start(Xid, int)&lt;/code&gt; method to associate the global transaction with the resource, and it uses the &lt;code class=&quot;highlighter-rouge&quot;&gt;end(Xid, int)&lt;/code&gt; method to disassociate the transaction from the resource. The resource manager is responsible for associating the global transaction to all work performed on its data between the start and end method invocation.&lt;/p&gt;
+
+&lt;p&gt;At transaction commit time, the resource managers are informed by the transaction manager to prepare, commit, or rollback a transaction according to the two-phase commit protocol.&lt;/p&gt;
+
+&lt;p&gt;Behind the resources that implement this interface the resource manager exists. The resource manager does not have a public interface or direct references, and can manage several resources. To see if two resources are managed by the same resource manager, the &lt;code class=&quot;highlighter-rouge&quot;&gt;isSameRM(XAResource)&lt;/code&gt; method can be used.&lt;/p&gt;
+
+&lt;p&gt;The Xid interface is a Java mapping of the X/Open transaction identifier XID structure. A transaction id is an aggregate of three parts:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;The format identifier indicates the transaction family and tells how the other two parts should be interpreted.&lt;/li&gt;
+  &lt;li&gt;The global transaction id denotes, with the format specifier, the id of the global transaction.&lt;/li&gt;
+  &lt;li&gt;The branch qualifier denotes a particular branch of the global transaction.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;The Xid interface is used by the application server, the transaction manager and the resource managers, and is not used in application programs.&lt;/p&gt;
+</description>
+        <pubDate>Wed, 20 Jan 2016 20:00:12 +0800</pubDate>
+        <link>ksoong.org/javaee/2016/01/20/jta-api-examples/</link>
+        <guid isPermaLink="true">ksoong.org/javaee/2016/01/20/jta-api-examples/</guid>
+        
+        
+        <category>javaee</category>
+        
+      </item>
+    
+  </channel>
+</rss>

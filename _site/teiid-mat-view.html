@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html class="ready" lang="en"><head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="shenma-site-verification" content="8a69823d7371d1eec4379853d25200cd_1448504990"> 
+    <title>Kylin Soong . Blog</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="/feed.xml" rel="alternate" title="Kylin Soong . Blog Atom feed" type="application/atom+xml">
+    <link href="/css/screen.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.js"></script>
+    <![endif]-->
+    <link href="/favicon.ico" rel="shortcut icon">
+
+</head>
+
+  <body class="blog index">
+    <header class="navbar navbar-fixed-top" id="banner" role="banner">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-target=".nav-collapse" data-toggle="collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/">
+            <span class="logo"></span>
+            <span class="name">ksoong</span>
+          </a>
+          <nav class="nav-collapse" role="navigation">
+            <ul class="nav">
+              <li><a href="/">Home</a></li>
+	      <!--
+              <li><a href="/lab">Labs</a></li>
+              <li><a href="/blog/">Blog</a></li>
+	      -->
+	      <li><a href="/books">Books</a></li>
+              <li><a href="/archive">Archives</a></li>
+              <li><a href="/slide">Slides</a></li>
+              <li><a href="/about">About</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+    <div style="min-height: 250px;" id="main" role="main">
+      
+<div id="content-header">
+        <div class="container">
+         <h1>
+              <a href="/blog">Blog</a>
+              <!--a href="#">&raquo;</a>
+              <a href="/teiid-mat-view">Teiid Materialized Views</a-->
+          </h1>
+        </div>
+</div>
+      <div class="container">
+        <div id="content">
+          
+<h2 class="title">
+                 <a class="post-link" href="/teiid-mat-view">Teiid Materialized Views</a>
+              </h2>
+ 
+<header class="post">
+              <div class="byline">
+                <span class="author">Posted by
+                <a href="/about">Kylin Soong</a> on</span>
+                <span class="dateinline">May 27, 2015</span>
+		<i class="icon-tags"></i> categorized as <a class="tag" href="/categories/teiid">teiid</a>
+              </div>
+            </header>
+
+ 
+<ul id="markdown-toc">
+  <li><a href="#materialized-views" id="markdown-toc-materialized-views">Materialized Views</a></li>
+  <li><a href="#internal-materialization" id="markdown-toc-internal-materialization">Internal Materialization</a>    <ul>
+      <li><a href="#update-strategies-in-vdb-deployment" id="markdown-toc-update-strategies-in-vdb-deployment">Update Strategies in VDB Deployment</a></li>
+      <li><a href="#the-matviews-table" id="markdown-toc-the-matviews-table">The MatViews Table</a></li>
+      <li><a href="#process-of-sysadminrefreshmatview" id="markdown-toc-process-of-sysadminrefreshmatview">Process of SYSADMIN.refreshMatView</a></li>
+      <li><a href="#a-sample-dynamic-vdb-defining-an-internal-materialization" id="markdown-toc-a-sample-dynamic-vdb-defining-an-internal-materialization">A sample Dynamic VDB defining an internal materialization</a></li>
+    </ul>
+  </li>
+  <li><a href="#materializationmanager-finishdeployment" id="markdown-toc-materializationmanager-finishdeployment">MaterializationManager FinishDeployment</a></li>
+</ul>
+
+<h2 id="materialized-views">Materialized Views</h2>
+
+<p>Teiid Materialized views are just like other views, but their transformations are pre-computed and stored just like a regular table. When queries are issued against the views through the Teiid Server, the cached results are used.</p>
+
+<p>There are 2 categories of Materialization:</p>
+
+<ul>
+  <li>External Materialization - External materialized views cache their data in an external database system. External materialized views give the administrator full control over the loading and refresh strategies.</li>
+  <li>Internal Materialization - Internal materialization creates Teiid temporary tables to hold the materialized table. While these tables are not fully durable, they perform well in most circumstances and the data is present at each Teiid instance which removes the single point of failure and network overhead of an external database. Internal materialization also provides more built-in facilities for refreshing and monitoring.</li>
+</ul>
+
+<p>Detailed documentation from <a href="https://teiid.gitbooks.io/documents/content/caching/Materialized_Views.html">Teiid doc</a>.</p>
+
+<h2 id="internal-materialization">Internal Materialization</h2>
+
+<p>An Internal Materialization have to meet the following 3 conditions:</p>
+
+<ol>
+  <li>the view should be VIRTUAL, which means the View should be in a <code class="highlighter-rouge">VIRTUAL</code> model</li>
+  <li><code class="highlighter-rouge">materialized</code> have to be set and value should be true</li>
+  <li><code class="highlighter-rouge">teiid_rel:ALLOW_MATVIEW_MANAGEMENT</code> should be added and value should be true</li>
+</ol>
+
+<p><a href="#A sample Dynamic VDB defining an internal materialization">A sample Dynamic VDB defining an internal materialization</a></p>
+
+<h3 id="update-strategies-in-vdb-deployment">Update Strategies in VDB Deployment</h3>
+
+<p>The MaterializationManager FinishDeployment judge Materialized View is Internal by <code class="highlighter-rouge">MATERIALIZED_TABLE</code> option, if <code class="highlighter-rouge">MATERIALIZED_TABLE</code> is set, the Materialized View is Internal.</p>
+
+<p>The Update Strategies controled by <code class="highlighter-rouge">teiid_rel:MATVIEW_TTL</code> option:</p>
+
+<ul>
+  <li>If <code class="highlighter-rouge">teiid_rel:MATVIEW_TTL</code> is set, a Scheduled ExecutorService will be triggered, which execute SYSADMIN.refreshMatView() repeatedly with a specified TTL interval</li>
+  <li>If <code class="highlighter-rouge">teiid_rel:MATVIEW_TTL</code> is not set or less than/equals 0, the Materialized View be load only one time</li>
+</ul>
+
+<p><strong>MaterializationAction process</strong></p>
+
+<p><img src="/assets/blog/teiid/teiid-internalmat-MaterializationAction.png" alt="MaterializationAction process" /></p>
+
+<p><strong>Appendix-1</strong></p>
+
+<ol>
+  <li>If MATERIALIZED_TABLE is not configured, the View is Internal</li>
+  <li>If teiid_rel:MATVIEW_TTL is not configured, or value &lt;= 0, sql <code class="highlighter-rouge">select count(*) from MatView</code> pass to executeAsynchQuery(), and execute once.</li>
+  <li>If teiid_rel:MATVIEW_TTL is configured and value &gt; 0, sql <code class="highlighter-rouge">call SYSADMIN.refreshMatView('MatView', true)</code> pass to executeAsynchQuery(), and execute repeatedly</li>
+</ol>
+
+<p><strong>Appendix-2</strong></p>
+
+<p><a href="http://ksoong.org/teiid-s-diagram/#dqpcore-execute-request">DQPCore Execute Request</a></p>
+
+<blockquote>
+  <p>NOTE: 2 kinds of probable SQL will be passed to this method, <code class="highlighter-rouge">select count(*) from MatView</code> or <code class="highlighter-rouge">call SYSADMIN.refreshMatView('MatView', true)</code></p>
+</blockquote>
+
+<h3 id="the-matviews-table">The MatViews Table</h3>
+
+<p><a href="https://teiid.gitbooks.io/documents/content/reference/sysadmin_schema.html#_sysadmin_matviews">SYSADMIN.MatViews</a> supplies information about all the materailized views in the virtual database. It’s creation SQL looks</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>CREATE FOREIGN TABLE MatViews (
+        VDBName string(255) NOT NULL,
+        SchemaName string(255) NOT NULL,
+        Name string(255) NOT NULL,
+        TargetSchemaName string(255),
+        TargetName string,
+        Valid boolean,
+        LoadState string(255),
+        Updated timestamp,
+        Cardinality integer,
+        PRIMARY KEY (VDBName, SchemaName, Name)
+);
+</code></pre>
+</div>
+
+<p><a href="https://teiid.gitbooks.io/documents/content/reference/sysadmin_schema.html#_sysadmin_matviews">SYSADMIN.MatViews</a> is a system tables, in this section we will look how System tables be queries in Teiid.</p>
+
+<h3 id="process-of-sysadminrefreshmatview">Process of SYSADMIN.refreshMatView</h3>
+
+<p><strong>Create Temp Table</strong></p>
+
+<p>As below figure, a Internal Mat View reference a Internal Local Temp Table. The syntax of name a Temp Table is add prefix <code class="highlighter-rouge">#MAT_</code> to Internal Mat View, for example, <code class="highlighter-rouge">#MAT_TESTMAT.SAMPLEMATVIEW</code> is the internal temp table for Internal Mat View <code class="highlighter-rouge">TESTMAT.SAMPLEMATVIEW</code>.</p>
+
+<p><img src="/assets/blog/teiid/teiid-internal-temp-table.png" alt="Create a Internal Mat Table" /></p>
+
+<p><strong>Insert Temp Table</strong></p>
+
+<p><img src="/assets/blog/teiid/teiid-internal-temp-table-insert.png" alt="Insert a Internal Mat Table" /></p>
+
+<h3 id="a-sample-dynamic-vdb-defining-an-internal-materialization">A sample Dynamic VDB defining an internal materialization</h3>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>&lt;model name="StocksMatModel" type="VIRTUAL"&gt;
+    &lt;metadata type="DDL"&gt;&lt;![CDATA[
+        CREATE view stockPricesInterMatView
+                (
+            product_id integer,
+            symbol string,
+            price bigdecimal,
+            company_name   varchar(256)
+                ) OPTIONS (materialized true,         
+               "teiid_rel:ALLOW_MATVIEW_MANAGEMENT" 'true', 
+               "teiid_rel:MATVIEW_PREFER_MEMEORY" 'true',
+               "teiid_rel:MATVIEW_TTL" 600000,
+               "teiid_rel:MATVIEW_UPDATABLE" 'true', 
+               "teiid_rel:MATVIEW_SCOPE" 'VDB')
+               AS SELECT  A.ID, S.symbol, S.price, A.COMPANY_NAME FROM Stocks.StockPrices AS S, Accounts.PRODUCT AS A WHERE S.symbol = A.SYMBOL;
+        ]]&gt;
+    &lt;/metadata&gt;
+&lt;/model&gt;
+</code></pre>
+</div>
+
+<h2 id="materializationmanager-finishdeployment">MaterializationManager FinishDeployment</h2>
+
+<p><img src="/assets/blog/teiid-finish-deployment.png" alt="MaterializationManager" /></p>
+
+
+<br/>
+<ul class="btn pull-right">
+<div class="bdsharebuttonbox">
+  <a href="#" class="bds_more" data-cmd="more"></a>
+  <a title="分享到QQ空间" href="#" class="bds_qzone" data-cmd="qzone"></a>
+  <a title="分享到新浪微博" href="#" class="bds_tsina" data-cmd="tsina"></a>
+  <a title="分享到腾讯微博" href="#" class="bds_tqq" data-cmd="tqq"></a>
+  <a title="分享到人人网" href="#" class="bds_renren" data-cmd="renren"></a>
+  <a title="分享到微信" href="#" class="bds_weixin" data-cmd="weixin"></a>
+</div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"分享ksoong.org的文章「Teiid Materialized Views」 - ksoong.org","bdDesc":"","bdMini":"2","bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</ul>
+
+<div class="ds-thread" data-thread-key="ksoong2015052601" data-title="Teiid Materialized Views" data-url="ksoong.org/teiid-mat-view"></div>
+
+	    <ul class="pager">
+		
+		<li class="previous"><a href="/teiid-dqp">&laquo;&nbsp;Understanding Teiid Engine</a></li>
+		
+		
+		<li class="next"><a href="/java-timer">Java 执行 scheduled task&nbsp;&raquo;</a></li>
+		
+	    </ul>
+
+
+        </div>
+        <aside id="sidebar" role="complementary">
+          <div class="subscribe">
+            <h2 class="icon news">
+              <a href="/feed.xml">Subscribe</a>
+            </h2>
+          </div>
+          <nav class="latest">
+            <h2>Latest Posts</h2>
+            <ul>
+            
+              <li>
+                <div class="title">
+                  <a href="/wfl-ds">WildFly Data Sources Configuration</a>
+                </div>
+                <div class="meta">
+                  Apr 26, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-transactions">Transaction in Teiid</a>
+                </div>
+                <div class="meta">
+                  Apr 20, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-getstart-code">Get Start Teiid From Source...</a>
+                </div>
+                <div class="meta">
+                  Apr 7, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-metadata">Understanding Teiid Metadata</a>
+                </div>
+                <div class="meta">
+                  Mar 27, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/rhel7-commands">Linux 命令集合</a>
+                </div>
+                <div class="meta">
+                  Mar 17, 2016
+                </div>
+              </li>
+             
+            </ul>
+            
+                        
+          </nav>
+          <nav class="tags">
+            <h2>Categories</h2>
+            <div class="tag-cloud">
+              
+              <span class="tag tag-1">
+                <a href="/categories/jekyll">Jekyll(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/jboss">Jboss(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/java">Java(18)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/css">Css(1)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/database">Database(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/javaee">Javaee(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/linux">Linux(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/teiid">Teiid(40)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/maven">Maven(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/netty">Netty(7)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/data">Data(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/git">Git(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/other">Other(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/performance">Performance(4)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/security">Security(3)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/docker">Docker(4)</a>
+              </span>
+              
+              
+            </div>
+          </nav>
+        </aside>
+      </div>
+
+
+    </div>
+    <footer>
+      <div class="container">
+        <div class="project">
+          <p class="bottom">
+            ©
+            Copyright 2009-2016 ksoong.
+            <br>
+            <i class="icon-fire"></i>
+            Mixed with <a href="http://twitter.github.com/bootstrap">Bootstrap</a>.
+            <br>
+            <i class="icon-share-alt"></i>
+            Website and docs licensed under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
+            <br>
+            Code released under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, v2.0</a>.
+          </p>
+        </div>
+        <div class="footer-nav">
+          <h4>Learn</h4>
+          <ul>
+            <li>
+              <a href="http://www.jboss.org/">JBoss</a>
+            </li>
+            <li>
+              <a href="http://infinispan.org/">Infinispan</a>
+            </li>
+            <li>
+              <a href="http://teiid.org/">Teiid</a>
+            </li>
+            <li>
+              <a href="https://github.com/kylinsoong">Github</a>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="sponser">
+          <div class="follow-us">
+            <h4>Stay Informed</h4>
+            <ul>
+              <li>
+                <a href="https://plus.google.com/103933729718268414460?rel=author"><img alt="Google+" src="/css/googleplus-16.png" title="Follow ksoong.org on Google+"></a>
+              </li>
+              <li>
+                <a href="http://www.weibo.com/kylinsoong"><img alt="Weibo" src="/css/weibo_logo.jpg" title="Follow me on Weibo"></a>
+              </li>
+	      <li>
+                <a href="https://github.com/kylinsoong"><img alt="Github" src="/css/Octocat.jpg" title="Fork me on Github"></a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+        <a class="visible-desktop" href="#" id="toTop">Top</a>
+      </div>
+        <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1258751305'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1258751305%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+    </footer>
+  
+ 
+    <script src="/css/jquery-1.11.1.min.js"></script>
+    <script src="/css/bootstrap.js"></script>
+
+   <script>
+      $(function() {
+        $('html').addClass('ready');
+        prettify();
+        activateFooterGravity();
+        activateTooltips();
+        activateToTopControl();
+      });
+    </script>
+    <script src="/css/site.js"></script>
+
+    
+            
+            <script type="text/javascript">
+                var duoshuoQuery = {short_name:"ksoong"};
+                (function() {
+                    var ds = document.createElement('script');
+                    ds.type = 'text/javascript';
+                    ds.async = true;
+                    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+                    ds.charset = 'UTF-8';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+                })();
+            </script>
+            
+        
+
+
+</body>
+</html>

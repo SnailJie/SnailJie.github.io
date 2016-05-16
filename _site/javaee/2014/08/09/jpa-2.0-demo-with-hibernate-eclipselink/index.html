@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html class="ready" lang="en"><head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="shenma-site-verification" content="8a69823d7371d1eec4379853d25200cd_1448504990"> 
+    <title>Kylin Soong . Blog</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="/feed.xml" rel="alternate" title="Kylin Soong . Blog Atom feed" type="application/atom+xml">
+    <link href="/css/screen.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.js"></script>
+    <![endif]-->
+    <link href="/favicon.ico" rel="shortcut icon">
+
+</head>
+
+  <body class="blog index">
+    <header class="navbar navbar-fixed-top" id="banner" role="banner">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-target=".nav-collapse" data-toggle="collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/">
+            <span class="logo"></span>
+            <span class="name">ksoong</span>
+          </a>
+          <nav class="nav-collapse" role="navigation">
+            <ul class="nav">
+              <li><a href="/">Home</a></li>
+	      <!--
+              <li><a href="/lab">Labs</a></li>
+              <li><a href="/blog/">Blog</a></li>
+	      -->
+	      <li><a href="/books">Books</a></li>
+              <li><a href="/archive">Archives</a></li>
+              <li><a href="/slide">Slides</a></li>
+              <li><a href="/about">About</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+    <div style="min-height: 250px;" id="main" role="main">
+      
+<div id="content-header">
+        <div class="container">
+         <h1>
+              <a href="/blog">Blog</a>
+              <!--a href="#">&raquo;</a>
+              <a href="/javaee/2014/08/09/jpa-2.0-demo-with-hibernate-eclipselink/">JPA 2 Employee Demo with Hibernate EclipseLink</a-->
+          </h1>
+        </div>
+</div>
+      <div class="container">
+        <div id="content">
+          
+<h2 class="title">
+                 <a class="post-link" href="/javaee/2014/08/09/jpa-2.0-demo-with-hibernate-eclipselink/">JPA 2 Employee Demo with Hibernate EclipseLink</a>
+              </h2>
+ 
+<header class="post">
+              <div class="byline">
+                <span class="author">Posted by
+                <a href="/about">Kylin Soong</a> on</span>
+                <span class="dateinline">Aug 9, 2014</span>
+		<i class="icon-tags"></i> categorized as <a class="tag" href="/categories/javaee">javaee</a>
+              </div>
+            </header>
+
+ 
+<p>Hibernate and EclipseLink both fully support JSR-317 (JPA 2.0), Hibernate have the largest community and is widely used/tested, EclipseLink are more light weight and feature at Service Data Objects(SDO) and Object-XML (JAXB), Object-JSON and integration with EIS. Both of them have features for which the other doesn’t have equivalent.</p>
+
+<p>This document supply a JPA 2 Employee Demo with Hibernate and EclipseLink, the Demo source code can be found <a href="https://github.com/kylinsoong/JPA/tree/master/employee">here</a>. The Demo architecture looks like</p>
+
+<p><img src="/assets/blog/jpa-employee-demo.png" alt="architecture" /></p>
+
+<h2 id="model">Model</h2>
+
+<p>Model mainly contain one Employee entity, each Employee have one Address, have more phone number, it looks like</p>
+
+<p><img src="/assets/blog/jpa-employee-demo-model.png" alt="architecture" /></p>
+
+<p>The whole Model Source code can be found <a href="https://github.com/kylinsoong/JPA/tree/master/employee/model">here</a></p>
+
+<h2 id="hibernate">Hibernate</h2>
+
+<p>Assume mysql database <code class="highlighter-rouge">testdb</code> be created, and mysql user <code class="highlighter-rouge">jdv_user/jdv_pass</code> have rights to operate the <code class="highlighter-rouge">testdb</code>.</p>
+
+<p>The Hibernate I used in this document is 4.2.0.Final, I have import it in pom.xml</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>		&lt;dependency&gt;
+			&lt;groupId&gt;org.hibernate&lt;/groupId&gt;
+			&lt;artifactId&gt;hibernate-entitymanager&lt;/artifactId&gt;
+			&lt;version&gt;4.2.0.Final&lt;/version&gt;
+		&lt;/dependency&gt;
+</code></pre>
+</div>
+
+<p>The persistence.xml configured like</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>&lt;persistence version="2.0"
+   xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="
+        http://java.sun.com/xml/ns/persistence
+        http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"&gt;
+   &lt;persistence-unit name="org.jboss.demo.jpa.model"  transaction-type="RESOURCE_LOCAL"&gt;
+   	  
+      &lt;class&gt;org.jboss.demo.jpa.model.Address&lt;/class&gt;
+      &lt;class&gt;org.jboss.demo.jpa.model.Employee&lt;/class&gt;
+      &lt;class&gt;org.jboss.demo.jpa.model.EmploymentPeriod&lt;/class&gt;
+      &lt;class&gt;org.jboss.demo.jpa.model.PhoneNumber&lt;/class&gt;
+      &lt;class&gt;org.jboss.demo.jpa.model.Gender&lt;/class&gt;
+      
+      &lt;properties&gt;
+         &lt;!-- Properties for Hibernate --&gt;
+         &lt;property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect"/&gt;      
+         &lt;property name="hibernate.hbm2ddl.auto" value="create" /&gt;
+         &lt;property name="hibernate.show_sql" value="true" /&gt;
+         
+         &lt;!-- mysql db connection --&gt;
+         
+         &lt;property name="hibernate.connection.driver_class" value="com.mysql.jdbc.Driver"/&gt;
+         &lt;property name="hibernate.connection.username" value="jdv_user"/&gt;
+         &lt;property name="hibernate.connection.password" value="jdv_pass"/&gt;
+         &lt;property name="hibernate.connection.url" value="jdbc:mysql://localhost:3306/testdb"/&gt;
+
+      &lt;/properties&gt;
+   &lt;/persistence-unit&gt;
+&lt;/persistence&gt;
+</code></pre>
+</div>
+
+<p>Either run <a href="https://github.com/kylinsoong/JPA/blob/master/employee/hibernate/src/main/java/org/jboss/demo/jpa/hibernate/EmployeeHibernate.java">EmployeeHibernate</a> as Java Application, or run <a href="https://github.com/kylinsoong/JPA/blob/master/employee/hibernate/src/test/java/org/jboss/demo/jpa/hibernate/EmployeeHibernateTest.java">EmployeeHibernateTest</a> as junit test, it will first add 2 employees to mysql, then quey DB via JPA NamedQuery, the output like</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>create 3 Employees
+
+JPA NamedQuery Employee.findAll
+[firstName=Emma, gender=Female, lastName=Brown, salary=300000.0]
+[firstName=Madison, gender=Female, lastName=Jones, salary=300000.0]
+[firstName=Mia, gender=Female, lastName=Johnson, salary=300000.0]
+
+JPA NamedQuery Employee.findByName
+
+JPA NamedQuery Employee.count
+3
+
+JPA NamedQuery Employee.address
+[city=BJ, country=CNA, province=BJ, postalCode=100020, street=DDQ]
+[city=BJ, country=CNA, province=BJ, postalCode=100020, street=DDQ]
+[city=BJ, country=CNA, province=BJ, postalCode=100020, street=DDQ]
+</code></pre>
+</div>
+
+<h2 id="eclipselink">EclipseLink</h2>
+
+<p>Assume mysql database <code class="highlighter-rouge">testdb</code> be created, and mysql user <code class="highlighter-rouge">jdv_user/jdv_pass</code> have rights to operate the <code class="highlighter-rouge">testdb</code>.</p>
+
+<p>The EclipseLink I used in this document is 2.5.0, I have import it in pom.xml</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>		&lt;dependency&gt;
+			&lt;groupId&gt;org.eclipse.persistence&lt;/groupId&gt;
+			&lt;artifactId&gt;eclipselink&lt;/artifactId&gt;
+			&lt;version&gt;2.5.0&lt;/version&gt;
+		&lt;/dependency&gt;
+</code></pre>
+</div>
+
+<p>The persistence.xml configured like</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>&lt;persistence version="2.0"
+   xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="
+        http://java.sun.com/xml/ns/persistence
+        http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"&gt;
+   &lt;persistence-unit name="org.jboss.demo.jpa.model"  transaction-type="RESOURCE_LOCAL"&gt;
+   	  
+      &lt;class&gt;org.jboss.demo.jpa.model.Address&lt;/class&gt;
+      &lt;class&gt;org.jboss.demo.jpa.model.Employee&lt;/class&gt;
+      &lt;class&gt;org.jboss.demo.jpa.model.EmploymentPeriod&lt;/class&gt;
+      &lt;class&gt;org.jboss.demo.jpa.model.PhoneNumber&lt;/class&gt;
+      &lt;class&gt;org.jboss.demo.jpa.model.Gender&lt;/class&gt;
+      
+      &lt;properties&gt;
+      &lt;property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" /&gt;
+      &lt;property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/testdb" /&gt;
+      &lt;property name="javax.persistence.jdbc.user" value="jdv_user" /&gt;
+      &lt;property name="javax.persistence.jdbc.password" value="jdv_pass" /&gt;
+
+      &lt;!-- EclipseLink should create the database schema automatically --&gt;
+      &lt;property name="eclipselink.ddl-generation" value="create-tables" /&gt;
+      &lt;property name="eclipselink.ddl-generation.output-mode" value="database" /&gt;
+    &lt;/properties&gt;
+      
+   &lt;/persistence-unit&gt;
+&lt;/persistence&gt;
+</code></pre>
+</div>
+
+<p>Either run <a href="https://github.com/kylinsoong/JPA/blob/master/employee/eclipselink/src/main/java/org/jboss/demo/jpa/eclipselink/EmployeeEclipseLink.java">EmployeeEclipseLink</a>, as Java Application, or run <a href="https://github.com/kylinsoong/JPA/blob/master/employee/eclipselink/src/test/java/org/jboss/demo/jpa/eclipselink/EmployeeEclipseLinkTest.java">EmployeeEclipseLinkTest</a> as junit test, it will first add 2 employees to mysql, then quey DB via JPA NamedQuery, the output like</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>create 3 Employees
+
+JPA NamedQuery Employee.findAll
+[firstName=Ethan, gender=Male, lastName=Johnson, salary=300000.0]
+[firstName=Abigail, gender=Female, lastName=Rodriguez, salary=300000.0]
+[firstName=Ethan, gender=Male, lastName=Wilson, salary=300000.0]
+
+JPA NamedQuery Employee.findByName
+
+JPA NamedQuery Employee.count
+3
+
+JPA NamedQuery Employee.address
+[city=BJ, country=CNA, province=BJ, postalCode=100020, street=DDQ]
+[city=BJ, country=CNA, province=BJ, postalCode=100020, street=DDQ]
+[city=BJ, country=CNA, province=BJ, postalCode=100020, street=DDQ]
+</code></pre>
+</div>
+
+
+<br/>
+<ul class="btn pull-right">
+<div class="bdsharebuttonbox">
+  <a href="#" class="bds_more" data-cmd="more"></a>
+  <a title="分享到QQ空间" href="#" class="bds_qzone" data-cmd="qzone"></a>
+  <a title="分享到新浪微博" href="#" class="bds_tsina" data-cmd="tsina"></a>
+  <a title="分享到腾讯微博" href="#" class="bds_tqq" data-cmd="tqq"></a>
+  <a title="分享到人人网" href="#" class="bds_renren" data-cmd="renren"></a>
+  <a title="分享到微信" href="#" class="bds_weixin" data-cmd="weixin"></a>
+</div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"分享ksoong.org的文章「JPA 2 Employee Demo with Hibernate EclipseLink」 - ksoong.org","bdDesc":"","bdMini":"2","bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</ul>
+
+<div class="ds-thread" data-thread-key="ksoong201408068" data-title="JPA 2 Employee Demo with Hibernate EclipseLink" data-url="ksoong.org/javaee/2014/08/09/jpa-2.0-demo-with-hibernate-eclipselink/"></div>
+
+	    <ul class="pager">
+		
+		<li class="previous"><a href="/mysql-usage-commands">&laquo;&nbsp;Basic Mysql Administration & Usage...</a></li>
+		
+		
+		<li class="next"><a href="/javaee/2014/08/12/function-of-databasePlatform-in-eclipselink/">The Function of EclipseLink DatabasePlatform...&nbsp;&raquo;</a></li>
+		
+	    </ul>
+
+
+        </div>
+        <aside id="sidebar" role="complementary">
+          <div class="subscribe">
+            <h2 class="icon news">
+              <a href="/feed.xml">Subscribe</a>
+            </h2>
+          </div>
+          <nav class="latest">
+            <h2>Latest Posts</h2>
+            <ul>
+            
+              <li>
+                <div class="title">
+                  <a href="/wfl-ds">WildFly Data Sources Configuration</a>
+                </div>
+                <div class="meta">
+                  Apr 26, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-transactions">Transaction in Teiid</a>
+                </div>
+                <div class="meta">
+                  Apr 20, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-getstart-code">Get Start Teiid From Source...</a>
+                </div>
+                <div class="meta">
+                  Apr 7, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-metadata">Understanding Teiid Metadata</a>
+                </div>
+                <div class="meta">
+                  Mar 27, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/rhel7-commands">Linux 命令集合</a>
+                </div>
+                <div class="meta">
+                  Mar 17, 2016
+                </div>
+              </li>
+             
+            </ul>
+            
+                        
+          </nav>
+          <nav class="tags">
+            <h2>Categories</h2>
+            <div class="tag-cloud">
+              
+              <span class="tag tag-1">
+                <a href="/categories/jekyll">Jekyll(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/jboss">Jboss(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/java">Java(18)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/css">Css(1)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/database">Database(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/javaee">Javaee(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/linux">Linux(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/teiid">Teiid(40)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/maven">Maven(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/netty">Netty(7)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/data">Data(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/git">Git(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/other">Other(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/performance">Performance(4)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/security">Security(3)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/docker">Docker(4)</a>
+              </span>
+              
+              
+            </div>
+          </nav>
+        </aside>
+      </div>
+
+
+    </div>
+    <footer>
+      <div class="container">
+        <div class="project">
+          <p class="bottom">
+            ©
+            Copyright 2009-2016 ksoong.
+            <br>
+            <i class="icon-fire"></i>
+            Mixed with <a href="http://twitter.github.com/bootstrap">Bootstrap</a>.
+            <br>
+            <i class="icon-share-alt"></i>
+            Website and docs licensed under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
+            <br>
+            Code released under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, v2.0</a>.
+          </p>
+        </div>
+        <div class="footer-nav">
+          <h4>Learn</h4>
+          <ul>
+            <li>
+              <a href="http://www.jboss.org/">JBoss</a>
+            </li>
+            <li>
+              <a href="http://infinispan.org/">Infinispan</a>
+            </li>
+            <li>
+              <a href="http://teiid.org/">Teiid</a>
+            </li>
+            <li>
+              <a href="https://github.com/kylinsoong">Github</a>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="sponser">
+          <div class="follow-us">
+            <h4>Stay Informed</h4>
+            <ul>
+              <li>
+                <a href="https://plus.google.com/103933729718268414460?rel=author"><img alt="Google+" src="/css/googleplus-16.png" title="Follow ksoong.org on Google+"></a>
+              </li>
+              <li>
+                <a href="http://www.weibo.com/kylinsoong"><img alt="Weibo" src="/css/weibo_logo.jpg" title="Follow me on Weibo"></a>
+              </li>
+	      <li>
+                <a href="https://github.com/kylinsoong"><img alt="Github" src="/css/Octocat.jpg" title="Fork me on Github"></a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+        <a class="visible-desktop" href="#" id="toTop">Top</a>
+      </div>
+        <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1258751305'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1258751305%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+    </footer>
+  
+ 
+    <script src="/css/jquery-1.11.1.min.js"></script>
+    <script src="/css/bootstrap.js"></script>
+
+   <script>
+      $(function() {
+        $('html').addClass('ready');
+        prettify();
+        activateFooterGravity();
+        activateTooltips();
+        activateToTopControl();
+      });
+    </script>
+    <script src="/css/site.js"></script>
+
+    
+            
+            <script type="text/javascript">
+                var duoshuoQuery = {short_name:"ksoong"};
+                (function() {
+                    var ds = document.createElement('script');
+                    ds.type = 'text/javascript';
+                    ds.async = true;
+                    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+                    ds.charset = 'UTF-8';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+                })();
+            </script>
+            
+        
+
+
+</body>
+</html>

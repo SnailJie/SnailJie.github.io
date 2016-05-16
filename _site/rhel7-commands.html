@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html class="ready" lang="en"><head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="shenma-site-verification" content="8a69823d7371d1eec4379853d25200cd_1448504990"> 
+    <title>Kylin Soong . Blog</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="/feed.xml" rel="alternate" title="Kylin Soong . Blog Atom feed" type="application/atom+xml">
+    <link href="/css/screen.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.js"></script>
+    <![endif]-->
+    <link href="/favicon.ico" rel="shortcut icon">
+
+</head>
+
+  <body class="blog index">
+    <header class="navbar navbar-fixed-top" id="banner" role="banner">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-target=".nav-collapse" data-toggle="collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/">
+            <span class="logo"></span>
+            <span class="name">ksoong</span>
+          </a>
+          <nav class="nav-collapse" role="navigation">
+            <ul class="nav">
+              <li><a href="/">Home</a></li>
+	      <!--
+              <li><a href="/lab">Labs</a></li>
+              <li><a href="/blog/">Blog</a></li>
+	      -->
+	      <li><a href="/books">Books</a></li>
+              <li><a href="/archive">Archives</a></li>
+              <li><a href="/slide">Slides</a></li>
+              <li><a href="/about">About</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+    <div style="min-height: 250px;" id="main" role="main">
+      
+<div id="content-header">
+        <div class="container">
+         <h1>
+              <a href="/blog">Blog</a>
+              <!--a href="#">&raquo;</a>
+              <a href="/rhel7-commands">Linux 命令集合</a-->
+          </h1>
+        </div>
+</div>
+      <div class="container">
+        <div id="content">
+          
+<h2 class="title">
+                 <a class="post-link" href="/rhel7-commands">Linux 命令集合</a>
+              </h2>
+ 
+<header class="post">
+              <div class="byline">
+                <span class="author">Posted by
+                <a href="/about">Kylin Soong</a> on</span>
+                <span class="dateinline">Mar 17, 2016</span>
+		<i class="icon-tags"></i> categorized as <a class="tag" href="/categories/linux">linux</a>
+              </div>
+            </header>
+
+ 
+<ul id="markdown-toc">
+  <li><a href="#local-and-remote-logins" id="markdown-toc-local-and-remote-logins">Local and Remote Logins</a>    <ul>
+      <li><a href="#using-ssh-key-based-authentication" id="markdown-toc-using-ssh-key-based-authentication">Using SSH Key-based Authentication</a></li>
+      <li><a href="#creating-and-viewing-an-sos-report" id="markdown-toc-creating-and-viewing-an-sos-report">Creating and Viewing an SoS Report</a></li>
+    </ul>
+  </li>
+  <li><a href="#file-system-navigation" id="markdown-toc-file-system-navigation">File System Navigation</a>    <ul>
+      <li><a href="#command-line-file-management" id="markdown-toc-command-line-file-management">Command-Line File Management</a></li>
+      <li><a href="#making-links-between-files" id="markdown-toc-making-links-between-files">Making Links Between Files</a></li>
+    </ul>
+  </li>
+  <li><a href="#users-and-groups" id="markdown-toc-users-and-groups">Users and Groups</a>    <ul>
+      <li><a href="#running-commands-as-root" id="markdown-toc-running-commands-as-root">Running Commands as root</a></li>
+      <li><a href="#creating-users-using-command-line-tools" id="markdown-toc-creating-users-using-command-line-tools">Creating Users Using Command-line Tools</a></li>
+      <li><a href="#managing-groups-using-command-line-tools" id="markdown-toc-managing-groups-using-command-line-tools">Managing Groups Using Command-line Tools</a></li>
+      <li><a href="#managing-user-password-aging" id="markdown-toc-managing-user-password-aging">Managing User Password Aging</a></li>
+      <li><a href="#using-identity-management-services" id="markdown-toc-using-identity-management-services">Using Identity Management Services</a></li>
+    </ul>
+  </li>
+  <li><a href="#file-permissions" id="markdown-toc-file-permissions">File Permissions</a>    <ul>
+      <li><a href="#managing-file-security-from-the-command-line" id="markdown-toc-managing-file-security-from-the-command-line">Managing File Security from the Command Line</a></li>
+      <li><a href="#controlling-new-file-permissions-and-ownership" id="markdown-toc-controlling-new-file-permissions-and-ownership">Controlling New File Permissions and Ownership</a></li>
+      <li><a href="#posix-access-control-lists-acls" id="markdown-toc-posix-access-control-lists-acls">POSIX Access Control Lists (ACLs)</a></li>
+      <li><a href="#using-acls-to-grant-and-limit-access" id="markdown-toc-using-acls-to-grant-and-limit-access">Using ACLs to Grant and Limit Access</a></li>
+    </ul>
+  </li>
+  <li><a href="#selinux-permissions" id="markdown-toc-selinux-permissions">Selinux Permissions</a></li>
+  <li><a href="#process-management" id="markdown-toc-process-management">Process Management</a>    <ul>
+      <li><a href="#killing-processes" id="markdown-toc-killing-processes">Killing Processes</a></li>
+      <li><a href="#monitoring-process-activity" id="markdown-toc-monitoring-process-activity">Monitoring Process Activity</a></li>
+    </ul>
+  </li>
+  <li><a href="#updating-software-packages" id="markdown-toc-updating-software-packages">Updating Software Packages</a></li>
+</ul>
+
+<h2 id="local-and-remote-logins">Local and Remote Logins</h2>
+
+<p><strong>The ways of quiting shell Session:</strong></p>
+
+<ul>
+  <li><code class="highlighter-rouge">exit</code> command</li>
+  <li>pressing <code class="highlighter-rouge">Ctrl+d</code></li>
+</ul>
+
+<h3 id="using-ssh-key-based-authentication">Using SSH Key-based Authentication</h3>
+
+<ul>
+  <li>Create an SSH key pair in local server</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ ssh-keygen 
+Generating public/private rsa key pair.
+Enter file in which to save the key (/home/kylin/.ssh/id_rsa): /home/kylin/.ssh/id_t_rsa                  
+Enter passphrase (empty for no passphrase): 
+Enter same passphrase again: 
+Your identification has been saved in /home/kylin/.ssh/id_t_rsa.
+Your public key has been saved in /home/kylin/.ssh/id_t_rsa.pub.
+...
+</code></pre>
+</div>
+
+<ul>
+  <li>Send the SSH public key to the remote server</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>[kylin@ksoong ~]$ ssh-copy-id -i ~/.ssh/id_t_rsa.pub root@10.66.218.46
+/bin/ssh-copy-id: INFO: attempting to log in with the new key(s), to filter out any that are already installed
+/bin/ssh-copy-id: INFO: 1 key(s) remain to be installed -- if you are prompted now it is to install the new keys
+root@10.66.218.46's password: 
+
+Number of key(s) added: 1
+
+Now try logging into the machine, with:   "ssh 'root@10.66.218.46'"
+and check to make sure that only the key(s) you wanted were added.
+</code></pre>
+</div>
+
+<ul>
+  <li>Login into remote server</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ ssh root@10.66.218.46
+</code></pre>
+</div>
+
+<h3 id="creating-and-viewing-an-sos-report">Creating and Viewing an SoS Report</h3>
+
+<ul>
+  <li>If currently working as a non-root user, switch to root.</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ su -
+Password: 
+</code></pre>
+</div>
+
+<ul>
+  <li>Run the sosreport command. This may take many minutes on larger systems.</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code># sosreport
+</code></pre>
+</div>
+
+<ul>
+  <li>Change directory to /var/tmp, and unpack the archive.</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code># cd /var/tmp
+# tar -xvJf sosreport-*.tar.xz
+</code></pre>
+</div>
+
+<ul>
+  <li>Change directory to the resulting subdirectory and browse the files found there.</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code># cd sosreport-ksoong-20160306161748
+</code></pre>
+</div>
+
+<h2 id="file-system-navigation">File System Navigation</h2>
+
+<p><img src="/assets/blog/linux-file-system.png" alt="Linux File System" /></p>
+
+<p><img src="/assets/blog/linux-file-system-desc.png" alt="Linux File System DESC" /></p>
+
+<h3 id="command-line-file-management">Command-Line File Management</h3>
+
+<ul>
+  <li>Create Files</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ touch song1.mp3 song2.mp3 song3.mp3 song4.mp3 song5.mp3
+$ touch snap1.jpg snap2.jpg snap3.jpg snap4.jpg snap5.jpg
+$ touch film1.avi film2.avi film3.avi film4.avi film5.avi
+$ ls -l
+</code></pre>
+</div>
+
+<ul>
+  <li>Move Files</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ mv song1.mp3 song2.mp3 song3.mp3 song4.mp3 song5.mp3 Music/
+$ mv snap1.jpg snap2.jpg snap3.jpg snap4.jpg snap5.jpg Pictures/
+$ mv film1.avi film2.avi film3.avi film4.avi film5.avi Videos/
+$ ls -l Music/ Videos/ Pictures/
+</code></pre>
+</div>
+
+<ul>
+  <li>Create Directories</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ mkdir friends family work
+$ rmdir friends family work
+</code></pre>
+</div>
+
+<h3 id="making-links-between-files">Making Links Between Files</h3>
+
+<p>This Section will demonstrate how to use hard links and soft links to make multiple names point to the same file.</p>
+
+<ol>
+  <li>The command <code class="highlighter-rouge">ln</code> creates new hard links to existing files. The command expects an existing file as the first argument, followed by one or more additional hard links.</li>
+  <li>The <code class="highlighter-rouge">ln -s</code> command creates a soft link, which is also called a “symbolic link”. A soft link is not a regular file, but a special type of file that points to an existing file or directory. Unlike hard links, soft links can point to a directory, and the target to which a soft link points can be on a different file system.</li>
+</ol>
+
+<ul>
+  <li>Create an additional hard link</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code># ln /usr/share/doc/qemu/qmp-commands.txt /root/qmp-commands.txt
+</code></pre>
+</div>
+
+<ul>
+  <li>Verify the link count on the newly created link</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code># ls -l /root/qmp-commands.txt 
+-rw-r--r--. 2 root root 65630 Nov 18  2013 /root/qmp-commands.txt
+</code></pre>
+</div>
+
+<ul>
+  <li>Verify the link count on the original file</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code># ls -l /usr/share/doc/qemu/qmp-commands.txt 
+-rw-r--r--. 2 root root 65630 Nov 18  2013 /usr/share/doc/qemu/qmp-commands.txt
+</code></pre>
+</div>
+
+<ul>
+  <li>Create the soft link</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code># ln -s /tmp/ /root/tmpdir
+</code></pre>
+</div>
+
+<ul>
+  <li>Verify the newly created link with</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code># ls -l
+lrwxrwxrwx. 1 root root     5 Mar  6 16:06 tmpdir -&gt; /tmp/
+# cd tmpdir/
+# ls -lR
+</code></pre>
+</div>
+
+<h2 id="users-and-groups">Users and Groups</h2>
+
+<ol>
+  <li><strong>/etc/passwd</strong> - store information about local users</li>
+  <li><strong>/etc/group</strong> - store information about local groups</li>
+</ol>
+
+<p><strong>Useful Commands:</strong></p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ id
+$ ps au
+</code></pre>
+</div>
+
+<ul>
+  <li>The <strong>id</strong> command is used to show information about the current logged-in user.</li>
+  <li>The <strong>ps</strong> command is used to view process information. Add the <strong>a</strong> option to view all processes with a terminal. To view the user associated with a process, include the <strong>u</strong> option.</li>
+</ul>
+
+<h3 id="running-commands-as-root">Running Commands as root</h3>
+
+<ul>
+  <li>View the user and group information and display the current working directory.</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ id
+uid=1000(kylin) gid=1000(kylin) groups=1000(kylin),987(docker) context=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+$ pwd
+/home/kylin
+</code></pre>
+</div>
+
+<ul>
+  <li>View the variables which specify the home directory and the locations searched for executable files.</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ echo $HOME
+/home/kylin
+$ echo $PATH
+/usr/lib64/qt-3.3/bin:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/usr/local/rvm/bin:/home/kylin/.local/bin:/home/kylin/bin:/home/kylin/tools/apache-maven-3.2.5/bin:/usr/java/jdk1.8.0_25/bin:/home/kylin/tools/apache-ant-1.9.4/bin:/home/kylin/tools/node-v0.12.6-linux-x64/bin
+</code></pre>
+</div>
+
+<ul>
+  <li>Become the root user at the shell prompt.</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ su -
+Password: 
+</code></pre>
+</div>
+
+<ul>
+  <li>View the user and group information and display the current working directory.</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code># id
+uid=0(root) gid=0(root) groups=0(root) context=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+# pwd
+/root
+</code></pre>
+</div>
+
+<ul>
+  <li>View the variables which specify the home directory and the locations searched for executable files.</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code># echo $HOME
+/root
+# echo $PATH
+/usr/lib64/qt-3.3/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/.cabal/bin:/usr/local/rvm/bin:/root/bin
+</code></pre>
+</div>
+
+<ul>
+  <li>Exit the root</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code># exit
+logout
+</code></pre>
+</div>
+
+<h3 id="creating-users-using-command-line-tools">Creating Users Using Command-line Tools</h3>
+
+<ul>
+  <li>Add a user</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code># adduser student
+</code></pre>
+</div>
+
+<blockquote>
+  <p>Execute <code class="highlighter-rouge">tail -2 /etc/passwd</code> can confirm new added user from file.</p>
+</blockquote>
+
+<ul>
+  <li>Use the passwd command to add a login password</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code># passwd student
+</code></pre>
+</div>
+
+<h3 id="managing-groups-using-command-line-tools">Managing Groups Using Command-line Tools</h3>
+
+<ul>
+  <li>Create a group</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code># groupadd artists
+</code></pre>
+</div>
+
+<blockquote>
+  <p>Execute <code class="highlighter-rouge">tail -5 /etc/group</code> will confirm new added group.</p>
+</blockquote>
+
+<ul>
+  <li>Add a user to a group</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code># usermod -G student student
+# id student 
+uid=1001(student) gid=1002(student) groups=1002(student)
+</code></pre>
+</div>
+
+<h3 id="managing-user-password-aging">Managing User Password Aging</h3>
+
+<ul>
+  <li>Lock/Unlock a user</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code># usermod -L student
+$ su - student 
+Password: 
+su: Authentication failure
+
+# usermod -U student
+$ su - student 
+Password: 
+Last login: Tue Mar  8 15:30:03 CST 2016 on pts/1
+Last failed login: Tue Mar  8 15:30:41 CST 2016 on pts/3
+There was 1 failed login attempt since the last successful login.
+</code></pre>
+</div>
+
+<ul>
+  <li>Change the password policy to require a new password every 90 days</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code># chage -M 90 student
+# chage -l student 
+Last password change					: Mar 08, 2016
+Password expires					: Jun 06, 2016
+Password inactive					: never
+Account expires						: never
+Minimum number of days between password change		: 0
+Maximum number of days between password change		: 90
+Number of days of warning before password expires	: 7
+</code></pre>
+</div>
+
+<h3 id="using-identity-management-services">Using Identity Management Services</h3>
+
+<p>//TODO–</p>
+
+<h2 id="file-permissions">File Permissions</h2>
+
+<h3 id="managing-file-security-from-the-command-line">Managing File Security from the Command Line</h3>
+
+<ul>
+  <li>login to root, create a directory</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code># mkdir /home/kylin-text
+</code></pre>
+</div>
+
+<ul>
+  <li>Change the group ownership to kylin</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code># chown :kylin /home/kylin-text/
+</code></pre>
+</div>
+
+<ul>
+  <li>Ensure the permissions of kylin-text allows group members to create and delete files.</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code># chmod g+w /home/kylin-text/
+</code></pre>
+</div>
+
+<ul>
+  <li>Ensure the permissions of ateam-text forbids others from accessing its files.</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code># chmod 770 /home/kylin-text/
+# ls -ld /home/kylin-text/
+</code></pre>
+</div>
+
+<ul>
+  <li>Verify the setting</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code># exit
+logout
+$ cd /home/kylin-text/
+$ touch samplefile1
+$ ls -l samplefile1 
+-rw-rw-r--. 1 kylin kylin 0 Mar 10 11:27 samplefile1
+</code></pre>
+</div>
+
+<h3 id="controlling-new-file-permissions-and-ownership">Controlling New File Permissions and Ownership</h3>
+
+<ul>
+  <li>show umask</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>[student@ksoong ~]$ umask 
+0002
+</code></pre>
+</div>
+
+<ul>
+  <li>check default umask affects permissions</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>[student@ksoong ~]$ mkdir /tmp/shared
+[student@ksoong ~]$ ls -ld /tmp/shared/
+drwxrwxr-x. 2 student student 40 Mar 10 11:46 /tmp/shared/
+[student@ksoong ~]$ touch /tmp/shared/defaults
+[student@ksoong ~]$ ls -l /tmp/shared/defaults
+-rw-rw-r--. 1 student student 0 Mar 10 11:47 /tmp/shared/defaults
+</code></pre>
+</div>
+
+<ul>
+  <li>do some change</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>[student@ksoong ~]$ chmod g+s /tmp/shared/
+[student@ksoong ~]$ ls -ld /tmp/shared/
+drwxrwsr-x. 2 student student 60 Mar 10 11:47 /tmp/shared/
+[student@ksoong ~]$ umask 27
+[student@ksoong ~]$ touch /tmp/shared/sameplefile2
+[student@ksoong ~]$ ls -l /tmp/shared/sameplefile2 
+-rw-r-----. 1 student student 0 Mar 10 11:52 /tmp/shared/sameplefile2
+[student@ksoong ~]$ umask 
+0027
+[student@ksoong ~]$ umask 7
+</code></pre>
+</div>
+
+<h3 id="posix-access-control-lists-acls">POSIX Access Control Lists (ACLs)</h3>
+
+<ul>
+  <li>View file ACLs</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ getfacl gcviewer.properties 
+# file: gcviewer.properties
+# owner: kylin
+# group: kylin
+user::rw-
+group::rw-
+other::r--
+</code></pre>
+</div>
+
+<h3 id="using-acls-to-grant-and-limit-access">Using ACLs to Grant and Limit Access</h3>
+
+<p>//TODO–</p>
+
+<h2 id="selinux-permissions">Selinux Permissions</h2>
+
+<p>//TODO–</p>
+
+<h2 id="process-management">Process Management</h2>
+
+<h3 id="killing-processes">Killing Processes</h3>
+
+<ul>
+  <li>Start 3 processes</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ (while true; do echo -n "game " &gt;&gt; ~/outfile; sleep 1; done) &amp;
+$ (while true; do echo -n "set " &gt;&gt; ~/outfile; sleep 1; done) &amp;
+$ (while true; do echo -n "match " &gt;&gt; ~/outfile; sleep 1; done) &amp;
+</code></pre>
+</div>
+
+<ul>
+  <li>Check all running processes</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ tail -f outfile 
+$ jobs
+[1]   Running                 ( while true; do
+    echo -n "game " &gt;&gt; ~/outfile; sleep 1;
+done ) &amp;
+[2]-  Running                 ( while true; do
+    echo -n "set " &gt;&gt; ~/outfile; sleep 1;
+done ) &amp;
+[3]+  Running                 ( while true; do
+    echo -n "match " &gt;&gt; ~/outfile; sleep 1;
+done ) &amp;
+</code></pre>
+</div>
+
+<ul>
+  <li>Kill process</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ kill -SIGTERM 7174
+$ kill -SIGTERM 7187
+$ kill -SIGTERM 7220
+</code></pre>
+</div>
+
+<h3 id="monitoring-process-activity">Monitoring Process Activity</h3>
+
+<ul>
+  <li>Check cpu info</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ grep "model name" /proc/cpuinfo 
+model name	: Intel(R) Core(TM) i5-4200U CPU @ 1.60GHz
+model name	: Intel(R) Core(TM) i5-4200U CPU @ 1.60GHz
+model name	: Intel(R) Core(TM) i5-4200U CPU @ 1.60GHz
+model name	: Intel(R) Core(TM) i5-4200U CPU @ 1.60GHz
+$ grep "model name" /proc/cpuinfo | wc -l
+4
+</code></pre>
+</div>
+
+<ul>
+  <li>top commands</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>top
+$ top -H -p 16943
+</code></pre>
+</div>
+
+<h2 id="updating-software-packages">Updating Software Packages</h2>
+
+
+
+<br/>
+<ul class="btn pull-right">
+<div class="bdsharebuttonbox">
+  <a href="#" class="bds_more" data-cmd="more"></a>
+  <a title="分享到QQ空间" href="#" class="bds_qzone" data-cmd="qzone"></a>
+  <a title="分享到新浪微博" href="#" class="bds_tsina" data-cmd="tsina"></a>
+  <a title="分享到腾讯微博" href="#" class="bds_tqq" data-cmd="tqq"></a>
+  <a title="分享到人人网" href="#" class="bds_renren" data-cmd="renren"></a>
+  <a title="分享到微信" href="#" class="bds_weixin" data-cmd="weixin"></a>
+</div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"分享ksoong.org的文章「Linux 命令集合」 - ksoong.org","bdDesc":"","bdMini":"2","bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</ul>
+
+<div class="ds-thread" data-thread-key="ksoong20160306" data-title="Linux 命令集合" data-url="ksoong.org/rhel7-commands"></div>
+
+	    <ul class="pager">
+		
+		<li class="previous"><a href="/netty4-uml">&laquo;&nbsp;Netty 4 源码分析</a></li>
+		
+		
+		<li class="next"><a href="/teiid-metadata">Understanding Teiid Metadata&nbsp;&raquo;</a></li>
+		
+	    </ul>
+
+
+        </div>
+        <aside id="sidebar" role="complementary">
+          <div class="subscribe">
+            <h2 class="icon news">
+              <a href="/feed.xml">Subscribe</a>
+            </h2>
+          </div>
+          <nav class="latest">
+            <h2>Latest Posts</h2>
+            <ul>
+            
+              <li>
+                <div class="title">
+                  <a href="/wfl-ds">WildFly Data Sources Configuration</a>
+                </div>
+                <div class="meta">
+                  Apr 26, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-transactions">Transaction in Teiid</a>
+                </div>
+                <div class="meta">
+                  Apr 20, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-getstart-code">Get Start Teiid From Source...</a>
+                </div>
+                <div class="meta">
+                  Apr 7, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-metadata">Understanding Teiid Metadata</a>
+                </div>
+                <div class="meta">
+                  Mar 27, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/rhel7-commands">Linux 命令集合</a>
+                </div>
+                <div class="meta">
+                  Mar 17, 2016
+                </div>
+              </li>
+             
+            </ul>
+            
+                        
+          </nav>
+          <nav class="tags">
+            <h2>Categories</h2>
+            <div class="tag-cloud">
+              
+              <span class="tag tag-1">
+                <a href="/categories/jekyll">Jekyll(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/jboss">Jboss(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/java">Java(18)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/css">Css(1)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/database">Database(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/javaee">Javaee(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/linux">Linux(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/teiid">Teiid(40)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/maven">Maven(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/netty">Netty(7)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/data">Data(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/git">Git(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/other">Other(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/performance">Performance(4)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/security">Security(3)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/docker">Docker(4)</a>
+              </span>
+              
+              
+            </div>
+          </nav>
+        </aside>
+      </div>
+
+
+    </div>
+    <footer>
+      <div class="container">
+        <div class="project">
+          <p class="bottom">
+            ©
+            Copyright 2009-2016 ksoong.
+            <br>
+            <i class="icon-fire"></i>
+            Mixed with <a href="http://twitter.github.com/bootstrap">Bootstrap</a>.
+            <br>
+            <i class="icon-share-alt"></i>
+            Website and docs licensed under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
+            <br>
+            Code released under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, v2.0</a>.
+          </p>
+        </div>
+        <div class="footer-nav">
+          <h4>Learn</h4>
+          <ul>
+            <li>
+              <a href="http://www.jboss.org/">JBoss</a>
+            </li>
+            <li>
+              <a href="http://infinispan.org/">Infinispan</a>
+            </li>
+            <li>
+              <a href="http://teiid.org/">Teiid</a>
+            </li>
+            <li>
+              <a href="https://github.com/kylinsoong">Github</a>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="sponser">
+          <div class="follow-us">
+            <h4>Stay Informed</h4>
+            <ul>
+              <li>
+                <a href="https://plus.google.com/103933729718268414460?rel=author"><img alt="Google+" src="/css/googleplus-16.png" title="Follow ksoong.org on Google+"></a>
+              </li>
+              <li>
+                <a href="http://www.weibo.com/kylinsoong"><img alt="Weibo" src="/css/weibo_logo.jpg" title="Follow me on Weibo"></a>
+              </li>
+	      <li>
+                <a href="https://github.com/kylinsoong"><img alt="Github" src="/css/Octocat.jpg" title="Fork me on Github"></a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+        <a class="visible-desktop" href="#" id="toTop">Top</a>
+      </div>
+        <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1258751305'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1258751305%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+    </footer>
+  
+ 
+    <script src="/css/jquery-1.11.1.min.js"></script>
+    <script src="/css/bootstrap.js"></script>
+
+   <script>
+      $(function() {
+        $('html').addClass('ready');
+        prettify();
+        activateFooterGravity();
+        activateTooltips();
+        activateToTopControl();
+      });
+    </script>
+    <script src="/css/site.js"></script>
+
+    
+            
+            <script type="text/javascript">
+                var duoshuoQuery = {short_name:"ksoong"};
+                (function() {
+                    var ds = document.createElement('script');
+                    ds.type = 'text/javascript';
+                    ds.async = true;
+                    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+                    ds.charset = 'UTF-8';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+                })();
+            </script>
+            
+        
+
+
+</body>
+</html>

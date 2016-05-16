@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html class="ready" lang="en"><head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="shenma-site-verification" content="8a69823d7371d1eec4379853d25200cd_1448504990"> 
+    <title>Kylin Soong . Blog</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="/feed.xml" rel="alternate" title="Kylin Soong . Blog Atom feed" type="application/atom+xml">
+    <link href="/css/screen.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.js"></script>
+    <![endif]-->
+    <link href="/favicon.ico" rel="shortcut icon">
+
+</head>
+
+  <body class="blog index">
+    <header class="navbar navbar-fixed-top" id="banner" role="banner">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-target=".nav-collapse" data-toggle="collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/">
+            <span class="logo"></span>
+            <span class="name">ksoong</span>
+          </a>
+          <nav class="nav-collapse" role="navigation">
+            <ul class="nav">
+              <li><a href="/">Home</a></li>
+	      <!--
+              <li><a href="/lab">Labs</a></li>
+              <li><a href="/blog/">Blog</a></li>
+	      -->
+	      <li><a href="/books">Books</a></li>
+              <li><a href="/archive">Archives</a></li>
+              <li><a href="/slide">Slides</a></li>
+              <li><a href="/about">About</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+    <div style="min-height: 250px;" id="main" role="main">
+      
+<div id="content-header">
+        <div class="container">
+         <h1>
+              <a href="/blog">Blog</a>
+              <!--a href="#">&raquo;</a>
+              <a href="/jboss/2015/06/22/msc-examples/">JBoss MSC 示例</a-->
+          </h1>
+        </div>
+</div>
+      <div class="container">
+        <div id="content">
+          
+<h2 class="title">
+                 <a class="post-link" href="/jboss/2015/06/22/msc-examples/">JBoss MSC 示例</a>
+              </h2>
+ 
+<header class="post">
+              <div class="byline">
+                <span class="author">Posted by
+                <a href="/about">Kylin Soong</a> on</span>
+                <span class="dateinline">Jun 22, 2015</span>
+		<i class="icon-tags"></i> categorized as <a class="tag" href="/categories/jboss">jboss</a>
+              </div>
+            </header>
+
+ 
+<ul id="markdown-toc">
+  <li><a href="#overview" id="markdown-toc-overview">Overview</a></li>
+  <li><a href="#helloworld-" id="markdown-toc-helloworld-">HelloWorld 示例</a></li>
+  <li><a href="#service-hierarchy-" id="markdown-toc-service-hierarchy-">Service Hierarchy 示例</a></li>
+  <li><a href="#service-lifecycle-" id="markdown-toc-service-lifecycle-">Service lifecycle 示例</a>    <ul>
+      <li><a href="#starting---up---stopping---down---removed" id="markdown-toc-starting---up---stopping---down---removed">STARTING -&gt; UP -&gt; STOPPING -&gt; DOWN -&gt; REMOVED</a></li>
+      <li><a href="#starting---startfailed---down---removed" id="markdown-toc-starting---startfailed---down---removed">STARTING -&gt; START_FAILED -&gt; DOWN -&gt; REMOVED</a></li>
+    </ul>
+  </li>
+  <li><a href="#service-dependency-" id="markdown-toc-service-dependency-">Service Dependency 示例</a></li>
+</ul>
+
+<h2 id="overview">Overview</h2>
+
+<p>本文包括如下示例(<a href="http://ksoong.org/jboss/2015/06/21/msc-api/">JBoss MSC API 介绍</a>):</p>
+
+<ul>
+  <li>HelloWorld 示例</li>
+  <li>Service Hierarchy 示例</li>
+  <li>Service lifecycle 示例</li>
+  <li>Service Dependency 示例</li>
+</ul>
+
+<h2 id="helloworld-">HelloWorld 示例</h2>
+
+<p>HelloWorld 示例演示如何使用 JBoss MSC 部署一个 Service。</p>
+
+<p>Service 的实现如下:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>public class MyService implements Service&lt;Boolean&gt; {	
+    final static ServiceName SERVICE = ServiceName.of("helloworld");
+    private final String message;
+    private Thread thread;
+    private boolean active;
+
+    public MyService(String message) {
+        this.message = message;
+    }
+
+    public void start(final StartContext startContext) throws StartException {
+        startContext.asynchronous();
+        this.active = true;
+        this.thread = new Thread(new Runnable() {
+            public void run() {
+                startContext.complete();
+
+                while (active) {
+                    System.err.println(message);
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                    	Thread.currentThread().interrupt();
+                    }
+                }
+
+            }
+        });
+
+        this.thread.start();
+    }
+
+    public void stop(StopContext stopContext) {
+        this.active = false;
+    }
+
+    public Boolean getValue() throws IllegalStateException, IllegalArgumentException {
+        return active;
+    }
+}
+</code></pre>
+</div>
+
+<p>如上面代码段:</p>
+
+<ul>
+  <li>MyService 的名字为 helloworld</li>
+  <li>MyService 构造方法必需传入一个字符串，且 MyService 包含一个 Thread， Thread 启动后循环输出构造方法中传入的字符串</li>
+  <li>MyService getValue 返回当前状态是否 active</li>
+</ul>
+
+<p>接下来演示创建一个 MSC 容器，并且将 MyService 添加到 MSC 容器:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>ServiceContainer container = ServiceContainer.Factory.create(); 
+Service&lt;Boolean&gt; service = new MyService("Hello World");
+ServiceBuilder&lt;Boolean&gt; builder = container.addService(MyService.SERVICE, service);
+builder.install();
+Thread.sleep(1000);
+System.out.println("MyService isActive:" + service.getValue());
+container.dumpServices();
+</code></pre>
+</div>
+
+<p>运行如上代码输出:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>Hello World
+MyService isActive:true
+Services for anonymous-1:
+Service "helloworld" (class org.jboss.msc.quickstart.MyService) mode ACTIVE state UP
+1 services displayed
+Hello World
+Hello World
+Hello World
+...
+</code></pre>
+</div>
+
+<h2 id="service-hierarchy-">Service Hierarchy 示例</h2>
+
+<p>Service Hierarchy 示例演示 MSC 容器加载树装结构的 Service。</p>
+
+<p>假设 Service A 的子 Service 为 B, Service B 的子 Service 为 C，代码如下:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>public static class A implements Service&lt;A&gt; {
+		
+	public static final ServiceName NAME = ServiceName.of("A");
+
+	public A getValue() throws IllegalStateException,IllegalArgumentException {
+		return this;
+	}
+
+	public void start(StartContext context) throws StartException {		
+		ServiceTarget serviceTarget = context.getChildTarget();
+		ServiceBuilder&lt;B&gt; builder = serviceTarget.addService(B.NAME, new B());
+		builder.install();
+	}
+
+	public void stop(StopContext context) {			
+	}
+} 
+	
+public static class B implements Service&lt;B&gt; {
+		
+	public static final ServiceName NAME = ServiceName.of("B");
+
+	public B getValue() throws IllegalStateException,IllegalArgumentException {
+		return this;
+	}
+
+	public void start(StartContext context) throws StartException {		
+		ServiceTarget serviceTarget = context.getChildTarget();
+		ServiceBuilder&lt;C&gt; builder = serviceTarget.addService(C.NAME, new C());
+		builder.install();
+	}
+
+	public void stop(StopContext context) {			
+	}
+}
+	
+public static class C implements Service&lt;C&gt; {
+		
+	public static final ServiceName NAME = ServiceName.of("C");
+
+	public C getValue() throws IllegalStateException,IllegalArgumentException {
+		return this;
+	}
+
+	public void start(StartContext context) throws StartException {		
+	}
+
+	public void stop(StopContext context) {			
+	}
+}
+</code></pre>
+</div>
+
+<p>创建 MSC 容器，加载Services:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>ServiceContainer container = ServiceContainer.Factory.create("Hierarchy Service"); 
+ServiceBuilder&lt;A&gt; builder = container.addService(A.NAME, new A());
+builder.install();
+Thread.sleep(1000);
+container.dumpServices();
+</code></pre>
+</div>
+
+<p>运行如上代码输出:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>Services for Hierarchy Service:
+Service "A" (class org.jboss.msc.quickstart.HierarchyService$A) mode ACTIVE state UP
+Service "B" (class org.jboss.msc.quickstart.HierarchyService$B) mode ACTIVE state UP (parent: A)
+Service "C" (class org.jboss.msc.quickstart.HierarchyService$C) mode ACTIVE state UP (parent: B)
+3 services displayed
+</code></pre>
+</div>
+
+<h2 id="service-lifecycle-">Service lifecycle 示例</h2>
+
+<p>MSC 容器中 Service 的状态有很 fine-grained 的定义，如 <a href="https://docs.jboss.org/author/display/MSC/Services">MSC 文档</a> 中图片所描述，Service lifecycle 示例来演示 MSC 容器中的 Service 的状态变化。</p>
+
+<p>TestService 实现如下:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>public static class TestService implements Service&lt;TestService&gt;  {
+		
+	public static final ServiceName NAME = ServiceName.of("test.status");
+		
+	private boolean isFailed;
+		
+	public TestService(boolean isFailed) {
+		this.isFailed = isFailed;
+	}
+
+	@Override
+	public TestService getValue() throws IllegalStateException,IllegalArgumentException {
+		return this;
+	}
+
+	@Override
+	public void start(StartContext context) throws StartException {
+		if(isFailed)
+			throw new StartException();
+	}
+
+	@Override
+	public void stop(StopContext context) {
+	}
+}
+</code></pre>
+</div>
+
+<h3 id="starting---up---stopping---down---removed">STARTING -&gt; UP -&gt; STOPPING -&gt; DOWN -&gt; REMOVED</h3>
+
+<p>创建 MSC 容器，初始化 TestService 是传入 isFailed 为 false 如下:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>ServiceContainer container = ServiceContainer.Factory.create("ServiceStatusTransition"); 
+Service&lt;TestService&gt; service = new TestService(false)
+ServiceBuilder&lt;TestService&gt; builder = container.addService(TestService.NAME, service);
+ServiceController&lt;TestService&gt; controller = builder.install();
+controller.addListener(new AbstractServiceListener&lt;TestService&gt;(){
+
+	@Override
+	public void transition(ServiceController&lt;? extends TestService&gt; controller,Transition transition) {
+		System.out.println(transition);
+	}});
+Thread.sleep(1000);
+container.shutdown();
+</code></pre>
+</div>
+
+<p>运行如上代码输出:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>transition from START_INITIATING to STARTING
+transition from STARTING to UP
+transition from UP to STOP_REQUESTED
+transition from STOP_REQUESTED to STOPPING
+transition from STOPPING to DOWN
+transition from REMOVING to REMOVED
+</code></pre>
+</div>
+
+<h3 id="starting---startfailed---down---removed">STARTING -&gt; START_FAILED -&gt; DOWN -&gt; REMOVED</h3>
+
+<p>类似上面创建 MSC 容器，初始化 TestService 是传入 isFailed 为 true，则 TestService 启动失败它会进入 START_FAILED 状态</p>
+
+<h2 id="service-dependency-">Service Dependency 示例</h2>
+
+<p>MSC 容器中的 Service 可以相互依赖，本示例演示 Service Dependency。</p>
+
+<p>Service A 依赖 Service B 和 C，Service A，B，C 的实现如下:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>public static class A implements Service&lt;A&gt; {
+		
+	private final InjectedValue&lt;B&gt; b = new InjectedValue&lt;B&gt;();
+	private final InjectedValue&lt;C&gt; c = new InjectedValue&lt;C&gt;();
+		
+	public static final ServiceName NAME = ServiceName.of("A");
+
+	public A getValue() throws IllegalStateException,IllegalArgumentException {
+		return this;
+	}
+
+	public void start(StartContext context) throws StartException {		
+	}
+
+	public void stop(StopContext context) {			
+	}
+} 
+	
+public static class B implements Service&lt;B&gt; {
+		
+	public static final ServiceName NAME = ServiceName.of("B");
+
+	public B getValue() throws IllegalStateException,IllegalArgumentException {
+		return this;
+	}
+
+	public void start(StartContext context) throws StartException {		
+	}
+
+	public void stop(StopContext context) {			
+	}
+}
+	
+public static class C implements Service&lt;C&gt; {
+		
+	public static final ServiceName NAME = ServiceName.of("C");
+
+	public C getValue() throws IllegalStateException,IllegalArgumentException {
+		return this;
+	}
+
+	public void start(StartContext context) throws StartException {		
+	}
+
+	public void stop(StopContext context) {			
+	}
+}
+</code></pre>
+</div>
+
+<p>创建 MSC 容器，加载相应的 Service:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>ServiceContainer container = ServiceContainer.Factory.create("ServiceDependency"); 
+A service = new A();
+ServiceBuilder&lt;A&gt; builder = container.addService(A.NAME, service);
+builder.addDependency(B.NAME, B.class, service.b);
+builder.addDependency(C.NAME, C.class, service.c);
+builder.install();
+container.addService(B.NAME, new B()).install();
+container.addService(C.NAME, new C()).install();
+Thread.sleep(1000);
+container.dumpServices();
+</code></pre>
+</div>
+
+<p>运行如上代码输出:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>Services for ServiceDependency:
+Service "A" (class org.jboss.msc.quickstart.ServiceDependency$A) mode ACTIVE state UP (dependencies: C, B)
+Service "B" (class org.jboss.msc.quickstart.ServiceDependency$B) mode ACTIVE state UP
+Service "C" (class org.jboss.msc.quickstart.ServiceDependency$C) mode ACTIVE state UP
+3 services displayed
+</code></pre>
+</div>
+
+<p>我们可以看到 Service 的 dependencies 是 B 和 C。</p>
+
+
+<br/>
+<ul class="btn pull-right">
+<div class="bdsharebuttonbox">
+  <a href="#" class="bds_more" data-cmd="more"></a>
+  <a title="分享到QQ空间" href="#" class="bds_qzone" data-cmd="qzone"></a>
+  <a title="分享到新浪微博" href="#" class="bds_tsina" data-cmd="tsina"></a>
+  <a title="分享到腾讯微博" href="#" class="bds_tqq" data-cmd="tqq"></a>
+  <a title="分享到人人网" href="#" class="bds_renren" data-cmd="renren"></a>
+  <a title="分享到微信" href="#" class="bds_weixin" data-cmd="weixin"></a>
+</div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"分享ksoong.org的文章「JBoss MSC 示例」 - ksoong.org","bdDesc":"","bdMini":"2","bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</ul>
+
+<div class="ds-thread" data-thread-key="ksoong2015062101" data-title="JBoss MSC 示例" data-url="ksoong.org/jboss/2015/06/22/msc-examples/"></div>
+
+	    <ul class="pager">
+		
+		<li class="previous"><a href="/jboss/2015/06/21/msc-api/">&laquo;&nbsp;JBoss MSC API</a></li>
+		
+		
+		<li class="next"><a href="/jboss/2015/06/23/wildfly-security-config/">WildFly 安全 - 加密配置文件&nbsp;&raquo;</a></li>
+		
+	    </ul>
+
+
+        </div>
+        <aside id="sidebar" role="complementary">
+          <div class="subscribe">
+            <h2 class="icon news">
+              <a href="/feed.xml">Subscribe</a>
+            </h2>
+          </div>
+          <nav class="latest">
+            <h2>Latest Posts</h2>
+            <ul>
+            
+              <li>
+                <div class="title">
+                  <a href="/wfl-ds">WildFly Data Sources Configuration</a>
+                </div>
+                <div class="meta">
+                  Apr 26, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-transactions">Transaction in Teiid</a>
+                </div>
+                <div class="meta">
+                  Apr 20, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-getstart-code">Get Start Teiid From Source...</a>
+                </div>
+                <div class="meta">
+                  Apr 7, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-metadata">Understanding Teiid Metadata</a>
+                </div>
+                <div class="meta">
+                  Mar 27, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/rhel7-commands">Linux 命令集合</a>
+                </div>
+                <div class="meta">
+                  Mar 17, 2016
+                </div>
+              </li>
+             
+            </ul>
+            
+                        
+          </nav>
+          <nav class="tags">
+            <h2>Categories</h2>
+            <div class="tag-cloud">
+              
+              <span class="tag tag-1">
+                <a href="/categories/jekyll">Jekyll(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/jboss">Jboss(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/java">Java(18)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/css">Css(1)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/database">Database(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/javaee">Javaee(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/linux">Linux(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/teiid">Teiid(40)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/maven">Maven(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/netty">Netty(7)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/data">Data(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/git">Git(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/other">Other(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/performance">Performance(4)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/security">Security(3)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/docker">Docker(4)</a>
+              </span>
+              
+              
+            </div>
+          </nav>
+        </aside>
+      </div>
+
+
+    </div>
+    <footer>
+      <div class="container">
+        <div class="project">
+          <p class="bottom">
+            ©
+            Copyright 2009-2016 ksoong.
+            <br>
+            <i class="icon-fire"></i>
+            Mixed with <a href="http://twitter.github.com/bootstrap">Bootstrap</a>.
+            <br>
+            <i class="icon-share-alt"></i>
+            Website and docs licensed under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
+            <br>
+            Code released under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, v2.0</a>.
+          </p>
+        </div>
+        <div class="footer-nav">
+          <h4>Learn</h4>
+          <ul>
+            <li>
+              <a href="http://www.jboss.org/">JBoss</a>
+            </li>
+            <li>
+              <a href="http://infinispan.org/">Infinispan</a>
+            </li>
+            <li>
+              <a href="http://teiid.org/">Teiid</a>
+            </li>
+            <li>
+              <a href="https://github.com/kylinsoong">Github</a>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="sponser">
+          <div class="follow-us">
+            <h4>Stay Informed</h4>
+            <ul>
+              <li>
+                <a href="https://plus.google.com/103933729718268414460?rel=author"><img alt="Google+" src="/css/googleplus-16.png" title="Follow ksoong.org on Google+"></a>
+              </li>
+              <li>
+                <a href="http://www.weibo.com/kylinsoong"><img alt="Weibo" src="/css/weibo_logo.jpg" title="Follow me on Weibo"></a>
+              </li>
+	      <li>
+                <a href="https://github.com/kylinsoong"><img alt="Github" src="/css/Octocat.jpg" title="Fork me on Github"></a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+        <a class="visible-desktop" href="#" id="toTop">Top</a>
+      </div>
+        <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1258751305'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1258751305%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+    </footer>
+  
+ 
+    <script src="/css/jquery-1.11.1.min.js"></script>
+    <script src="/css/bootstrap.js"></script>
+
+   <script>
+      $(function() {
+        $('html').addClass('ready');
+        prettify();
+        activateFooterGravity();
+        activateTooltips();
+        activateToTopControl();
+      });
+    </script>
+    <script src="/css/site.js"></script>
+
+    
+            
+            <script type="text/javascript">
+                var duoshuoQuery = {short_name:"ksoong"};
+                (function() {
+                    var ds = document.createElement('script');
+                    ds.type = 'text/javascript';
+                    ds.async = true;
+                    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+                    ds.charset = 'UTF-8';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+                })();
+            </script>
+            
+        
+
+
+</body>
+</html>

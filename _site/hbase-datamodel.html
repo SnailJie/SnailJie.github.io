@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html class="ready" lang="en"><head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="shenma-site-verification" content="8a69823d7371d1eec4379853d25200cd_1448504990"> 
+    <title>Kylin Soong . Blog</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="/feed.xml" rel="alternate" title="Kylin Soong . Blog Atom feed" type="application/atom+xml">
+    <link href="/css/screen.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.js"></script>
+    <![endif]-->
+    <link href="/favicon.ico" rel="shortcut icon">
+
+</head>
+
+  <body class="blog index">
+    <header class="navbar navbar-fixed-top" id="banner" role="banner">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-target=".nav-collapse" data-toggle="collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/">
+            <span class="logo"></span>
+            <span class="name">ksoong</span>
+          </a>
+          <nav class="nav-collapse" role="navigation">
+            <ul class="nav">
+              <li><a href="/">Home</a></li>
+	      <!--
+              <li><a href="/lab">Labs</a></li>
+              <li><a href="/blog/">Blog</a></li>
+	      -->
+	      <li><a href="/books">Books</a></li>
+              <li><a href="/archive">Archives</a></li>
+              <li><a href="/slide">Slides</a></li>
+              <li><a href="/about">About</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+    <div style="min-height: 250px;" id="main" role="main">
+      
+<div id="content-header">
+        <div class="container">
+         <h1>
+              <a href="/blog">Blog</a>
+              <!--a href="#">&raquo;</a>
+              <a href="/hbase-datamodel">HBase Data Model</a-->
+          </h1>
+        </div>
+</div>
+      <div class="container">
+        <div id="content">
+          
+<h2 class="title">
+                 <a class="post-link" href="/hbase-datamodel">HBase Data Model</a>
+              </h2>
+ 
+<header class="post">
+              <div class="byline">
+                <span class="author">Posted by
+                <a href="/about">Kylin Soong</a> on</span>
+                <span class="dateinline">Dec 1, 2014</span>
+		<i class="icon-tags"></i> categorized as <a class="tag" href="/categories/data">data</a>
+              </div>
+            </header>
+
+ 
+<p>In HBase, data is stored in tables, which have rows and columns. The below figure show completed Data Model Terminology:</p>
+
+<p><img src="/assets/blog/hbase-table.png" alt="HBase Data Model" /></p>
+
+<ul>
+  <li><strong>Table</strong> - An HBase table consists of multiple rows.</li>
+  <li><strong>Row</strong> - A row in HBase consists of a row key and one or more columns with values associated with them. Rows are sorted alphabetically by the row key as they are stored.</li>
+  <li><strong>Column</strong> - A column in HBase consists of a column family and a column qualifier, which are delimited by a : (colon) character.</li>
+  <li><strong>Column Family</strong> - Column families physically colocate a set of columns and their values, often for performance reasons. Each column family has a set of storage properties, such as whether its values should be cached in memory, how its data is compressed or its row keys are encoded, and others. Each row in a table has the same column families. Column families are specified when you create your table, and influence the way your data is stored in the underlying filesystem.</li>
+  <li><strong>Column Qualifier</strong> - A column qualifier is added to a column family to provide the index for a given piece of data. Given a column family <code class="highlighter-rouge">content</code>, a column qualifier might be <code class="highlighter-rouge">content:html</code>, and another might be <code class="highlighter-rouge">content:pdf</code>.</li>
+  <li><strong>Cell</strong> - A cell is a combination of row, column family, and column qualifier, and contains a value and a timestamp, which represents the value’s version.</li>
+  <li><strong>Timestamp</strong> - A timestamp is written alongside each value, and is the identifier for a given version of a value.</li>
+</ul>
+
+<h2 id="java-example-to-show-hbase-data-model">Java Example to show HBase Data Model</h2>
+
+<p>We will create a example exact like above figure, which a table names <code class="highlighter-rouge">Customer</code>, with 2 Column Family <code class="highlighter-rouge">customer</code> and sales, each Column Family contain 2 columns.</p>
+
+<p>Example prerequisite:</p>
+
+<ul>
+  <li>HBase be installed and started</li>
+  <li>hbase-client liabaries, if use maven, add dependency as below:</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>		&lt;dependency&gt;
+			&lt;groupId&gt;org.apache.hbase&lt;/groupId&gt;
+			&lt;artifactId&gt;hbase-client&lt;/artifactId&gt;
+			&lt;version&gt;0.98.8-hadoop2&lt;/version&gt;
+		&lt;/dependency&gt;
+</code></pre>
+</div>
+
+<h3 id="create-table-customer">Create Table Customer</h3>
+
+<p>The following code shows how create Table <code class="highlighter-rouge">Customer</code> with 2 Column Familys <code class="highlighter-rouge">customer</code> and <code class="highlighter-rouge">sales</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>Configuration conf = HBaseConfiguration.create();
+HBaseAdmin admin = new HBaseAdmin(conf);
+HTableDescriptor tableDescriptor = new HTableDescriptor(TableName.valueOf("Customer"));
+tableDescriptor.addFamily(new HColumnDescriptor("customer"));
+tableDescriptor.addFamily(new HColumnDescriptor("sales"));
+admin.createTable(tableDescriptor);
+</code></pre>
+</div>
+
+<h3 id="put-4-rows-to-customer">Put 4 rows to Customer</h3>
+
+<p>The following code show put 4 rows to Table <code class="highlighter-rouge">Customer</code>, with row id <code class="highlighter-rouge">101</code>, <code class="highlighter-rouge">102</code>, <code class="highlighter-rouge">103</code>, <code class="highlighter-rouge">103</code> respectively:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>Configuration conf = HBaseConfiguration.create();
+HTable table = new HTable(conf, "Customer");
+Put put = new Put(Bytes.toBytes("101"));
+put.add(Bytes.toBytes("customer"), Bytes.toBytes("name"), Bytes.toBytes("John White"));
+put.add(Bytes.toBytes("customer"), Bytes.toBytes("city"), Bytes.toBytes("Los Angeles, CA"));
+put.add(Bytes.toBytes("sales"), Bytes.toBytes("product"), Bytes.toBytes("Chairs"));
+put.add(Bytes.toBytes("sales"), Bytes.toBytes("amount"), Bytes.toBytes("$400.00"));
+table.put(put);
+table.flushCommits();
+		
+put = new Put(Bytes.toBytes("102"));
+put.add(Bytes.toBytes("customer"), Bytes.toBytes("name"), Bytes.toBytes("Jane Brown"));
+put.add(Bytes.toBytes("customer"), Bytes.toBytes("city"), Bytes.toBytes("Atlanta, GA"));
+put.add(Bytes.toBytes("sales"), Bytes.toBytes("product"), Bytes.toBytes("Lamps"));
+put.add(Bytes.toBytes("sales"), Bytes.toBytes("amount"), Bytes.toBytes("$200.00"));
+table.put(put);
+table.flushCommits();
+		
+put = new Put(Bytes.toBytes("103"));
+put.add(Bytes.toBytes("customer"), Bytes.toBytes("name"), Bytes.toBytes("Bill Green"));
+put.add(Bytes.toBytes("customer"), Bytes.toBytes("city"), Bytes.toBytes("Pittsburgh, PA"));
+put.add(Bytes.toBytes("sales"), Bytes.toBytes("product"), Bytes.toBytes("Desk"));
+put.add(Bytes.toBytes("sales"), Bytes.toBytes("amount"), Bytes.toBytes("$500.00"));
+table.put(put);
+table.flushCommits();
+		
+put = new Put(Bytes.toBytes("104"));
+put.add(Bytes.toBytes("customer"), Bytes.toBytes("name"), Bytes.toBytes("Jack Black"));
+put.add(Bytes.toBytes("customer"), Bytes.toBytes("city"), Bytes.toBytes("St. Louis, MO"));
+put.add(Bytes.toBytes("sales"), Bytes.toBytes("product"), Bytes.toBytes("Bed"));
+put.add(Bytes.toBytes("sales"), Bytes.toBytes("amount"), Bytes.toBytes("$1600.00"));
+table.put(put);
+table.flushCommits();
+		
+table.close();
+</code></pre>
+</div>
+
+<h3 id="scan-table">Scan Table</h3>
+
+<p>The code below shoe scan Table:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>Configuration conf = HBaseConfiguration.create();
+HTable table = new HTable(conf, "Customer");
+Scan scan = new Scan();
+ResultScanner rs = table.getScanner(scan);
+try {
+	for (Result r = rs.next(); r != null; r = rs.next()){
+		printResult(r);
+	}
+} finally {
+	  rs.close();
+}
+table.close();
+
+private static void printResult(Result result) {
+
+String row = Bytes.toString(result.getRow());
+System.out.println(row);
+for(byte[] key : result.getMap().keySet()) {
+	String family = Bytes.toString(key);
+	System.out.println("\t" + family);
+	NavigableMap&lt;byte[], NavigableMap&lt;Long, byte[]&gt;&gt; value = result.getMap().get(key);
+	for(byte[] qualifier : value.keySet()) {
+		System.out.println("\t\t" + Bytes.toString(qualifier));
+		NavigableMap&lt;Long, byte[]&gt; cell = value.get(qualifier);
+		for(Long timestamp : cell.keySet()) {
+			String cellValue = Bytes.toString(cell.get(timestamp));
+			System.out.printf("\t\t\t%s, %d\n", cellValue, timestamp);
+		}
+	}
+}
+}
+</code></pre>
+</div>
+
+<p>Run above code the console output like:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>101
+	customer
+		city
+			Los Angeles, CA, 1417409512824
+		name
+			John White, 1417409512824
+	sales
+		amount
+			$400.00, 1417409512824
+		product
+			Chairs, 1417409512824
+102
+	customer
+		city
+			Atlanta, GA, 1417409512856
+		name
+			Jane Brown, 1417409512856
+	sales
+		amount
+			$200.00, 1417409512856
+		product
+			Lamps, 1417409512856
+103
+	customer
+		city
+			Pittsburgh, PA, 1417409512864
+		name
+			Bill Green, 1417409512864
+	sales
+		amount
+			$500.00, 1417409512864
+		product
+			Desk, 1417409512864
+104
+	customer
+		city
+			St. Louis, MO, 1417409512871
+		name
+			Jack Black, 1417409512871
+	sales
+		amount
+			$1600.00, 1417409512871
+		product
+			Bed, 1417409512871
+</code></pre>
+</div>
+
+<h3 id="get-one-row-from-table">Get one row from Table</h3>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>Configuration conf = HBaseConfiguration.create();
+HTable table = new HTable(conf, "Customer");
+Get get = new Get("101".getBytes());
+get.addFamily("customer".getBytes());
+Result result = table.get(get);
+for(Cell cell : result.rawCells()) {
+	System.out.println(new String(CellUtil.cloneValue(cell)) + " - " + cell.getTimestamp());
+}
+table.close();
+</code></pre>
+</div>
+
+<p>Run above code to get row <code class="highlighter-rouge">101</code>, the output like:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>Los Angeles, CA - 1417409512824
+John White - 1417409512824
+</code></pre>
+</div>
+
+<h3 id="delete-table">Delete Table</h3>
+
+<p>Run below code to delete Table:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>Configuration conf = HBaseConfiguration.create();
+HBaseAdmin admin = new HBaseAdmin(conf);
+admin.disableTable("Customer");
+admin.deleteTable("Customer");
+</code></pre>
+</div>
+
+<h3 id="completed-source-code">Completed Source Code</h3>
+
+<p><a href="https://github.com/kylinsoong/data/tree/master/hbase-quickstart/src/main/java/org/apache/hadoop/hbase/examples/customer">https://github.com/kylinsoong/data/tree/master/hbase-quickstart/src/main/java/org/apache/hadoop/hbase/examples/customer</a></p>
+
+
+<br/>
+<ul class="btn pull-right">
+<div class="bdsharebuttonbox">
+  <a href="#" class="bds_more" data-cmd="more"></a>
+  <a title="分享到QQ空间" href="#" class="bds_qzone" data-cmd="qzone"></a>
+  <a title="分享到新浪微博" href="#" class="bds_tsina" data-cmd="tsina"></a>
+  <a title="分享到腾讯微博" href="#" class="bds_tqq" data-cmd="tqq"></a>
+  <a title="分享到人人网" href="#" class="bds_renren" data-cmd="renren"></a>
+  <a title="分享到微信" href="#" class="bds_weixin" data-cmd="weixin"></a>
+</div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"分享ksoong.org的文章「HBase Data Model」 - ksoong.org","bdDesc":"","bdMini":"2","bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</ul>
+
+<div class="ds-thread" data-thread-key="ksoong2014120101" data-title="HBase Data Model" data-url="ksoong.org/hbase-datamodel"></div>
+
+	    <ul class="pager">
+		
+		<li class="previous"><a href="/java-logging">&laquo;&nbsp;Logging in Java</a></li>
+		
+		
+		<li class="next"><a href="/hbase-connrefuse">HBase Connection Refused Issue&nbsp;&raquo;</a></li>
+		
+	    </ul>
+
+
+        </div>
+        <aside id="sidebar" role="complementary">
+          <div class="subscribe">
+            <h2 class="icon news">
+              <a href="/feed.xml">Subscribe</a>
+            </h2>
+          </div>
+          <nav class="latest">
+            <h2>Latest Posts</h2>
+            <ul>
+            
+              <li>
+                <div class="title">
+                  <a href="/wfl-ds">WildFly Data Sources Configuration</a>
+                </div>
+                <div class="meta">
+                  Apr 26, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-transactions">Transaction in Teiid</a>
+                </div>
+                <div class="meta">
+                  Apr 20, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-getstart-code">Get Start Teiid From Source...</a>
+                </div>
+                <div class="meta">
+                  Apr 7, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-metadata">Understanding Teiid Metadata</a>
+                </div>
+                <div class="meta">
+                  Mar 27, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/rhel7-commands">Linux 命令集合</a>
+                </div>
+                <div class="meta">
+                  Mar 17, 2016
+                </div>
+              </li>
+             
+            </ul>
+            
+                        
+          </nav>
+          <nav class="tags">
+            <h2>Categories</h2>
+            <div class="tag-cloud">
+              
+              <span class="tag tag-1">
+                <a href="/categories/jekyll">Jekyll(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/jboss">Jboss(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/java">Java(18)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/css">Css(1)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/database">Database(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/javaee">Javaee(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/linux">Linux(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/teiid">Teiid(40)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/maven">Maven(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/netty">Netty(7)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/data">Data(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/git">Git(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/other">Other(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/performance">Performance(4)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/security">Security(3)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/docker">Docker(4)</a>
+              </span>
+              
+              
+            </div>
+          </nav>
+        </aside>
+      </div>
+
+
+    </div>
+    <footer>
+      <div class="container">
+        <div class="project">
+          <p class="bottom">
+            ©
+            Copyright 2009-2016 ksoong.
+            <br>
+            <i class="icon-fire"></i>
+            Mixed with <a href="http://twitter.github.com/bootstrap">Bootstrap</a>.
+            <br>
+            <i class="icon-share-alt"></i>
+            Website and docs licensed under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
+            <br>
+            Code released under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, v2.0</a>.
+          </p>
+        </div>
+        <div class="footer-nav">
+          <h4>Learn</h4>
+          <ul>
+            <li>
+              <a href="http://www.jboss.org/">JBoss</a>
+            </li>
+            <li>
+              <a href="http://infinispan.org/">Infinispan</a>
+            </li>
+            <li>
+              <a href="http://teiid.org/">Teiid</a>
+            </li>
+            <li>
+              <a href="https://github.com/kylinsoong">Github</a>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="sponser">
+          <div class="follow-us">
+            <h4>Stay Informed</h4>
+            <ul>
+              <li>
+                <a href="https://plus.google.com/103933729718268414460?rel=author"><img alt="Google+" src="/css/googleplus-16.png" title="Follow ksoong.org on Google+"></a>
+              </li>
+              <li>
+                <a href="http://www.weibo.com/kylinsoong"><img alt="Weibo" src="/css/weibo_logo.jpg" title="Follow me on Weibo"></a>
+              </li>
+	      <li>
+                <a href="https://github.com/kylinsoong"><img alt="Github" src="/css/Octocat.jpg" title="Fork me on Github"></a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+        <a class="visible-desktop" href="#" id="toTop">Top</a>
+      </div>
+        <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1258751305'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1258751305%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+    </footer>
+  
+ 
+    <script src="/css/jquery-1.11.1.min.js"></script>
+    <script src="/css/bootstrap.js"></script>
+
+   <script>
+      $(function() {
+        $('html').addClass('ready');
+        prettify();
+        activateFooterGravity();
+        activateTooltips();
+        activateToTopControl();
+      });
+    </script>
+    <script src="/css/site.js"></script>
+
+    
+            
+            <script type="text/javascript">
+                var duoshuoQuery = {short_name:"ksoong"};
+                (function() {
+                    var ds = document.createElement('script');
+                    ds.type = 'text/javascript';
+                    ds.async = true;
+                    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+                    ds.charset = 'UTF-8';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+                })();
+            </script>
+            
+        
+
+
+</body>
+</html>

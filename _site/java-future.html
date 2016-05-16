@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html class="ready" lang="en"><head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="shenma-site-verification" content="8a69823d7371d1eec4379853d25200cd_1448504990"> 
+    <title>Kylin Soong . Blog</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="/feed.xml" rel="alternate" title="Kylin Soong . Blog Atom feed" type="application/atom+xml">
+    <link href="/css/screen.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.js"></script>
+    <![endif]-->
+    <link href="/favicon.ico" rel="shortcut icon">
+
+</head>
+
+  <body class="blog index">
+    <header class="navbar navbar-fixed-top" id="banner" role="banner">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-target=".nav-collapse" data-toggle="collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/">
+            <span class="logo"></span>
+            <span class="name">ksoong</span>
+          </a>
+          <nav class="nav-collapse" role="navigation">
+            <ul class="nav">
+              <li><a href="/">Home</a></li>
+	      <!--
+              <li><a href="/lab">Labs</a></li>
+              <li><a href="/blog/">Blog</a></li>
+	      -->
+	      <li><a href="/books">Books</a></li>
+              <li><a href="/archive">Archives</a></li>
+              <li><a href="/slide">Slides</a></li>
+              <li><a href="/about">About</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+    <div style="min-height: 250px;" id="main" role="main">
+      
+<div id="content-header">
+        <div class="container">
+         <h1>
+              <a href="/blog">Blog</a>
+              <!--a href="#">&raquo;</a>
+              <a href="/java-future">Java Future FutureTask 案例</a-->
+          </h1>
+        </div>
+</div>
+      <div class="container">
+        <div id="content">
+          
+<h2 class="title">
+                 <a class="post-link" href="/java-future">Java Future FutureTask 案例</a>
+              </h2>
+ 
+<header class="post">
+              <div class="byline">
+                <span class="author">Posted by
+                <a href="/about">Kylin Soong</a> on</span>
+                <span class="dateinline">Jan 6, 2015</span>
+		<i class="icon-tags"></i> categorized as <a class="tag" href="/categories/java">java</a>
+              </div>
+            </header>
+
+ 
+<ul id="markdown-toc">
+  <li><a href="#callable--future-" id="markdown-toc-callable--future-">案例一: Callable + Future 获取执行结果示例</a></li>
+  <li><a href="#callable--future--1" id="markdown-toc-callable--future--1">案例二: Callable + Future 以及判断任务是否完成示例</a></li>
+  <li><a href="#callable--futuretask-" id="markdown-toc-callable--futuretask-">案例三: Callable + FutureTask 获取执行结果示例</a></li>
+  <li><a href="#callable--futuretask--1" id="markdown-toc-callable--futuretask--1">案例四: Callable + FutureTask 以及判断任务是否完成示例</a></li>
+  <li><a href="#runnable--futuretask-" id="markdown-toc-runnable--futuretask-">案例五: Runnable + FutureTask 获取执行结果示例</a></li>
+</ul>
+
+<p>Future 类位于 java.util.concurrent 包下，它是一个接口：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>public interface Future&lt;V&gt; {
+    boolean cancel(boolean mayInterruptIfRunning);
+    boolean isCancelled();
+    boolean isDone();
+    V get() throws InterruptedException, ExecutionException;
+    V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException;
+}
+</code></pre>
+</div>
+
+<p>在 Future 接口中声明了5个方法，下面依次解释每个方法的作用：</p>
+
+<ul>
+  <li>cancel方法用来取消任务，如果取消任务成功则返回true，如果取消任务失败则返回false。参数mayInterruptIfRunning表示是否允许取消正在执行却没有执行完毕的任务，如果设置true，则表示可以取消正在执行过程中的任务。如果任务已经完成，则无论mayInterruptIfRunning为true还是false，此方法肯定返回false，即如果取消已经完成的任务会返回false；如果任务正在执行，若mayInterruptIfRunning设置为true，则返回true，若mayInterruptIfRunning设置为false，则返回false；如果任务还没有执行，则无论mayInterruptIfRunning为true还是false，肯定返回true。</li>
+  <li>isCancelled方法表示任务是否被取消成功，如果在任务正常完成前被取消成功，则返回 true。</li>
+  <li>isDone方法表示任务是否已经完成，若任务完成，则返回true；</li>
+  <li>get()方法用来获取执行结果，这个方法会产生阻塞，会一直等到任务执行完毕才返回；</li>
+  <li>get(long timeout, TimeUnit unit)用来获取执行结果，如果在指定时间内，还没获取到结果，就直接返回null</li>
+</ul>
+
+<p>也就是说 Future 提供了三种功能：<strong>判断任务是否完成</strong>, <strong>能够中断任务</strong>, <strong>能够获取任务执行结果</strong>.</p>
+
+<p>FutureTask 为 RunnableFuture 接口的实现类，同位于 java.util.concurrent 包下，它的 UML 类图如下：</p>
+
+<p><img src="/assets/blog/java-uml-future.png" alt="UML of FutureTask" /></p>
+
+<p>可以看出 RunnableFuture 继承了 Runnable 接口和 Future 接口，而 FutureTask 实现了 RunnableFuture 接口。所以它既可以作为 Runnable 被线程执行，又可以作为 Future 得到 Callable 的返回值。</p>
+
+<p>FutureTask 提供了2个构造方法：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>public FutureTask(Callable&lt;V&gt; callable) {}
+public FutureTask(Runnable runnable, V result) {}
+</code></pre>
+</div>
+
+<h3 id="callable--future-">案例一: Callable + Future 获取执行结果示例</h3>
+
+<p>Task 类实现了 Callable 接口</p>
+
+<p><img src="/assets/blog/java-future-example-1-task.png" alt="Example.1 - Task" /></p>
+
+<p>call() 方法执行到 27 行 sleep 5 秒钟，然后进行 1 到 100 累加。</p>
+
+<p><img src="/assets/blog/java-future-example-1-run.png" alt="Example.1 - Run" /></p>
+
+<p>如上代码，创建一个线程池，执行 Callable Task，通过返回的 Future 结果测试 Future 的 get() 方法。程序运行输出结果：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>子线程在进行计算
+主线程在执行任务
+task运行结果4950
+所有任务执行完毕
+</code></pre>
+</div>
+
+<p><a href="https://raw.githubusercontent.com/kylinsoong/JVM/master/jdk/concurrent/src/main/java/org/ksoong/tutorial/java/concurrent/future/TestFuture.java">完整代码</a></p>
+
+<h3 id="callable--future--1">案例二: Callable + Future 以及判断任务是否完成示例</h3>
+
+<p>Task 类实现了 Callable 接口</p>
+
+<p><img src="/assets/blog/java-future-example-2-task.png" alt="Example.2 - Task" /></p>
+
+<p>call() 方法执行到 27 行 sleep 20 秒钟，然后进行 1 到 100 累加。</p>
+
+<p><img src="/assets/blog/java-future-example-2-run.png" alt="Example.2 - Run" /></p>
+
+<p>如上代码，创建一个线程池，执行 Callable Task，通过返回的 Future 结果测试 Future 的 isDone(), isCancelled(), get(long timeout, TimeUnit unit) 等方法。程序运行输出结果：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>子线程在进行计算
+主线程在执行任务
+task 是否结束: false
+task 是否取消: false
+task 运行出错: java.util.concurrent.TimeoutException
+task 是否结束: true
+task 是否取消: true
+</code></pre>
+</div>
+
+<p><a href="https://raw.githubusercontent.com/kylinsoong/JVM/master/jdk/concurrent/src/main/java/org/ksoong/tutorial/java/concurrent/future/TestFuturePlus.java">完整代码</a></p>
+
+<h3 id="callable--futuretask-">案例三: Callable + FutureTask 获取执行结果示例</h3>
+
+<p>Task 类实现了 Callable 接口</p>
+
+<p><img src="/assets/blog/java-future-example-1-task.png" alt="Example.3 - Task" /></p>
+
+<p>call() 方法执行到 27 行 sleep 5 秒钟，然后进行 1 到 100 累加。</p>
+
+<p><img src="/assets/blog/java-future-example-3-run.png" alt="Example.3 - Run" /></p>
+
+<p>如上代码，创建一个 FutureTask，Callable Task作为构造函数的参数，随后启动一个线程并启动执行 FutureTask，测试 FutureTask 的 get() 方法。程序运行输出结果：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>子线程在进行计算
+主线程在执行任务
+task运行结果4950
+所有任务执行完毕
+</code></pre>
+</div>
+
+<p><a href="https://raw.githubusercontent.com/kylinsoong/JVM/master/jdk/concurrent/src/main/java/org/ksoong/tutorial/java/concurrent/future/TestFutureTask.java">完整代码</a></p>
+
+<h3 id="callable--futuretask--1">案例四: Callable + FutureTask 以及判断任务是否完成示例</h3>
+
+<p>Task 类实现了 Callable 接口</p>
+
+<p><img src="/assets/blog/java-future-example-2-task.png" alt="Example.4 - Task" /></p>
+
+<p>call() 方法执行到 27 行 sleep 5 秒钟，然后进行 1 到 100 累加。</p>
+
+<p><img src="/assets/blog/java-future-example-4-run.png" alt="Example.4 - Run" /></p>
+
+<p>如上代码，创建一个 FutureTask，Callable Task作为构造函数的参数，随后启动一个线程并启动执行 FutureTask，测试 FutureTask 的 isDone(), isCancelled(), get(long timeout, TimeUnit unit) 等方法。程序运行输出结果：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>子线程在进行计算
+主线程在执行任务
+task 是否结束: false
+task 是否取消: false
+task 是否结束: true
+task 是否取消: true
+任务取消
+</code></pre>
+</div>
+
+<p><a href="https://raw.githubusercontent.com/kylinsoong/JVM/master/jdk/concurrent/src/main/java/org/ksoong/tutorial/java/concurrent/future/TestFutureTaskPlus.java">完整代码</a></p>
+
+<h3 id="runnable--futuretask-">案例五: Runnable + FutureTask 获取执行结果示例</h3>
+
+<p>Task 类实现了 Runnable 接口，且它又一个 Result 属性为构造方法的参数</p>
+
+<p><img src="/assets/blog/java-future-example-5-task.png" alt="Example.5 - Task" /></p>
+
+<p>run() 方法执行到 42 行 sleep 5 秒钟，然后进行 1 到 100 累加。</p>
+
+<p><img src="/assets/blog/java-future-example-5-run.png" alt="Example.5 - Run" /></p>
+
+<p>如上代码，创建一个 FutureTask，Runnable Task 和 Result 作为构造函数的参数，随后启动一个线程并启动执行 FutureTask，测试 FutureTask 的 get(t) 方法。程序运行输出结果：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>子线程在进行计算
+主线程在执行任务
+task运行结果4950
+所有任务执行完毕
+</code></pre>
+</div>
+
+<p><a href="https://raw.githubusercontent.com/kylinsoong/JVM/master/jdk/concurrent/src/main/java/org/ksoong/tutorial/java/concurrent/future/TestFutureTaskRunnable.java">完整代码</a></p>
+
+
+
+<br/>
+<ul class="btn pull-right">
+<div class="bdsharebuttonbox">
+  <a href="#" class="bds_more" data-cmd="more"></a>
+  <a title="分享到QQ空间" href="#" class="bds_qzone" data-cmd="qzone"></a>
+  <a title="分享到新浪微博" href="#" class="bds_tsina" data-cmd="tsina"></a>
+  <a title="分享到腾讯微博" href="#" class="bds_tqq" data-cmd="tqq"></a>
+  <a title="分享到人人网" href="#" class="bds_renren" data-cmd="renren"></a>
+  <a title="分享到微信" href="#" class="bds_weixin" data-cmd="weixin"></a>
+</div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"分享ksoong.org的文章「Java Future FutureTask 案例」 - ksoong.org","bdDesc":"","bdMini":"2","bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</ul>
+
+<div class="ds-thread" data-thread-key="ksoong2015010601" data-title="Java Future FutureTask 案例" data-url="ksoong.org/java-future"></div>
+
+	    <ul class="pager">
+		
+		<li class="previous"><a href="/mysql-northwind">&laquo;&nbsp;Northwind database in MySql</a></li>
+		
+		
+		<li class="next"><a href="/phoenix-dml">Phoenix DML Unit Test&nbsp;&raquo;</a></li>
+		
+	    </ul>
+
+
+        </div>
+        <aside id="sidebar" role="complementary">
+          <div class="subscribe">
+            <h2 class="icon news">
+              <a href="/feed.xml">Subscribe</a>
+            </h2>
+          </div>
+          <nav class="latest">
+            <h2>Latest Posts</h2>
+            <ul>
+            
+              <li>
+                <div class="title">
+                  <a href="/wfl-ds">WildFly Data Sources Configuration</a>
+                </div>
+                <div class="meta">
+                  Apr 26, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-transactions">Transaction in Teiid</a>
+                </div>
+                <div class="meta">
+                  Apr 20, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-getstart-code">Get Start Teiid From Source...</a>
+                </div>
+                <div class="meta">
+                  Apr 7, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-metadata">Understanding Teiid Metadata</a>
+                </div>
+                <div class="meta">
+                  Mar 27, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/rhel7-commands">Linux 命令集合</a>
+                </div>
+                <div class="meta">
+                  Mar 17, 2016
+                </div>
+              </li>
+             
+            </ul>
+            
+                        
+          </nav>
+          <nav class="tags">
+            <h2>Categories</h2>
+            <div class="tag-cloud">
+              
+              <span class="tag tag-1">
+                <a href="/categories/jekyll">Jekyll(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/jboss">Jboss(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/java">Java(18)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/css">Css(1)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/database">Database(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/javaee">Javaee(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/linux">Linux(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/teiid">Teiid(40)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/maven">Maven(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/netty">Netty(7)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/data">Data(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/git">Git(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/other">Other(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/performance">Performance(4)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/security">Security(3)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/docker">Docker(4)</a>
+              </span>
+              
+              
+            </div>
+          </nav>
+        </aside>
+      </div>
+
+
+    </div>
+    <footer>
+      <div class="container">
+        <div class="project">
+          <p class="bottom">
+            ©
+            Copyright 2009-2016 ksoong.
+            <br>
+            <i class="icon-fire"></i>
+            Mixed with <a href="http://twitter.github.com/bootstrap">Bootstrap</a>.
+            <br>
+            <i class="icon-share-alt"></i>
+            Website and docs licensed under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
+            <br>
+            Code released under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, v2.0</a>.
+          </p>
+        </div>
+        <div class="footer-nav">
+          <h4>Learn</h4>
+          <ul>
+            <li>
+              <a href="http://www.jboss.org/">JBoss</a>
+            </li>
+            <li>
+              <a href="http://infinispan.org/">Infinispan</a>
+            </li>
+            <li>
+              <a href="http://teiid.org/">Teiid</a>
+            </li>
+            <li>
+              <a href="https://github.com/kylinsoong">Github</a>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="sponser">
+          <div class="follow-us">
+            <h4>Stay Informed</h4>
+            <ul>
+              <li>
+                <a href="https://plus.google.com/103933729718268414460?rel=author"><img alt="Google+" src="/css/googleplus-16.png" title="Follow ksoong.org on Google+"></a>
+              </li>
+              <li>
+                <a href="http://www.weibo.com/kylinsoong"><img alt="Weibo" src="/css/weibo_logo.jpg" title="Follow me on Weibo"></a>
+              </li>
+	      <li>
+                <a href="https://github.com/kylinsoong"><img alt="Github" src="/css/Octocat.jpg" title="Fork me on Github"></a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+        <a class="visible-desktop" href="#" id="toTop">Top</a>
+      </div>
+        <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1258751305'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1258751305%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+    </footer>
+  
+ 
+    <script src="/css/jquery-1.11.1.min.js"></script>
+    <script src="/css/bootstrap.js"></script>
+
+   <script>
+      $(function() {
+        $('html').addClass('ready');
+        prettify();
+        activateFooterGravity();
+        activateTooltips();
+        activateToTopControl();
+      });
+    </script>
+    <script src="/css/site.js"></script>
+
+    
+            
+            <script type="text/javascript">
+                var duoshuoQuery = {short_name:"ksoong"};
+                (function() {
+                    var ds = document.createElement('script');
+                    ds.type = 'text/javascript';
+                    ds.async = true;
+                    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+                    ds.charset = 'UTF-8';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+                })();
+            </script>
+            
+        
+
+
+</body>
+</html>

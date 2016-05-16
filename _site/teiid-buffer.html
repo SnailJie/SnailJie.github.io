@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html class="ready" lang="en"><head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="shenma-site-verification" content="8a69823d7371d1eec4379853d25200cd_1448504990"> 
+    <title>Kylin Soong . Blog</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="/feed.xml" rel="alternate" title="Kylin Soong . Blog Atom feed" type="application/atom+xml">
+    <link href="/css/screen.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.js"></script>
+    <![endif]-->
+    <link href="/favicon.ico" rel="shortcut icon">
+
+</head>
+
+  <body class="blog index">
+    <header class="navbar navbar-fixed-top" id="banner" role="banner">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-target=".nav-collapse" data-toggle="collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/">
+            <span class="logo"></span>
+            <span class="name">ksoong</span>
+          </a>
+          <nav class="nav-collapse" role="navigation">
+            <ul class="nav">
+              <li><a href="/">Home</a></li>
+	      <!--
+              <li><a href="/lab">Labs</a></li>
+              <li><a href="/blog/">Blog</a></li>
+	      -->
+	      <li><a href="/books">Books</a></li>
+              <li><a href="/archive">Archives</a></li>
+              <li><a href="/slide">Slides</a></li>
+              <li><a href="/about">About</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+    <div style="min-height: 250px;" id="main" role="main">
+      
+<div id="content-header">
+        <div class="container">
+         <h1>
+              <a href="/blog">Blog</a>
+              <!--a href="#">&raquo;</a>
+              <a href="/teiid-buffer">Understanding Teiid BufferManager</a-->
+          </h1>
+        </div>
+</div>
+      <div class="container">
+        <div id="content">
+          
+<h2 class="title">
+                 <a class="post-link" href="/teiid-buffer">Understanding Teiid BufferManager</a>
+              </h2>
+ 
+<header class="post">
+              <div class="byline">
+                <span class="author">Posted by
+                <a href="/about">Kylin Soong</a> on</span>
+                <span class="dateinline">May 11, 2015</span>
+		<i class="icon-tags"></i> categorized as <a class="tag" href="/categories/teiid">teiid</a>
+              </div>
+            </header>
+
+ 
+<ul id="markdown-toc">
+  <li><a href="#tuple-tuplebatch-tuplesource-and-tuplebuffer" id="markdown-toc-tuple-tuplebatch-tuplesource-and-tuplebuffer">Tuple, TupleBatch, TupleSource and TupleBuffer</a>    <ul>
+      <li><a href="#example1-tuplebuffer-with-tuple-and-tuplesource" id="markdown-toc-example1-tuplebuffer-with-tuple-and-tuplesource">Example.1 TupleBuffer with Tuple and TupleSource</a></li>
+      <li><a href="#example2-tuplebuffer-with-tuplebatch-and-tuplesource" id="markdown-toc-example2-tuplebuffer-with-tuplebatch-and-tuplesource">Example.2 TupleBuffer with TupleBatch and TupleSource</a></li>
+      <li><a href="#example3-tuplebatch-with-tuple" id="markdown-toc-example3-tuplebatch-with-tuple">Example.3 TupleBatch with Tuple</a></li>
+    </ul>
+  </li>
+  <li><a href="#stree" id="markdown-toc-stree">STree</a>    <ul>
+      <li><a href="#example1-stree-with-tuplebatch-and-tuples" id="markdown-toc-example1-stree-with-tuplebatch-and-tuples">Example.1 STree with TupleBatch and Tuples</a></li>
+    </ul>
+  </li>
+  <li><a href="#batchmanager" id="markdown-toc-batchmanager">BatchManager</a></li>
+  <li><a href="#lrfu-eviction-queue" id="markdown-toc-lrfu-eviction-queue">LRFU Eviction Queue</a></li>
+  <li><a href="#storagemanager" id="markdown-toc-storagemanager">StorageManager</a></li>
+  <li><a href="#buffermanager-usage-cases" id="markdown-toc-buffermanager-usage-cases">BufferManager usage cases</a></li>
+</ul>
+
+<p>As below figure, the Key Interface of Teiid BufferManager is <code class="highlighter-rouge">BufferManager</code>, it extends of interface <code class="highlighter-rouge">StorageManager</code> and <code class="highlighter-rouge">TupleBufferCache</code>.</p>
+
+<p><img src="/assets/blog/teiid-buffer.png" alt="BufferManager UML" /></p>
+
+<p>The buffer manager controls how memory is used and how data flows through the system. It uses <code class="highlighter-rouge">StorageManager</code> to retrieve data, store data, and transfer data. The buffer manager has algorithms that tell it when and how to store data. The buffer manager should also be aware of memory management issues.</p>
+
+<h2 id="tuple-tuplebatch-tuplesource-and-tuplebuffer">Tuple, TupleBatch, TupleSource and TupleBuffer</h2>
+
+<ul>
+  <li>
+    <p>A <code class="highlighter-rouge">Tuple</code> in Teiid is equivalent to a list data structure, <code class="highlighter-rouge">TupleBuffer</code> has the ‘addTuple()’ method, that means add a list data. The data type in list be defined with ElementSymbol list, we will show this in example in example section.</p>
+  </li>
+  <li>
+    <p>A <code class="highlighter-rouge">TupleBatch</code> in Teiid is a list of <code class="highlighter-rouge">Tuple</code>, it’s structure like</p>
+  </li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>List&lt;List&lt;?&gt;&gt; tuples;
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">TupleBuffer</code> also has <code class="highlighter-rouge">addTupleBatch()</code> method, it used to add a list of <code class="highlighter-rouge">Tuple</code>, we will show this in example section.</p>
+
+<ul>
+  <li>A <code class="highlighter-rouge">TupleSource</code> is a cursored source of tuples. The implementation will likely be closely bound to a <code class="highlighter-rouge">BufferManager</code>, below figure showing TupleSource implementation in Teiid:</li>
+</ul>
+
+<p><img src="/assets/blog/teiid-tuplesource.png" alt="TupleSource" /></p>
+
+<ul>
+  <li>A <code class="highlighter-rouge">TupleBuffer</code> is a interactive interface for BufferManager, as the depiction of BufferManager UML diagram, there are several methods related with TupleBuffer, like</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>TupleBuffer createTupleBuffer(List elements, String groupName, TupleSourceType tupleSourceType) throws TeiidComponentException;
+TupleBuffer getTupleBuffer(String id);
+</code></pre>
+</div>
+
+<p>A typical usage of TupleBuffer is like:</p>
+
+<ul>
+  <li>Create TupleBuffer</li>
+  <li>Add Tuple or TupleBatch to TupleBuffer</li>
+  <li>Create TupleSource via TupleBuffer</li>
+  <li>Iterator Tuple data in TupleSource</li>
+</ul>
+
+<h3 id="example1-tuplebuffer-with-tuple-and-tuplesource">Example.1 TupleBuffer with Tuple and TupleSource</h3>
+
+<p>Assuming <code class="highlighter-rouge">PRODUCTView</code> under <code class="highlighter-rouge">Test</code> model, the create <code class="highlighter-rouge">PRODUCTView</code> SQL like:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>CREATE VIEW PRODUCTView (
+    product_id integer, 
+    symbol string
+) AS SELECT p.product_id, p.symbol FROM PRODUCT AS p;
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">PRODUCTView</code> has 6 rows data as below figure:</p>
+
+<p><img src="/assets/blog/teiid-buffer-example.png" alt="Tuple Example" /></p>
+
+<p>The example below show how use TupleBuffer add Tuple and iterator data via TupleSource.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>BufferManager bm = BufferManagerFactory.getStandaloneBufferManager();
+List&lt;ElementSymbol&gt; elements = new ArrayList&lt;&gt;();
+ElementSymbol id = new ElementSymbol("Test.PRODUCTView.product_id");
+id.setType(DataTypeManager.DefaultDataClasses.INTEGER);
+ElementSymbol symbol = new ElementSymbol("Test.PRODUCTView.symbol");
+symbol.setType(DataTypeManager.DefaultDataClasses.STRING);
+elements.add(id);
+elements.add(symbol);
+		
+TupleBuffer buffer = bm.createTupleBuffer(elements, "ConnectionId", TupleSourceType.PROCESSOR);
+buffer.setForwardOnly(false);
+buffer.addTuple(Arrays.asList(100, "IBM"));
+buffer.addTuple(Arrays.asList(101, "DELL"));
+buffer.addTuple(Arrays.asList(102, "HPQ"));
+buffer.addTuple(Arrays.asList(103, "GE"));
+buffer.addTuple(Arrays.asList(104, "SAP"));
+buffer.addTuple(Arrays.asList(105, "TM"));
+		
+TupleBufferTupleSource tupleSource = buffer.createIndexedTupleSource();
+tupleSource.setReverse(true);	
+while(tupleSource.hasNext()) {
+    System.out.println(tupleSource.nextTuple());
+}
+tupleSource.closeSource();
+</code></pre>
+</div>
+
+<p>Run above code will output</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>[105, TM]
+[104, SAP]
+[103, GE]
+[102, HPQ]
+[101, DELL]
+[100, IBM]
+</code></pre>
+</div>
+
+<h3 id="example2-tuplebuffer-with-tuplebatch-and-tuplesource">Example.2 TupleBuffer with TupleBatch and TupleSource</h3>
+
+<p>The same as <a href="#Example.1 TupleBuffer with Tuple and TupleSource">Example.1 TupleBuffer with Tuple and TupleSource</a> scenarios, this example show how use TupleBuffer add TupleBatch and iterator data via TupleSource.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>BufferManager bm = BufferManagerFactory.getStandaloneBufferManager();
+List&lt;ElementSymbol&gt; elements = new ArrayList&lt;&gt;();
+ElementSymbol id = new ElementSymbol("Test.PRODUCTView.product_id");
+id.setType(DataTypeManager.DefaultDataClasses.INTEGER);
+ElementSymbol symbol = new ElementSymbol("Test.PRODUCTView.symbol");
+symbol.setType(DataTypeManager.DefaultDataClasses.STRING);
+elements.add(id);
+elements.add(symbol);
+		
+TupleBuffer buffer = bm.createTupleBuffer(elements, "ConnectionId", TupleSourceType.PROCESSOR);
+buffer.setForwardOnly(false);
+TupleBatch batch = new TupleBatch(1, Arrays.asList(Arrays.asList(100, "IBM"), Arrays.asList(101, "DELL"), Arrays.asList(102, "HPQ"), Arrays.asList(103, "GE"), Arrays.asList(104, "SAP"), Arrays.asList(105, "TM")));
+buffer.addTupleBatch(batch, true);
+
+TupleBufferTupleSource tupleSource = buffer.createIndexedTupleSource();
+tupleSource.setReverse(true);
+while(tupleSource.hasNext()) {
+    System.out.println(tupleSource.nextTuple());
+}
+tupleSource.closeSource();
+</code></pre>
+</div>
+
+<p>Run above code will output the same result as Example.1.</p>
+
+<h3 id="example3-tuplebatch-with-tuple">Example.3 TupleBatch with Tuple</h3>
+
+<p>The same as <a href="#Example.1 TupleBuffer with Tuple and TupleSource">Example.1 TupleBuffer with Tuple and TupleSource</a> scenarios, This example will create a TupleBatch, set the TupleBatch’s attributes.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>TupleBatch batch = new TupleBatch(1, Arrays.asList(Arrays.asList(100, "IBM"), Arrays.asList(101, "DELL"), Arrays.asList(102, "HPQ")));
+batch.setTerminationFlag(true);
+long sourceRow = 1;
+while (true){
+    if(batch.getRowCount() &gt; 0 &amp;&amp; sourceRow &lt;= batch.getEndRow()){
+        List&lt;?&gt; tuple = batch.getTuple(sourceRow);
+        sourceRow++ ;
+        System.out.println(tuple);
+    }
+    if(sourceRow &gt; batch.getEndRow()) {
+        break;
+    }
+}  
+</code></pre>
+</div>
+
+<p>Run above code will output</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>[100, IBM]
+[101, DELL]
+[102, HPQ]
+1
+3
+</code></pre>
+</div>
+
+<h2 id="stree">STree</h2>
+
+<p>The STree is a Self balancing Search Tree. More details from STree please refer to <a href="http://en.wikipedia.org/wiki/Self-balancing_binary_search_tree">Wikipedia</a>.</p>
+
+<h3 id="example1-stree-with-tuplebatch-and-tuples">Example.1 STree with TupleBatch and Tuples</h3>
+
+<p>The Data Structure same as <a href="#Example.1 TupleBuffer with Tuple and TupleSource">Example.1 TupleBuffer with Tuple and TupleSource</a>’s scenarios, this example show how STree insert.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>BufferManager bm = BufferManagerFactory.getStandaloneBufferManager();
+List&lt;ElementSymbol&gt; columns = new ArrayList&lt;&gt;();
+ElementSymbol id = new ElementSymbol("Test.PRODUCTView.product_id");
+id.setType(DataTypeManager.DefaultDataClasses.INTEGER);
+ElementSymbol symbol = new ElementSymbol("Test.PRODUCTView.symbol");
+symbol.setType(DataTypeManager.DefaultDataClasses.STRING);
+columns.add(id);
+columns.add(symbol);
+STree tree = bm.createSTree(columns, "sessionID", 1);
+        
+TupleBatch batch = new TupleBatch(1, Arrays.asList(Arrays.asList(100, "IBM"), Arrays.asList(101, "DELL"), Arrays.asList(102, "HPQ")));
+batch.setTerminationFlag(true);
+long sourceRow = 1;
+while (true){
+    if(batch.getRowCount() &gt; 0 &amp;&amp; sourceRow &lt;= batch.getEndRow()){
+        List&lt;?&gt; tuple = batch.getTuple(sourceRow);
+        sourceRow++ ;
+        tree.insert(tuple, InsertMode.NEW, -1);
+    }
+    if(sourceRow &gt; batch.getEndRow()) {
+        break;
+    }
+}
+tree.setBatchInsert(false); 
+tree.compact();
+System.out.println(tree.getRowCount());
+</code></pre>
+</div>
+
+<p>Run above code will output</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>3
+</code></pre>
+</div>
+
+<h2 id="batchmanager">BatchManager</h2>
+
+<p>BatchManager acts as a combination serializer/cachemanager. It also related with a TupleBuffer.</p>
+
+<p><img src="/assets/blog/teiid-buffer-batchManager.png" alt="BatchManager" /></p>
+
+<h2 id="lrfu-eviction-queue">LRFU Eviction Queue</h2>
+
+<p>Teiid BufferManager use LRFU Eviction Queue in Cache Eviction, which LRFU means <strong>Least Recently Used (LRU)</strong> and <strong>Least-Frequently Used (LFU)</strong>, both of them are common Cache algorithms, more details from <a href="http://en.wikipedia.org/wiki/Cache_algorithms">Wikipedia</a>.</p>
+
+<p>An usage example of LRFU Eviction Queue:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>LrfuEvictionQueue&lt;CacheEntry&gt; queue = new LrfuEvictionQueue&lt;CacheEntry&gt;(new AtomicLong());
+queue.add(new CacheEntry(1000L));
+queue.touch(new CacheEntry(1000L));
+queue.remove(new CacheEntry(1000L));
+</code></pre>
+</div>
+
+<h2 id="storagemanager">StorageManager</h2>
+
+<p>Excepting BufferManager implementing StorageManager, there are some others implemeentation:</p>
+
+<p><img src="/assets/blog/teiid-buffer-storemanager.png" alt="BufferManager UML" /></p>
+
+<p>From left to right:</p>
+
+<ul>
+  <li><strong>BufferFrontedFileStoreCache</strong> - Implements storage against a FileStore abstraction using a fronting memory buffer with a filesystem paradigm. All objects must go through the memory (typically off-heap) buffer so that they can be put into their appropriately sized storage bucket.</li>
+  <li><strong>MemoryStorageManager</strong></li>
+  <li><strong>SplittableStorageManager</strong> - A storage manager that combines smaller files into a larger logical file. The buffer methods assume that buffers cannot go beyond single file boundaries.</li>
+  <li><strong>FileStorageManager</strong> - Implements file storage that automatically splits large files and limits the number of open files.</li>
+  <li><strong>EncryptedStorageManager</strong> - Implements a block AES cipher over a regular filestore.</li>
+</ul>
+
+<p>Corresponding to above 5 StorageManager implementation, StorageManager interface also have a <code class="highlighter-rouge">createFileStore()</code> method which return a FileStore, there also are FileStore implementation as below:</p>
+
+<p><img src="/assets/blog/teiid-filestore.png" alt="BufferManager UML" /></p>
+
+<p>NOTE: BufferManager’s default implementation use SplittableFileStore.</p>
+
+<h2 id="buffermanager-usage-cases">BufferManager usage cases</h2>
+
+<p>BufferManager be used in DQPCore as below:</p>
+
+<ul>
+  <li>org.teiid.dqp.internal.process.Request’s initialize</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>public ResultsFuture&lt;ResultsMessage&gt; executeRequest(long reqID,RequestMessage requestMsg) throws TeiidProcessingException{
+    Request request = null;
+    ...
+    request.initialize(requestMsg, bufferManager,dataTierMgr, transactionService, state.sessionTables, workContext, this.prepPlanCache);
+}
+</code></pre>
+</div>
+
+<ul>
+  <li>org.teiid.dqp.internal.process.DataTierManagerImpl’s constructor</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>public void start(DQPConfiguration theConfig){
+    ...
+    DataTierManagerImpl processorDataManager = new DataTierManagerImpl(this, this.bufferManager, this.config.isDetectingChangeEvents());
+    ...
+}
+</code></pre>
+</div>
+
+<ul>
+  <li>org.teiid.query.tempdata.TempTableDataManager’s constructor</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>public void start(DQPConfiguration theConfig){
+    ...
+    dataTierMgr = new TempTableDataManager(processorDataManager, this.bufferManager, this.rsCache);
+    ...
+}
+</code></pre>
+</div>
+
+
+<br/>
+<ul class="btn pull-right">
+<div class="bdsharebuttonbox">
+  <a href="#" class="bds_more" data-cmd="more"></a>
+  <a title="分享到QQ空间" href="#" class="bds_qzone" data-cmd="qzone"></a>
+  <a title="分享到新浪微博" href="#" class="bds_tsina" data-cmd="tsina"></a>
+  <a title="分享到腾讯微博" href="#" class="bds_tqq" data-cmd="tqq"></a>
+  <a title="分享到人人网" href="#" class="bds_renren" data-cmd="renren"></a>
+  <a title="分享到微信" href="#" class="bds_weixin" data-cmd="weixin"></a>
+</div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"分享ksoong.org的文章「Understanding Teiid BufferManager」 - ksoong.org","bdDesc":"","bdMini":"2","bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</ul>
+
+<div class="ds-thread" data-thread-key="ksoong2015051001" data-title="Understanding Teiid BufferManager" data-url="ksoong.org/teiid-buffer"></div>
+
+	    <ul class="pager">
+		
+		<li class="previous"><a href="/tree-output">&laquo;&nbsp;Algorithm used in tree output...</a></li>
+		
+		
+		<li class="next"><a href="/java-floating">Java 中的运算符&nbsp;&raquo;</a></li>
+		
+	    </ul>
+
+
+        </div>
+        <aside id="sidebar" role="complementary">
+          <div class="subscribe">
+            <h2 class="icon news">
+              <a href="/feed.xml">Subscribe</a>
+            </h2>
+          </div>
+          <nav class="latest">
+            <h2>Latest Posts</h2>
+            <ul>
+            
+              <li>
+                <div class="title">
+                  <a href="/wfl-ds">WildFly Data Sources Configuration</a>
+                </div>
+                <div class="meta">
+                  Apr 26, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-transactions">Transaction in Teiid</a>
+                </div>
+                <div class="meta">
+                  Apr 20, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-getstart-code">Get Start Teiid From Source...</a>
+                </div>
+                <div class="meta">
+                  Apr 7, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-metadata">Understanding Teiid Metadata</a>
+                </div>
+                <div class="meta">
+                  Mar 27, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/rhel7-commands">Linux 命令集合</a>
+                </div>
+                <div class="meta">
+                  Mar 17, 2016
+                </div>
+              </li>
+             
+            </ul>
+            
+                        
+          </nav>
+          <nav class="tags">
+            <h2>Categories</h2>
+            <div class="tag-cloud">
+              
+              <span class="tag tag-1">
+                <a href="/categories/jekyll">Jekyll(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/jboss">Jboss(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/java">Java(18)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/css">Css(1)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/database">Database(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/javaee">Javaee(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/linux">Linux(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/teiid">Teiid(40)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/maven">Maven(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/netty">Netty(7)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/data">Data(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/git">Git(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/other">Other(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/performance">Performance(4)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/security">Security(3)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/docker">Docker(4)</a>
+              </span>
+              
+              
+            </div>
+          </nav>
+        </aside>
+      </div>
+
+
+    </div>
+    <footer>
+      <div class="container">
+        <div class="project">
+          <p class="bottom">
+            ©
+            Copyright 2009-2016 ksoong.
+            <br>
+            <i class="icon-fire"></i>
+            Mixed with <a href="http://twitter.github.com/bootstrap">Bootstrap</a>.
+            <br>
+            <i class="icon-share-alt"></i>
+            Website and docs licensed under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
+            <br>
+            Code released under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, v2.0</a>.
+          </p>
+        </div>
+        <div class="footer-nav">
+          <h4>Learn</h4>
+          <ul>
+            <li>
+              <a href="http://www.jboss.org/">JBoss</a>
+            </li>
+            <li>
+              <a href="http://infinispan.org/">Infinispan</a>
+            </li>
+            <li>
+              <a href="http://teiid.org/">Teiid</a>
+            </li>
+            <li>
+              <a href="https://github.com/kylinsoong">Github</a>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="sponser">
+          <div class="follow-us">
+            <h4>Stay Informed</h4>
+            <ul>
+              <li>
+                <a href="https://plus.google.com/103933729718268414460?rel=author"><img alt="Google+" src="/css/googleplus-16.png" title="Follow ksoong.org on Google+"></a>
+              </li>
+              <li>
+                <a href="http://www.weibo.com/kylinsoong"><img alt="Weibo" src="/css/weibo_logo.jpg" title="Follow me on Weibo"></a>
+              </li>
+	      <li>
+                <a href="https://github.com/kylinsoong"><img alt="Github" src="/css/Octocat.jpg" title="Fork me on Github"></a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+        <a class="visible-desktop" href="#" id="toTop">Top</a>
+      </div>
+        <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1258751305'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1258751305%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+    </footer>
+  
+ 
+    <script src="/css/jquery-1.11.1.min.js"></script>
+    <script src="/css/bootstrap.js"></script>
+
+   <script>
+      $(function() {
+        $('html').addClass('ready');
+        prettify();
+        activateFooterGravity();
+        activateTooltips();
+        activateToTopControl();
+      });
+    </script>
+    <script src="/css/site.js"></script>
+
+    
+            
+            <script type="text/javascript">
+                var duoshuoQuery = {short_name:"ksoong"};
+                (function() {
+                    var ds = document.createElement('script');
+                    ds.type = 'text/javascript';
+                    ds.async = true;
+                    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+                    ds.charset = 'UTF-8';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+                })();
+            </script>
+            
+        
+
+
+</body>
+</html>

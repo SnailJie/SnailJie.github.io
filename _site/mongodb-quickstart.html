@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html class="ready" lang="en"><head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="shenma-site-verification" content="8a69823d7371d1eec4379853d25200cd_1448504990"> 
+    <title>Kylin Soong . Blog</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="/feed.xml" rel="alternate" title="Kylin Soong . Blog Atom feed" type="application/atom+xml">
+    <link href="/css/screen.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.js"></script>
+    <![endif]-->
+    <link href="/favicon.ico" rel="shortcut icon">
+
+</head>
+
+  <body class="blog index">
+    <header class="navbar navbar-fixed-top" id="banner" role="banner">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-target=".nav-collapse" data-toggle="collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/">
+            <span class="logo"></span>
+            <span class="name">ksoong</span>
+          </a>
+          <nav class="nav-collapse" role="navigation">
+            <ul class="nav">
+              <li><a href="/">Home</a></li>
+	      <!--
+              <li><a href="/lab">Labs</a></li>
+              <li><a href="/blog/">Blog</a></li>
+	      -->
+	      <li><a href="/books">Books</a></li>
+              <li><a href="/archive">Archives</a></li>
+              <li><a href="/slide">Slides</a></li>
+              <li><a href="/about">About</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+    <div style="min-height: 250px;" id="main" role="main">
+      
+<div id="content-header">
+        <div class="container">
+         <h1>
+              <a href="/blog">Blog</a>
+              <!--a href="#">&raquo;</a>
+              <a href="/mongodb-quickstart">MongoDB 学习比记</a-->
+          </h1>
+        </div>
+</div>
+      <div class="container">
+        <div id="content">
+          
+<h2 class="title">
+                 <a class="post-link" href="/mongodb-quickstart">MongoDB 学习比记</a>
+              </h2>
+ 
+<header class="post">
+              <div class="byline">
+                <span class="author">Posted by
+                <a href="/about">Kylin Soong</a> on</span>
+                <span class="dateinline">Sep 9, 2014</span>
+		<i class="icon-tags"></i> categorized as <a class="tag" href="/categories/data">data</a>
+              </div>
+            </header>
+
+ 
+<ul id="markdown-toc">
+  <li><a href="#mongodb-" id="markdown-toc-mongodb-">MongoDB 简介</a>    <ul>
+      <li><a href="#bson" id="markdown-toc-bson">BSON</a></li>
+    </ul>
+  </li>
+  <li><a href="#install-mongodb-to-linux" id="markdown-toc-install-mongodb-to-linux">Install MongoDB to Linux</a>    <ul>
+      <li><a href="#install-mongodb-32-to-rhel-6" id="markdown-toc-install-mongodb-32-to-rhel-6">Install MongoDB 3.2 to RHEL 6</a></li>
+      <li><a href="#install-mongodb-264-to-rhel-6" id="markdown-toc-install-mongodb-264-to-rhel-6">Install MongoDB 2.6.4 to RHEL 6</a></li>
+    </ul>
+  </li>
+  <li><a href="#basic-admin-commands" id="markdown-toc-basic-admin-commands">Basic admin commands</a>    <ul>
+      <li><a href="#create-a-collection-and-insert-documents-sample" id="markdown-toc-create-a-collection-and-insert-documents-sample">Create a Collection and Insert Documents Sample</a></li>
+    </ul>
+  </li>
+  <li><a href="#a-quick-start-sampples" id="markdown-toc-a-quick-start-sampples">A quick start sampples</a></li>
+</ul>
+
+<p>本文内容多摘自 <a href="https://docs.mongodb.org/manual/">MongoDB Manual</a>.</p>
+
+<h2 id="mongodb-">MongoDB 简介</h2>
+
+<p>MongoDB is an open-source document database that provides</p>
+
+<ol>
+  <li>high performance</li>
+  <li>high availability</li>
+  <li>automatic scaling.</li>
+</ol>
+
+<p>数据库中保存的是类 JSON 的文件，如下</p>
+
+<p><img src="/assets/blog/mongodb/mongodb-crud-annotated-document.png" alt="Document DataBase" /></p>
+
+<p>存储类 JSON 的文件格式的好处是:</p>
+
+<ul>
+  <li>Documents (i.e. objects) correspond to native data types in many programming languages.</li>
+  <li>Embedded documents and arrays reduce need for expensive joins.</li>
+  <li>Dynamic schema supports fluent polymorphism.</li>
+</ul>
+
+<h3 id="bson">BSON</h3>
+
+<p>BSON is a binary representation of JSON documents.</p>
+
+<p><a href="http://bsonspec.org/">BSON spec</a></p>
+
+<p><a href="https://docs.mongodb.org/manual/reference/bson-types/">BSON Types</a></p>
+
+<h2 id="install-mongodb-to-linux">Install MongoDB to Linux</h2>
+
+<h3 id="install-mongodb-32-to-rhel-6">Install MongoDB 3.2 to RHEL 6</h3>
+
+<ul>
+  <li>Create a /etc/yum.repos.d/mongodb-org-3.2.repo file with the following content:</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>[mongodb-org-3.2]
+name=MongoDB Repository
+baseurl=https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/3.2/x86_64/
+gpgcheck=1
+enabled=1
+gpgkey=https://www.mongodb.org/static/pgp/server-3.2.asc
+</code></pre>
+</div>
+
+<ul>
+  <li>Install</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code># yum install -y mongodb-org
+</code></pre>
+</div>
+
+<ul>
+  <li>Run</li>
+</ul>
+
+<p>For convenient run the MongoDB, Disable SELinux entirely by changing the <strong>SELINUX</strong> setting to <strong>disabled</strong> in /etc/selinux/config.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>SELINUX=disable
+</code></pre>
+</div>
+
+<p>Flush the iptables via</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code># iptables -F
+</code></pre>
+</div>
+
+<p>Start MongoDB via</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>service mongod start
+</code></pre>
+</div>
+
+<h3 id="install-mongodb-264-to-rhel-6">Install MongoDB 2.6.4 to RHEL 6</h3>
+
+<ul>
+  <li>use <code class="highlighter-rouge">root</code></li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>su - root
+</code></pre>
+</div>
+
+<ul>
+  <li>Create a /etc/yum.repos.d/mongodb.repo, add the below content:</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>[mongodb]
+name=MongoDB Repository
+baseurl=http://downloads-distro.mongodb.org/repo/redhat/os/x86_64/
+gpgcheck=0
+enabled=1
+</code></pre>
+</div>
+
+<ul>
+  <li>Install</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>yum install mongodb-org
+</code></pre>
+</div>
+
+<ul>
+  <li>Start</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>service mongod start
+chkconfig mongod on
+</code></pre>
+</div>
+
+<h2 id="basic-admin-commands">Basic admin commands</h2>
+
+<ul>
+  <li>Connect to a mongod</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>mongo
+</code></pre>
+</div>
+
+<ul>
+  <li>Select a database</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>db
+</code></pre>
+</div>
+
+<ul>
+  <li>Display help</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>help
+</code></pre>
+</div>
+
+<h3 id="create-a-collection-and-insert-documents-sample">Create a Collection and Insert Documents Sample</h3>
+
+<p>In this secion we will show how to create Collection <code class="highlighter-rouge">smalla</code>, insert documents to it, and query documents:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>&gt; use mydb
+
+&gt; db.smalla.insert({"INTNUM" : 1, "INTKEY" : 1, "STRINGKEY" : "1", "STRINGNUM" : "1"})
+&gt; db.smalla.insert({"INTNUM" : 2, "INTKEY" : 2, "STRINGKEY" : "2", "STRINGNUM" : "2"})
+&gt; db.smalla.insert({"INTNUM" : 3, "INTKEY" : 3, "STRINGKEY" : "3", "STRINGNUM" : "3"})
+
+&gt; db.smalla.find()
+</code></pre>
+</div>
+
+<blockquote>
+  <p>NOTE: when insert the first document, <code class="highlighter-rouge">smalla</code> be created automatically.</p>
+</blockquote>
+
+<p>Use the following java code can query these 3 documents:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>MongoClient mongo = new MongoClient("10.66.218.46", 27017);
+DB db = mongo.getDB("mydb");
+DBCollection conn = db.getCollection("smalla");
+DBCursor cursor = conn.find();
+try {
+	while (cursor.hasNext()) {
+		System.out.println(cursor.next());
+	}
+} finally {
+	cursor.close();
+}
+mongo.close();
+</code></pre>
+</div>
+
+<p>The output should be same as <code class="highlighter-rouge">db.smalla.find()</code>, it looks like:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w"> </span><span class="nt">"_id"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"$oid"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"5476e44396e211a9df8900da"</span><span class="p">}</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="nt">"INTNUM"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="nt">"INTKEY"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="nt">"STRINGKEY"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"1"</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="nt">"STRINGNUM"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"1"</span><span class="p">}</span><span class="w">
+</span><span class="p">{</span><span class="w"> </span><span class="nt">"_id"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"$oid"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"5476e45a96e211a9df8900db"</span><span class="p">}</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="nt">"INTNUM"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mf">2.0</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="nt">"INTKEY"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mf">2.0</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="nt">"STRINGKEY"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"2"</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="nt">"STRINGNUM"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"2"</span><span class="p">}</span><span class="w">
+</span><span class="p">{</span><span class="w"> </span><span class="nt">"_id"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"$oid"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"5476e46996e211a9df8900dc"</span><span class="p">}</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="nt">"INTNUM"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mf">3.0</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="nt">"INTKEY"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mf">3.0</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="nt">"STRINGKEY"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"3"</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="nt">"STRINGNUM"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"3"</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<h2 id="a-quick-start-sampples">A quick start sampples</h2>
+
+<p>The <a href="https://github.com/kylinsoong/data/tree/master/mongodb-quickstart">MongoDB Quick Start</a> source code use java driver to demonstrate establish connection, insert data, query data, etc.</p>
+
+
+<br/>
+<ul class="btn pull-right">
+<div class="bdsharebuttonbox">
+  <a href="#" class="bds_more" data-cmd="more"></a>
+  <a title="分享到QQ空间" href="#" class="bds_qzone" data-cmd="qzone"></a>
+  <a title="分享到新浪微博" href="#" class="bds_tsina" data-cmd="tsina"></a>
+  <a title="分享到腾讯微博" href="#" class="bds_tqq" data-cmd="tqq"></a>
+  <a title="分享到人人网" href="#" class="bds_renren" data-cmd="renren"></a>
+  <a title="分享到微信" href="#" class="bds_weixin" data-cmd="weixin"></a>
+</div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"分享ksoong.org的文章「MongoDB 学习比记」 - ksoong.org","bdDesc":"","bdMini":"2","bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</ul>
+
+<div class="ds-thread" data-thread-key="ksoong2014090802" data-title="MongoDB 学习比记" data-url="ksoong.org/mongodb-quickstart"></div>
+
+	    <ul class="pager">
+		
+		<li class="previous"><a href="/other-wedding">&laquo;&nbsp;Wedding Video</a></li>
+		
+		
+		<li class="next"><a href="/teiid-mongodb">Teiid embedded samples MongoDB&nbsp;&raquo;</a></li>
+		
+	    </ul>
+
+
+        </div>
+        <aside id="sidebar" role="complementary">
+          <div class="subscribe">
+            <h2 class="icon news">
+              <a href="/feed.xml">Subscribe</a>
+            </h2>
+          </div>
+          <nav class="latest">
+            <h2>Latest Posts</h2>
+            <ul>
+            
+              <li>
+                <div class="title">
+                  <a href="/wfl-ds">WildFly Data Sources Configuration</a>
+                </div>
+                <div class="meta">
+                  Apr 26, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-transactions">Transaction in Teiid</a>
+                </div>
+                <div class="meta">
+                  Apr 20, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-getstart-code">Get Start Teiid From Source...</a>
+                </div>
+                <div class="meta">
+                  Apr 7, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-metadata">Understanding Teiid Metadata</a>
+                </div>
+                <div class="meta">
+                  Mar 27, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/rhel7-commands">Linux 命令集合</a>
+                </div>
+                <div class="meta">
+                  Mar 17, 2016
+                </div>
+              </li>
+             
+            </ul>
+            
+                        
+          </nav>
+          <nav class="tags">
+            <h2>Categories</h2>
+            <div class="tag-cloud">
+              
+              <span class="tag tag-1">
+                <a href="/categories/jekyll">Jekyll(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/jboss">Jboss(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/java">Java(18)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/css">Css(1)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/database">Database(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/javaee">Javaee(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/linux">Linux(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/teiid">Teiid(40)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/maven">Maven(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/netty">Netty(7)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/data">Data(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/git">Git(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/other">Other(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/performance">Performance(4)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/security">Security(3)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/docker">Docker(4)</a>
+              </span>
+              
+              
+            </div>
+          </nav>
+        </aside>
+      </div>
+
+
+    </div>
+    <footer>
+      <div class="container">
+        <div class="project">
+          <p class="bottom">
+            ©
+            Copyright 2009-2016 ksoong.
+            <br>
+            <i class="icon-fire"></i>
+            Mixed with <a href="http://twitter.github.com/bootstrap">Bootstrap</a>.
+            <br>
+            <i class="icon-share-alt"></i>
+            Website and docs licensed under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
+            <br>
+            Code released under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, v2.0</a>.
+          </p>
+        </div>
+        <div class="footer-nav">
+          <h4>Learn</h4>
+          <ul>
+            <li>
+              <a href="http://www.jboss.org/">JBoss</a>
+            </li>
+            <li>
+              <a href="http://infinispan.org/">Infinispan</a>
+            </li>
+            <li>
+              <a href="http://teiid.org/">Teiid</a>
+            </li>
+            <li>
+              <a href="https://github.com/kylinsoong">Github</a>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="sponser">
+          <div class="follow-us">
+            <h4>Stay Informed</h4>
+            <ul>
+              <li>
+                <a href="https://plus.google.com/103933729718268414460?rel=author"><img alt="Google+" src="/css/googleplus-16.png" title="Follow ksoong.org on Google+"></a>
+              </li>
+              <li>
+                <a href="http://www.weibo.com/kylinsoong"><img alt="Weibo" src="/css/weibo_logo.jpg" title="Follow me on Weibo"></a>
+              </li>
+	      <li>
+                <a href="https://github.com/kylinsoong"><img alt="Github" src="/css/Octocat.jpg" title="Fork me on Github"></a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+        <a class="visible-desktop" href="#" id="toTop">Top</a>
+      </div>
+        <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1258751305'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1258751305%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+    </footer>
+  
+ 
+    <script src="/css/jquery-1.11.1.min.js"></script>
+    <script src="/css/bootstrap.js"></script>
+
+   <script>
+      $(function() {
+        $('html').addClass('ready');
+        prettify();
+        activateFooterGravity();
+        activateTooltips();
+        activateToTopControl();
+      });
+    </script>
+    <script src="/css/site.js"></script>
+
+    
+            
+            <script type="text/javascript">
+                var duoshuoQuery = {short_name:"ksoong"};
+                (function() {
+                    var ds = document.createElement('script');
+                    ds.type = 'text/javascript';
+                    ds.async = true;
+                    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+                    ds.charset = 'UTF-8';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+                })();
+            </script>
+            
+        
+
+
+</body>
+</html>

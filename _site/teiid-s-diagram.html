@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html class="ready" lang="en"><head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="shenma-site-verification" content="8a69823d7371d1eec4379853d25200cd_1448504990"> 
+    <title>Kylin Soong . Blog</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="/feed.xml" rel="alternate" title="Kylin Soong . Blog Atom feed" type="application/atom+xml">
+    <link href="/css/screen.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.js"></script>
+    <![endif]-->
+    <link href="/favicon.ico" rel="shortcut icon">
+
+</head>
+
+  <body class="blog index">
+    <header class="navbar navbar-fixed-top" id="banner" role="banner">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-target=".nav-collapse" data-toggle="collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/">
+            <span class="logo"></span>
+            <span class="name">ksoong</span>
+          </a>
+          <nav class="nav-collapse" role="navigation">
+            <ul class="nav">
+              <li><a href="/">Home</a></li>
+	      <!--
+              <li><a href="/lab">Labs</a></li>
+              <li><a href="/blog/">Blog</a></li>
+	      -->
+	      <li><a href="/books">Books</a></li>
+              <li><a href="/archive">Archives</a></li>
+              <li><a href="/slide">Slides</a></li>
+              <li><a href="/about">About</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+    <div style="min-height: 250px;" id="main" role="main">
+      
+<div id="content-header">
+        <div class="container">
+         <h1>
+              <a href="/blog">Blog</a>
+              <!--a href="#">&raquo;</a>
+              <a href="/teiid-s-diagram">Teiid Code Analysis - Sequence Diagrams</a-->
+          </h1>
+        </div>
+</div>
+      <div class="container">
+        <div id="content">
+          
+<h2 class="title">
+                 <a class="post-link" href="/teiid-s-diagram">Teiid Code Analysis - Sequence Diagrams</a>
+              </h2>
+ 
+<header class="post">
+              <div class="byline">
+                <span class="author">Posted by
+                <a href="/about">Kylin Soong</a> on</span>
+                <span class="dateinline">May 21, 2015</span>
+		<i class="icon-tags"></i> categorized as <a class="tag" href="/categories/teiid">teiid</a>
+              </div>
+            </header>
+
+ 
+<ul id="markdown-toc">
+  <li><a href="#teiid-client" id="markdown-toc-teiid-client">Teiid Client</a>    <ul>
+      <li><a href="#how-a-connection-be-created" id="markdown-toc-how-a-connection-be-created">How a connection be created</a></li>
+      <li><a href="#how-a-statement-execute-the-query" id="markdown-toc-how-a-statement-execute-the-query">How a Statement execute the query</a></li>
+      <li><a href="#how-resultset-get-next" id="markdown-toc-how-resultset-get-next">How ResultSet get Next</a></li>
+      <li><a href="#how-teiid-server-handle-query-request" id="markdown-toc-how-teiid-server-handle-query-request">How Teiid Server handle query request</a></li>
+    </ul>
+  </li>
+  <li><a href="#teiid-engine" id="markdown-toc-teiid-engine">Teiid Engine</a>    <ul>
+      <li><a href="#dqpcore-execute-request" id="markdown-toc-dqpcore-execute-request">DQPCore execute request</a></li>
+      <li><a href="#batchcollector-collect-tuples" id="markdown-toc-batchcollector-collect-tuples">BatchCollector collect tuples</a></li>
+      <li><a href="#datatiertuplesource-getresults" id="markdown-toc-datatiertuplesource-getresults">DataTierTupleSource getResults</a>        <ul>
+          <li><a href="#execute" id="markdown-toc-execute">execute()</a></li>
+          <li><a href="#more" id="markdown-toc-more">more()</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="teiid-client">Teiid Client</h2>
+
+<h3 id="how-a-connection-be-created">How a connection be created</h3>
+
+<p>Java programmer can use JDBC API with Teiid JDBC Driver create a JDBC Connection, for example</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>String url = "jdbc:teiid:Portfolio@mm://localhost:31000;version=1";
+String user = "testUser";
+String pass = "password";
+Class.forName("org.teiid.jdbc.TeiidDriver");
+Connection conn = DriverManager.getConnection(url, user, pass);
+</code></pre>
+</div>
+
+<p>the below sequence diagram shows how DriverManager create a connection:</p>
+
+<p><img src="/assets/blog/teiid-seq-create-connection.png" alt="teiid-create-connection" /></p>
+
+<h3 id="how-a-statement-execute-the-query">How a Statement execute the query</h3>
+
+<p>Assuming view ‘Marketdata’ existed in Teiid VDB, a JDBC client execute query like:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>Statement stmt = conn.createStatement();
+stmt.executeQuery("SELECT * FROM Marketdata");
+</code></pre>
+</div>
+
+<p>the below sequence diagram shows how query sql <code class="highlighter-rouge">SELECT * FROM Marketdata</code> be sent to Teiid Server</p>
+
+<p><img src="/assets/blog/teiid-execute-query.png" alt="teiid-execute-query" /></p>
+
+<ul>
+  <li>StatementImpl <strong>executeQuery</strong> receive the query sql <code class="highlighter-rouge">SELECT * FROM Marketdata</code></li>
+  <li>StatementImpl assemble a <code class="highlighter-rouge">org.teiid.client.RequestMessage</code> base query sql, then invoke DQP Proxy’s <strong>executeRequest</strong></li>
+  <li>RemoteInvocationHandler’s <strong>invoke</strong> method be invoked</li>
+  <li>RemoteInvocationHandler assemble a <code class="highlighter-rouge">org.teiid.net.socket.Message</code> base on passed <code class="highlighter-rouge">org.teiid.client.RequestMessage</code>, then SocketServerInstanceImpl’s <strong>send</strong> method be invoked</li>
+  <li>OioObjectChannel’s <strong>write</strong> methd be invoked</li>
+  <li>ObjectOutputStream which come from socket <strong>writeObject</strong> <code class="highlighter-rouge">org.teiid.net.socket.Message</code></li>
+</ul>
+
+<h3 id="how-resultset-get-next">How ResultSet get Next</h3>
+
+<p>Continue with above Statement execute Query, ResultSet get Next like</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>ResultSet rs = stmt.getResultSet();
+rs.next();
+</code></pre>
+</div>
+
+<p>the below sequence diagram shows how ResultSet get Next</p>
+
+<p><img src="/assets/blog/teiid-seq-ResultSetImpl-hasNext.png" alt="teiid-resultset-next" /></p>
+
+<h3 id="how-teiid-server-handle-query-request">How Teiid Server handle query request</h3>
+
+<p><img src="/assets/blog/teiid-server-hanlde-request.png" alt="teiid-server-hanlde-request" /></p>
+
+<ul>
+  <li>SSLAwareChannelHandler</li>
+</ul>
+
+<p>While Teiid Server Started, it will create a SocketListener which listen for new connection requests and create a SocketClientConnection for each connection request.</p>
+
+<p>The SocketListener bootstrap netty server worker threads with port number 31000, SSLAwareChannelHandler is the handler used by netty server side, it’s <code class="highlighter-rouge">messageReceived()</code> can be thought as teiid server side entry point. Once a client request in, this method be first invoked.</p>
+
+<ul>
+  <li>SocketClientInstance</li>
+</ul>
+
+<p>Sockets implementation of the communication framework class representing the server’s view of a client connection. Implements the server-side of the sockets messaging protocol. The client side of the protocol is implemented in SocketServerInstance.</p>
+
+<p>It’s <code class="highlighter-rouge">processMessagePacket()</code> method be invoked for handling income request message.</p>
+
+<ul>
+  <li>DQPWorkContext &amp; ServerWorkItem</li>
+</ul>
+
+<p>ServerWorkItem is a runnable class, it encapulates income request message in it’s constructor:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>    public ServerWorkItem(ClientInstance socketClientInstance, Serializable messageKey, Message message, ClientServiceRegistryImpl server) {
+                this.socketClientInstance = socketClientInstance;
+                this.messageKey = messageKey;
+                this.message = message;
+                this.csr = server;
+        }
+</code></pre>
+</div>
+
+<p>DQPWorkContext is a filed of SocketClientInstance, DQPWorkContext’s <code class="highlighter-rouge">runInContext()</code> method be invoked, the constructed ServerWorkItem passed as a argument. Then ServerWorkItem’s <code class="highlighter-rouge">run()</code> method be invoked.</p>
+
+<h2 id="teiid-engine">Teiid Engine</h2>
+
+<h3 id="dqpcore-execute-request">DQPCore execute request</h3>
+
+<p>DQPCore implements client interface DQP, it has defined a ‘executeRequest’ method:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>public ResultsFuture&lt;ResultsMessage&gt; executeRequest(long reqID,RequestMessage requestMsg) throws TeiidProcessingException;
+</code></pre>
+</div>
+
+<p>what ‘executeRequest’ method is a Entry Point for client request, it has parameter <code class="highlighter-rouge">RequestMessage</code> which contains client query command, and the method return <code class="highlighter-rouge">ResultsMessage</code> which contains the tuple results.</p>
+
+<p>The below sequence diagram shows how DQPCore’s ‘executeRequest’ method run and return a <code class="highlighter-rouge">ResultsMessage</code>:</p>
+
+<p><img src="/assets/blog/teiid-dqp-executerequest.png" alt="teiid connector logic" /></p>
+
+<ul>
+  <li>1 StatementImpl invoke DQPCore’s <code class="highlighter-rouge">executeRequest()</code> method with <strong>RequestMessage</strong> as parameter</li>
+  <li>2 <strong>Request</strong> and <strong>RequestWorkItem</strong> initialize</li>
+  <li>3 - 5 <a href="http://ksoong.org/teiid-dqp/">http://ksoong.org/teiid-dqp/</a></li>
+  <li>6 Refer to below <code class="highlighter-rouge">BatchCollector collect tuples</code> section</li>
+</ul>
+
+<h3 id="batchcollector-collect-tuples">BatchCollector collect tuples</h3>
+
+<p>BatchCollector collect tuples are related with BufferManager, the sequence diagram as below</p>
+
+<p><img src="/assets/blog/teiid-batchcollector-batch.png" alt="teiid batch collector" /></p>
+
+<ul>
+  <li>1 collectTuples first invoke QueryProcessor’s nextBatch() method get the <code class="highlighter-rouge">TupleBatch</code>, then invoke flushBatch() method with <code class="highlighter-rouge">TupleBatch</code> as a parameter</li>
+  <li>2 If TupleBatch’s row count is 0 and TupleBatch’s Termination flag is NOT_TERMINATED flushBatch() method return, else invoke flushBatchDirect() method with <code class="highlighter-rouge">TupleBatch</code> as a parameter</li>
+  <li>3 Invoke TupleBuffer’s addTupleBatch() method to add <code class="highlighter-rouge">TupleBatch</code> to TupleBuffer;</li>
+  <li>4 addTupleBatch() first update TupleBuffer’s <strong>rowCount</strong> then recursively invoke addTuple() method to add each <code class="highlighter-rouge">Tuple</code> to TupleBuffer;</li>
+  <li>5 addTuple() first create a temporary ResizingArrayList, add all <code class="highlighter-rouge">Tuple</code> to this list, then invoke saveBatch() method</li>
+  <li>6 BatchManager’s createManagedBatch() be invoked return a <code class="highlighter-rouge">mbatch</code> as Batch Id; add <code class="highlighter-rouge">mbatch</code> to batches TreeMap; rest temporary ResizingArrayList to null;</li>
+  <li>7 update BatchManagerImpl’s <strong>totalSize</strong> with the total size of Tuples in ResizingArrayLise; update BatchManagerImpl’s <strong>rowsSampled</strong> with ResizingArrayList’s size; BufferManagerImpl’s <strong>batchAdded</strong> getAndIncrement; Create CacheEntry and add CacheEntry’s id to BufferFrontedFileStoreCache’s <strong>physicalMapping</strong> map(BatchManagerImpl id is Key, Batch Id is Value); Invoke addMemoryEntry() method with CacheEntry as parameter; return Batch Id;</li>
+  <li>8 Invoke persistBatchReferences(); add CacheEntry to BufferManagerImpl’s <strong>memoryEntries</strong> map(CacheEntry’s Id is Key, CacheEntry is Value); add CacheEntry to BufferManagerImpl’s <strong>initialEvictionQueue</strong>; update BufferManagerImpl’s <strong>activeBatchBytes</strong></li>
+  <li>9 TIDO–</li>
+</ul>
+
+<h3 id="datatiertuplesource-getresults">DataTierTupleSource getResults</h3>
+
+<p>Continue with DQPCore execute request, below sequence diagram shows how DataTierTupleSource interact with Translator layer and getResults <code class="highlighter-rouge">AtomicResultsMessage</code></p>
+
+<p><img src="/assets/blog/connectorworkitem.jpg" alt="teiid connector logic" /></p>
+
+<h4 id="execute">execute()</h4>
+
+<p>Its main function is create a translator Execution, then invoke Execution’s execute() method, the completed procedure like:</p>
+
+<ul>
+  <li>Create Data Source Connection base on JCA connector implementation</li>
+  <li>Create translator Execution with translator ExecutionFactory</li>
+  <li>Invoke translator Execution’s execute() method</li>
+</ul>
+
+<h4 id="more">more()</h4>
+
+<p>Usually this methods be invoked after execute(), this method will invoke Execution’s next() method repeatedly, return list of rows existed in data source.</p>
+
+
+<br/>
+<ul class="btn pull-right">
+<div class="bdsharebuttonbox">
+  <a href="#" class="bds_more" data-cmd="more"></a>
+  <a title="分享到QQ空间" href="#" class="bds_qzone" data-cmd="qzone"></a>
+  <a title="分享到新浪微博" href="#" class="bds_tsina" data-cmd="tsina"></a>
+  <a title="分享到腾讯微博" href="#" class="bds_tqq" data-cmd="tqq"></a>
+  <a title="分享到人人网" href="#" class="bds_renren" data-cmd="renren"></a>
+  <a title="分享到微信" href="#" class="bds_weixin" data-cmd="weixin"></a>
+</div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"分享ksoong.org的文章「Teiid Code Analysis - Sequence Diagrams」 - ksoong.org","bdDesc":"","bdMini":"2","bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</ul>
+
+<div class="ds-thread" data-thread-key="ksoong2015052002" data-title="Teiid Code Analysis - Sequence Diagrams" data-url="ksoong.org/teiid-s-diagram"></div>
+
+	    <ul class="pager">
+		
+		<li class="previous"><a href="/teiid-mind-map">&laquo;&nbsp;Teiid Code Analysis - Mind...</a></li>
+		
+		
+		<li class="next"><a href="/teiid-uml-diagram">Teiid Code Analysis - UML...&nbsp;&raquo;</a></li>
+		
+	    </ul>
+
+
+        </div>
+        <aside id="sidebar" role="complementary">
+          <div class="subscribe">
+            <h2 class="icon news">
+              <a href="/feed.xml">Subscribe</a>
+            </h2>
+          </div>
+          <nav class="latest">
+            <h2>Latest Posts</h2>
+            <ul>
+            
+              <li>
+                <div class="title">
+                  <a href="/wfl-ds">WildFly Data Sources Configuration</a>
+                </div>
+                <div class="meta">
+                  Apr 26, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-transactions">Transaction in Teiid</a>
+                </div>
+                <div class="meta">
+                  Apr 20, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-getstart-code">Get Start Teiid From Source...</a>
+                </div>
+                <div class="meta">
+                  Apr 7, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-metadata">Understanding Teiid Metadata</a>
+                </div>
+                <div class="meta">
+                  Mar 27, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/rhel7-commands">Linux 命令集合</a>
+                </div>
+                <div class="meta">
+                  Mar 17, 2016
+                </div>
+              </li>
+             
+            </ul>
+            
+                        
+          </nav>
+          <nav class="tags">
+            <h2>Categories</h2>
+            <div class="tag-cloud">
+              
+              <span class="tag tag-1">
+                <a href="/categories/jekyll">Jekyll(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/jboss">Jboss(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/java">Java(18)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/css">Css(1)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/database">Database(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/javaee">Javaee(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/linux">Linux(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/teiid">Teiid(40)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/maven">Maven(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/netty">Netty(7)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/data">Data(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/git">Git(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/other">Other(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/performance">Performance(4)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/security">Security(3)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/docker">Docker(4)</a>
+              </span>
+              
+              
+            </div>
+          </nav>
+        </aside>
+      </div>
+
+
+    </div>
+    <footer>
+      <div class="container">
+        <div class="project">
+          <p class="bottom">
+            ©
+            Copyright 2009-2016 ksoong.
+            <br>
+            <i class="icon-fire"></i>
+            Mixed with <a href="http://twitter.github.com/bootstrap">Bootstrap</a>.
+            <br>
+            <i class="icon-share-alt"></i>
+            Website and docs licensed under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
+            <br>
+            Code released under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, v2.0</a>.
+          </p>
+        </div>
+        <div class="footer-nav">
+          <h4>Learn</h4>
+          <ul>
+            <li>
+              <a href="http://www.jboss.org/">JBoss</a>
+            </li>
+            <li>
+              <a href="http://infinispan.org/">Infinispan</a>
+            </li>
+            <li>
+              <a href="http://teiid.org/">Teiid</a>
+            </li>
+            <li>
+              <a href="https://github.com/kylinsoong">Github</a>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="sponser">
+          <div class="follow-us">
+            <h4>Stay Informed</h4>
+            <ul>
+              <li>
+                <a href="https://plus.google.com/103933729718268414460?rel=author"><img alt="Google+" src="/css/googleplus-16.png" title="Follow ksoong.org on Google+"></a>
+              </li>
+              <li>
+                <a href="http://www.weibo.com/kylinsoong"><img alt="Weibo" src="/css/weibo_logo.jpg" title="Follow me on Weibo"></a>
+              </li>
+	      <li>
+                <a href="https://github.com/kylinsoong"><img alt="Github" src="/css/Octocat.jpg" title="Fork me on Github"></a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+        <a class="visible-desktop" href="#" id="toTop">Top</a>
+      </div>
+        <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1258751305'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1258751305%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+    </footer>
+  
+ 
+    <script src="/css/jquery-1.11.1.min.js"></script>
+    <script src="/css/bootstrap.js"></script>
+
+   <script>
+      $(function() {
+        $('html').addClass('ready');
+        prettify();
+        activateFooterGravity();
+        activateTooltips();
+        activateToTopControl();
+      });
+    </script>
+    <script src="/css/site.js"></script>
+
+    
+            
+            <script type="text/javascript">
+                var duoshuoQuery = {short_name:"ksoong"};
+                (function() {
+                    var ds = document.createElement('script');
+                    ds.type = 'text/javascript';
+                    ds.async = true;
+                    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+                    ds.charset = 'UTF-8';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+                })();
+            </script>
+            
+        
+
+
+</body>
+</html>

@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html class="ready" lang="en"><head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="shenma-site-verification" content="8a69823d7371d1eec4379853d25200cd_1448504990"> 
+    <title>Kylin Soong . Blog</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="/feed.xml" rel="alternate" title="Kylin Soong . Blog Atom feed" type="application/atom+xml">
+    <link href="/css/screen.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.js"></script>
+    <![endif]-->
+    <link href="/favicon.ico" rel="shortcut icon">
+
+</head>
+
+  <body class="blog index">
+    <header class="navbar navbar-fixed-top" id="banner" role="banner">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-target=".nav-collapse" data-toggle="collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/">
+            <span class="logo"></span>
+            <span class="name">ksoong</span>
+          </a>
+          <nav class="nav-collapse" role="navigation">
+            <ul class="nav">
+              <li><a href="/">Home</a></li>
+	      <!--
+              <li><a href="/lab">Labs</a></li>
+              <li><a href="/blog/">Blog</a></li>
+	      -->
+	      <li><a href="/books">Books</a></li>
+              <li><a href="/archive">Archives</a></li>
+              <li><a href="/slide">Slides</a></li>
+              <li><a href="/about">About</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+    <div style="min-height: 250px;" id="main" role="main">
+      
+<div id="content-header">
+        <div class="container">
+         <h1>
+              <a href="/blog">Blog</a>
+              <!--a href="#">&raquo;</a>
+              <a href="/hadoop-intro">Hadoop 介绍</a-->
+          </h1>
+        </div>
+</div>
+      <div class="container">
+        <div id="content">
+          
+<h2 class="title">
+                 <a class="post-link" href="/hadoop-intro">Hadoop 介绍</a>
+              </h2>
+ 
+<header class="post">
+              <div class="byline">
+                <span class="author">Posted by
+                <a href="/about">Kylin Soong</a> on</span>
+                <span class="dateinline">Jul 7, 2015</span>
+		<i class="icon-tags"></i> categorized as <a class="tag" href="/categories/data">data</a>
+              </div>
+            </header>
+
+ 
+<p>Google’s revolutionary Big Data concepts <code class="highlighter-rouge">MapReduce</code>, <code class="highlighter-rouge">BigTable</code>, <code class="highlighter-rouge">GFS</code> has become the principle of Big Data Area, the dissertations relevant to these concepts are opened by Google, but the concepts’ implementation product not a open source.</p>
+
+<ul>
+  <li><a href="http://static.googleusercontent.com/media/research.google.com/en/us/archive/mapreduce-osdi04.pdf">MapReduce</a></li>
+  <li><a href="http://static.googleusercontent.com/media/research.google.com/en/us/archive/bigtable-osdi06.pdf">BigTable</a></li>
+  <li><a href="http://static.googleusercontent.com/media/research.google.com/en/us/archive/gfs-sosp2003.pdf">GFS</a></li>
+</ul>
+
+<p>Base on these concepts, the Open Source Community developed a series of Big Data products, which the core produce named <strong>Hadoop</strong>, it mainly implement the <code class="highlighter-rouge">MapReduce</code> and <code class="highlighter-rouge">GFS</code>. Another core product named <strong>HBase</strong>, which mainly implement the <code class="highlighter-rouge">BigTable</code>.</p>
+
+<p>Aslo there are some additional products like <strong>Hive</strong> which is a data warehouse infrastructure for data summarization and querying, <strong>Spark</strong> which is mainly a fast conputing layer for Hadoop data.</p>
+
+<p>Quick link for these products:</p>
+
+<ul>
+  <li><a href="http://hadoop.apache.org/">http://hadoop.apache.org/</a></li>
+  <li><a href="http://hbase.apache.org/">http://hbase.apache.org/</a></li>
+  <li><a href="http://hive.apache.org/">http://hive.apache.org/</a></li>
+  <li><a href="http://spark.apache.org/">http://spark.apache.org/</a></li>
+</ul>
+
+<p>The content of this article including:</p>
+
+<ul>
+  <li>Hadoop Installation</li>
+  <li>HDFS Introduction</li>
+  <li>MapReduce Introduction</li>
+</ul>
+
+<h2 id="installation">Installation</h2>
+
+<p><a href="http://ksoong.org/hadoop-install">http://ksoong.org/hadoop-install</a></p>
+
+<h2 id="hdfs-introduction">HDFS Introduction</h2>
+
+<p>Hadoop HDFS 的组成:</p>
+
+<ul>
+  <li>快(Block) - HDFS 中将要存储的文件切分成块，默认块的大小为 64MB，块是文件存储处理的逻辑单元</li>
+  <li>NameNode - 是 HDFS 管理节点，存放元数据</li>
+  <li>DataNode - 是 HDFS 数据节点，存放数据块</li>
+</ul>
+
+<p>下图为 Hadoop HDFS 数据管理策略</p>
+
+<p><img src="/assets/blog/hadoop-hdfs-strategy.png" alt="HDFS 数据管理策略" /></p>
+
+<ul>
+  <li>数据块副本: 数据块有多个副本，分布在不同机架内的不同 DataNode 上</li>
+  <li>心跳检测: DataNode 周期性的向 NameNode 发送心跳消息</li>
+  <li>二级 NameNode: NameNode 的备份，元数据周期性的同步</li>
+</ul>
+
+<p>下图为 Hadoop HDFS 读操作的步骤</p>
+
+<p><img src="/assets/blog/hadoop-hdfs-read.png" alt="HDFS 读" /></p>
+
+<ul>
+  <li>客户端发送读取请求到 NameNode</li>
+  <li>NameNode 返回元数据</li>
+  <li>客户端根据元数据中数据块的路径读取数据块</li>
+</ul>
+
+<p>下图为 Hadoop HDFS 写操作的步骤</p>
+
+<p><img src="/assets/blog/hadoop-hdfs-write.png" alt="HDFS 写" /></p>
+
+<ul>
+  <li>文件拆分成块，发送写取请求到 NameNode</li>
+  <li>NameNode 返回元数据</li>
+  <li>根据元数据中可用数据块的路径写数据</li>
+  <li>流水线复制多个副本</li>
+  <li>更新元数据</li>
+</ul>
+
+<blockquote>
+  <p>HDFS 特点: 数据冗余，硬件容错。流式数据访问，一次写入，多次读写。适合存储大文件。</p>
+</blockquote>
+
+<blockquote>
+  <p>HDFS 适合批量读写，吞吐量高，适合一次写入，多次读写，顺序读写。不适合交互式应用，不支持并发写同一个数据块</p>
+</blockquote>
+
+<h3 id="hadoop-">hadoop 命令的使用</h3>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ ./hadoop fs -ls /
+$ ./hadoop fs -ls /home/
+
+$ ./hadoop fs -mkdir input
+$ ./hadoop fs -put ./../NOTE.md input
+$ ./hadoop fs -get input/NOTE.md note2.md 
+</code></pre>
+</div>
+
+<h2 id="mapreduce-introduction">MapReduce Introduction</h2>
+
+<h3 id="what-is-mapreduce">What is MapReduce</h3>
+
+<p>In the first part of this section, we will try to explain What is MapReduce via some overall Examples.</p>
+
+<h4 id="example1-sum-of-squares">Example.1 Sum of squares</h4>
+
+<p>Sum of squares means calculate the sum of integers’ squares. For example, suppose there are integers: 1, 2, 3, 4, Sum of squares means 1^2 + 2^2 + 3^2 + 4^2.</p>
+
+<p>With the theory of MapReduce, we can classify the Sum of squares to 2 tasks:</p>
+
+<ul>
+  <li>Map task - square the integers</li>
+  <li>Reduce task  - sum the integers’ squares up.</li>
+</ul>
+
+<p><img src="/assets/blog/hadoop-sum-of-squares-map.png" alt="sum of squares map" /></p>
+
+<p>So Map here essentially is the function square which processes each record, what the square of 1, 2, 3 and 4 leads to the corresponding output 1, 4, 9, 16. Also these record be processed sequentially and independently.</p>
+
+<blockquote>
+  <p>NOTE: processes each record sequentially and independently is the key of Map.</p>
+</blockquote>
+
+<p><img src="/assets/blog/hadoop-sum-of-squares-reduce.png" alt="sum of squares reduce" /></p>
+
+<p>So Reduce here is the function plus which applies plus to a group of records, what the sum of 1, 4, 9, 16 leads to result 30. The records be processed may not be all the records, it may be a subset of all the records, it in a group and process in batches.</p>
+
+<blockquote>
+  <p>NOTE: processes set of all records in batches is the key of Reduce.</p>
+</blockquote>
+
+<h4 id="example2-wordcount">Example.2 Wordcount</h4>
+
+<p>Wordcount means produce a count list for every word that appears in a data set. The data set may very large, like all of the text in Wikipedia, and you’re asked to produce a count list for every word that appears in that data set. For example, the work <strong>java</strong> may appears in many of Wikipedia’s article, how many times does it appear in all Wikipedia’s articles, you need produce a call for that.</p>
+
+<p>Wordcount can be classified to 2 tasks:</p>
+
+<ul>
+  <li>Map task - process each record to generate key/value pair</li>
+  <li>Reduce task - merge key/value pairs per key</li>
+</ul>
+
+<p><img src="/assets/blog/hadoop-wordcount-map.png" alt="WordCount Map" /></p>
+
+<p>As above figure, assume a file only consists of four words, “Welcome Everyone, Hello Everyone,” Map task generated 4 key/value pairs:</p>
+
+<ul>
+  <li>Welcome  -&gt; 1</li>
+  <li>Everyone -&gt; 1</li>
+  <li>Hello    -&gt; 1</li>
+  <li>Everyone -&gt; 1</li>
+</ul>
+
+<p>Parallelly process a large number of individual records with multile Map Tasks is the key in Map, in this particular case, there are 2 Map Tasks.</p>
+
+<p>Reduce Task processes and merges all key/value pairs per key:</p>
+
+<p><img src="/assets/blog/hadoop-wordcount-reduce.png" alt="WordCount Reduce" /></p>
+
+<p>As above, in Reduce phase, there are reduce tasks process and merge generate the key/value pairs:</p>
+
+<ul>
+  <li>Welcome  -&gt; 1</li>
+  <li>Everyone -&gt; 2</li>
+  <li>Hello    -&gt; 1</li>
+</ul>
+
+<blockquote>
+  <p>NOTE: In Reduce Task, each key be assigned to one Reduce, Parallelly processes and merges by partitioning key, One way of partitioning is called hash partitioning with simple hash algorithm SHA-1 or a message digest MD-5.</p>
+</blockquote>
+
+<h4 id="example3-distributed-grep">Example.3 distributed grep</h4>
+
+<p>You have a large set of files with a large amount of text in them, you need to grep for particular words:</p>
+
+<ul>
+  <li>Input - large set of files</li>
+  <li>Output - Lines that match pattern</li>
+</ul>
+
+<p>To use MapDeduce theroy to handle distributed grep</p>
+
+<ul>
+  <li>Map - Emits a line if it matchs the supplied pattern</li>
+  <li>Reduce - Copies the intermediate data to output</li>
+</ul>
+
+<h4 id="example4-reverse-web-link-graph">Example.4 Reverse Web-Link Graph</h4>
+
+<p>Assume you have a Tuples (a, b) where a is a webpage and b is a webpage, and a has a link that points to b. Web-Link Graph means great set of Tuples(a1, b1), (a2,b2)…(source,target) together, compose of a Graph. Reverse Web-Link Graph means list all source links for each target page.</p>
+
+<ul>
+  <li>Input: Web-Link Graph, Tuples (a, b) where page a link to page b</li>
+  <li>Output: For each page, list of pages that link to it</li>
+</ul>
+
+<p>To use MapDeduce theroy to handle distributed grep</p>
+
+<ul>
+  <li>Map - process web log and for each  input (source, target), output (target, source)</li>
+  <li>Reduce - emits (target list(source))</li>
+</ul>
+
+<h4 id="example5-count-of-url-access-frequency">Example.5 Count of URL access frequency</h4>
+
+<ul>
+  <li>Input: Logs of accessed URL, eg, from proxcy server</li>
+  <li>Output: For each URL, percentage of total accesses for that URL</li>
+</ul>
+
+<h3 id="programming-examples">Programming Examples</h3>
+
+<p><a href="https://github.com/kylinsoong/data/tree/master/hadoop-wordcount">WordCount</a></p>
+
+<p><a href="https://github.com/kylinsoong/data/tree/master/hadoop-sort">Sort</a></p>
+
+
+<br/>
+<ul class="btn pull-right">
+<div class="bdsharebuttonbox">
+  <a href="#" class="bds_more" data-cmd="more"></a>
+  <a title="分享到QQ空间" href="#" class="bds_qzone" data-cmd="qzone"></a>
+  <a title="分享到新浪微博" href="#" class="bds_tsina" data-cmd="tsina"></a>
+  <a title="分享到腾讯微博" href="#" class="bds_tqq" data-cmd="tqq"></a>
+  <a title="分享到人人网" href="#" class="bds_renren" data-cmd="renren"></a>
+  <a title="分享到微信" href="#" class="bds_weixin" data-cmd="weixin"></a>
+</div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"分享ksoong.org的文章「Hadoop 介绍」 - ksoong.org","bdDesc":"","bdMini":"2","bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</ul>
+
+<div class="ds-thread" data-thread-key="ksoong2015070701" data-title="Hadoop 介绍" data-url="ksoong.org/hadoop-intro"></div>
+
+	    <ul class="pager">
+		
+		<li class="previous"><a href="/openldap-admin">&laquo;&nbsp;OpenLDAP 配置与示例</a></li>
+		
+		
+		<li class="next"><a href="/hive-intro">Hive 介绍&nbsp;&raquo;</a></li>
+		
+	    </ul>
+
+
+        </div>
+        <aside id="sidebar" role="complementary">
+          <div class="subscribe">
+            <h2 class="icon news">
+              <a href="/feed.xml">Subscribe</a>
+            </h2>
+          </div>
+          <nav class="latest">
+            <h2>Latest Posts</h2>
+            <ul>
+            
+              <li>
+                <div class="title">
+                  <a href="/wfl-ds">WildFly Data Sources Configuration</a>
+                </div>
+                <div class="meta">
+                  Apr 26, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-transactions">Transaction in Teiid</a>
+                </div>
+                <div class="meta">
+                  Apr 20, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-getstart-code">Get Start Teiid From Source...</a>
+                </div>
+                <div class="meta">
+                  Apr 7, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-metadata">Understanding Teiid Metadata</a>
+                </div>
+                <div class="meta">
+                  Mar 27, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/rhel7-commands">Linux 命令集合</a>
+                </div>
+                <div class="meta">
+                  Mar 17, 2016
+                </div>
+              </li>
+             
+            </ul>
+            
+                        
+          </nav>
+          <nav class="tags">
+            <h2>Categories</h2>
+            <div class="tag-cloud">
+              
+              <span class="tag tag-1">
+                <a href="/categories/jekyll">Jekyll(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/jboss">Jboss(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/java">Java(18)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/css">Css(1)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/database">Database(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/javaee">Javaee(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/linux">Linux(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/teiid">Teiid(40)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/maven">Maven(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/netty">Netty(7)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/data">Data(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/git">Git(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/other">Other(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/performance">Performance(4)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/security">Security(3)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/docker">Docker(4)</a>
+              </span>
+              
+              
+            </div>
+          </nav>
+        </aside>
+      </div>
+
+
+    </div>
+    <footer>
+      <div class="container">
+        <div class="project">
+          <p class="bottom">
+            ©
+            Copyright 2009-2016 ksoong.
+            <br>
+            <i class="icon-fire"></i>
+            Mixed with <a href="http://twitter.github.com/bootstrap">Bootstrap</a>.
+            <br>
+            <i class="icon-share-alt"></i>
+            Website and docs licensed under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
+            <br>
+            Code released under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, v2.0</a>.
+          </p>
+        </div>
+        <div class="footer-nav">
+          <h4>Learn</h4>
+          <ul>
+            <li>
+              <a href="http://www.jboss.org/">JBoss</a>
+            </li>
+            <li>
+              <a href="http://infinispan.org/">Infinispan</a>
+            </li>
+            <li>
+              <a href="http://teiid.org/">Teiid</a>
+            </li>
+            <li>
+              <a href="https://github.com/kylinsoong">Github</a>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="sponser">
+          <div class="follow-us">
+            <h4>Stay Informed</h4>
+            <ul>
+              <li>
+                <a href="https://plus.google.com/103933729718268414460?rel=author"><img alt="Google+" src="/css/googleplus-16.png" title="Follow ksoong.org on Google+"></a>
+              </li>
+              <li>
+                <a href="http://www.weibo.com/kylinsoong"><img alt="Weibo" src="/css/weibo_logo.jpg" title="Follow me on Weibo"></a>
+              </li>
+	      <li>
+                <a href="https://github.com/kylinsoong"><img alt="Github" src="/css/Octocat.jpg" title="Fork me on Github"></a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+        <a class="visible-desktop" href="#" id="toTop">Top</a>
+      </div>
+        <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1258751305'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1258751305%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+    </footer>
+  
+ 
+    <script src="/css/jquery-1.11.1.min.js"></script>
+    <script src="/css/bootstrap.js"></script>
+
+   <script>
+      $(function() {
+        $('html').addClass('ready');
+        prettify();
+        activateFooterGravity();
+        activateTooltips();
+        activateToTopControl();
+      });
+    </script>
+    <script src="/css/site.js"></script>
+
+    
+            
+            <script type="text/javascript">
+                var duoshuoQuery = {short_name:"ksoong"};
+                (function() {
+                    var ds = document.createElement('script');
+                    ds.type = 'text/javascript';
+                    ds.async = true;
+                    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+                    ds.charset = 'UTF-8';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+                })();
+            </script>
+            
+        
+
+
+</body>
+</html>

@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html class="ready" lang="en"><head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="shenma-site-verification" content="8a69823d7371d1eec4379853d25200cd_1448504990"> 
+    <title>Kylin Soong . Blog</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="/feed.xml" rel="alternate" title="Kylin Soong . Blog Atom feed" type="application/atom+xml">
+    <link href="/css/screen.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.js"></script>
+    <![endif]-->
+    <link href="/favicon.ico" rel="shortcut icon">
+
+</head>
+
+  <body class="blog index">
+    <header class="navbar navbar-fixed-top" id="banner" role="banner">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-target=".nav-collapse" data-toggle="collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/">
+            <span class="logo"></span>
+            <span class="name">ksoong</span>
+          </a>
+          <nav class="nav-collapse" role="navigation">
+            <ul class="nav">
+              <li><a href="/">Home</a></li>
+	      <!--
+              <li><a href="/lab">Labs</a></li>
+              <li><a href="/blog/">Blog</a></li>
+	      -->
+	      <li><a href="/books">Books</a></li>
+              <li><a href="/archive">Archives</a></li>
+              <li><a href="/slide">Slides</a></li>
+              <li><a href="/about">About</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+    <div style="min-height: 250px;" id="main" role="main">
+      
+<div id="content-header">
+        <div class="container">
+         <h1>
+              <a href="/blog">Blog</a>
+              <!--a href="#">&raquo;</a>
+              <a href="/teiid-deploy-jboss">How Teiid be deployed on JBoss</a-->
+          </h1>
+        </div>
+</div>
+      <div class="container">
+        <div id="content">
+          
+<h2 class="title">
+                 <a class="post-link" href="/teiid-deploy-jboss">How Teiid be deployed on JBoss</a>
+              </h2>
+ 
+<header class="post">
+              <div class="byline">
+                <span class="author">Posted by
+                <a href="/about">Kylin Soong</a> on</span>
+                <span class="dateinline">Mar 12, 2015</span>
+		<i class="icon-tags"></i> categorized as <a class="tag" href="/categories/teiid">teiid</a>
+              </div>
+            </header>
+
+ 
+<h2 id="deploy-teiid-upstream-on-jboss">Deploy Teiid upstream on JBoss</h2>
+
+<ul>
+  <li>Install JBoss Server</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ unzip jboss-eap-6.3.0.zip
+</code></pre>
+</div>
+
+<ul>
+  <li>Build <code class="highlighter-rouge">jboss-dist</code></li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ git clone https://github.com/&lt;yourname&gt;/teiid.git
+$ cd teiid
+$ mvn clean install -Dmaven.test.skip=true -P release -s settings.xml
+</code></pre>
+</div>
+
+<p>the <code class="highlighter-rouge">jboss-dist</code> will be generated in the “teiid/build/target” directory.</p>
+
+<ul>
+  <li>Deploy <code class="highlighter-rouge">jboss-dist</code></li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ unzip teiid-8.11.0.Alpha1-SNAPSHOT-jboss-dist.zip -d jboss-eap-6.3.0
+</code></pre>
+</div>
+
+<ul>
+  <li>Run <code class="highlighter-rouge">jboss-dist</code></li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ cd jboss-eap-6.3/
+$ $ ./bin/standalone.sh -c standalone-teiid.xml
+</code></pre>
+</div>
+
+<p>Teill will start and listen on 31000 for JDBC, 35432 for ODBC.</p>
+
+<h2 id="what-teiid-has-beed-added-in-configuration-file">What Teiid has beed added in configuration file</h2>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="cp">&lt;?xml version='1.0' encoding='UTF-8'?&gt;</span>
+<span class="nt">&lt;server</span> <span class="na">xmlns=</span><span class="s">"urn:jboss:domain:1.6"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;extensions&gt;</span>
+        <span class="nt">&lt;extension</span> <span class="na">module=</span><span class="s">"org.jboss.teiid"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;/extensions&gt;</span>
+    <span class="nt">&lt;profile&gt;</span>
+        <span class="nt">&lt;subsystem</span> <span class="na">xmlns=</span><span class="s">"urn:jboss:domain:datasources:1.2"</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;datasources&gt;</span>
+                <span class="nt">&lt;drivers&gt;</span>
+                    <span class="nt">&lt;driver</span> <span class="na">name=</span><span class="s">"teiid-local"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid"</span><span class="nt">&gt;</span>
+                        <span class="nt">&lt;driver-class&gt;</span>org.teiid.jdbc.TeiidDriver<span class="nt">&lt;/driver-class&gt;</span>
+                        <span class="nt">&lt;xa-datasource-class&gt;</span>org.teiid.jdbc.TeiidDataSource<span class="nt">&lt;/xa-datasource-class&gt;</span>
+                    <span class="nt">&lt;/driver&gt;</span>
+                    <span class="nt">&lt;driver</span> <span class="na">name=</span><span class="s">"teiid"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.client"</span><span class="nt">&gt;</span>
+                        <span class="nt">&lt;driver-class&gt;</span>org.teiid.jdbc.TeiidDriver<span class="nt">&lt;/driver-class&gt;</span>
+                        <span class="nt">&lt;xa-datasource-class&gt;</span>org.teiid.jdbc.TeiidDataSource<span class="nt">&lt;/xa-datasource-class&gt;</span>
+                    <span class="nt">&lt;/driver&gt;</span> 
+                <span class="nt">&lt;/drivers&gt;</span>
+            <span class="nt">&lt;/datasources&gt;</span>
+        <span class="nt">&lt;/subsystem&gt;</span>
+        <span class="nt">&lt;subsystem</span> <span class="na">xmlns=</span><span class="s">"urn:jboss:domain:infinispan:1.5"</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;cache-container</span> <span class="na">name=</span><span class="s">"teiid"</span> <span class="na">default-cache=</span><span class="s">"resultset"</span><span class="nt">&gt;</span>
+                <span class="nt">&lt;local-cache</span> <span class="na">name=</span><span class="s">"resultset"</span><span class="nt">&gt;</span>
+                	<span class="nt">&lt;transaction</span> <span class="na">mode=</span><span class="s">"NON_XA"</span><span class="nt">/&gt;</span>
+                    <span class="nt">&lt;expiration</span> <span class="na">lifespan=</span><span class="s">"7200000"</span> <span class="nt">/&gt;</span>
+                    <span class="nt">&lt;eviction</span> <span class="na">max-entries=</span><span class="s">"1024"</span> <span class="na">strategy=</span><span class="s">"LIRS"</span><span class="nt">/&gt;</span>
+                <span class="nt">&lt;/local-cache&gt;</span>
+                <span class="nt">&lt;local-cache</span> <span class="na">name=</span><span class="s">"resultset-repl"</span><span class="nt">&gt;</span>
+	                <span class="nt">&lt;transaction</span> <span class="na">mode=</span><span class="s">"NON_XA"</span><span class="nt">/&gt;</span>
+                    <span class="nt">&lt;expiration</span> <span class="na">lifespan=</span><span class="s">"7200000"</span> <span class="nt">/&gt;</span>
+                    <span class="nt">&lt;eviction</span> <span class="na">max-entries=</span><span class="s">"1024"</span> <span class="na">strategy=</span><span class="s">"LIRS"</span><span class="nt">/&gt;</span>
+                <span class="nt">&lt;/local-cache&gt;</span>                
+                <span class="nt">&lt;local-cache</span> <span class="na">name=</span><span class="s">"preparedplan"</span><span class="nt">&gt;</span>
+                    <span class="nt">&lt;expiration</span> <span class="na">lifespan=</span><span class="s">"28800"</span> <span class="nt">/&gt;</span>
+                    <span class="nt">&lt;eviction</span> <span class="na">max-entries=</span><span class="s">"512"</span> <span class="na">strategy=</span><span class="s">"LIRS"</span><span class="nt">/&gt;</span>
+                <span class="nt">&lt;/local-cache&gt;</span>  
+            <span class="nt">&lt;/cache-container&gt;</span>            
+        <span class="nt">&lt;/subsystem&gt;</span>
+        <span class="nt">&lt;subsystem</span> <span class="na">xmlns=</span><span class="s">"urn:jboss:domain:resource-adapters:1.1"</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;resource-adapters&gt;</span>
+                <span class="nt">&lt;resource-adapter</span> <span class="na">id=</span><span class="s">"file"</span><span class="nt">&gt;</span>
+                    <span class="nt">&lt;module</span> <span class="na">slot=</span><span class="s">"main"</span> <span class="na">id=</span><span class="s">"org.jboss.teiid.resource-adapter.file"</span><span class="nt">/&gt;</span>
+                <span class="nt">&lt;/resource-adapter&gt;</span>
+                <span class="nt">&lt;resource-adapter</span> <span class="na">id=</span><span class="s">"google"</span><span class="nt">&gt;</span>
+                    <span class="nt">&lt;module</span> <span class="na">slot=</span><span class="s">"main"</span> <span class="na">id=</span><span class="s">"org.jboss.teiid.resource-adapter.google"</span><span class="nt">/&gt;</span>
+                <span class="nt">&lt;/resource-adapter&gt;</span>
+                <span class="nt">&lt;resource-adapter</span> <span class="na">id=</span><span class="s">"ldap"</span><span class="nt">&gt;</span>
+                    <span class="nt">&lt;module</span> <span class="na">slot=</span><span class="s">"main"</span> <span class="na">id=</span><span class="s">"org.jboss.teiid.resource-adapter.ldap"</span><span class="nt">/&gt;</span>
+                <span class="nt">&lt;/resource-adapter&gt;</span>
+                <span class="nt">&lt;resource-adapter</span> <span class="na">id=</span><span class="s">"salesforce"</span><span class="nt">&gt;</span>
+                    <span class="nt">&lt;module</span> <span class="na">slot=</span><span class="s">"main"</span> <span class="na">id=</span><span class="s">"org.jboss.teiid.resource-adapter.salesforce"</span><span class="nt">/&gt;</span>
+                <span class="nt">&lt;/resource-adapter&gt;</span>
+                <span class="nt">&lt;resource-adapter</span> <span class="na">id=</span><span class="s">"webservice"</span><span class="nt">&gt;</span>
+                    <span class="nt">&lt;module</span> <span class="na">slot=</span><span class="s">"main"</span> <span class="na">id=</span><span class="s">"org.jboss.teiid.resource-adapter.webservice"</span><span class="nt">/&gt;</span>
+                <span class="nt">&lt;/resource-adapter&gt;</span>
+                <span class="nt">&lt;resource-adapter</span> <span class="na">id=</span><span class="s">"mongodb"</span><span class="nt">&gt;</span>
+                    <span class="nt">&lt;module</span> <span class="na">slot=</span><span class="s">"main"</span> <span class="na">id=</span><span class="s">"org.jboss.teiid.resource-adapter.mongodb"</span><span class="nt">/&gt;</span>
+                <span class="nt">&lt;/resource-adapter&gt;</span>
+                <span class="nt">&lt;resource-adapter</span> <span class="na">id=</span><span class="s">"cassandra"</span><span class="nt">&gt;</span>
+                    <span class="nt">&lt;module</span> <span class="na">slot=</span><span class="s">"main"</span> <span class="na">id=</span><span class="s">"org.jboss.teiid.resource-adapter.cassandra"</span><span class="nt">/&gt;</span>
+                <span class="nt">&lt;/resource-adapter&gt;</span>
+		<span class="nt">&lt;resource-adapter</span> <span class="na">id=</span><span class="s">"simpledb"</span><span class="nt">&gt;</span>
+                    <span class="nt">&lt;module</span> <span class="na">slot=</span><span class="s">"main"</span> <span class="na">id=</span><span class="s">"org.jboss.teiid.resource-adapter.simpledb"</span><span class="nt">/&gt;</span>
+                <span class="nt">&lt;/resource-adapter&gt;</span>
+                <span class="nt">&lt;resource-adapter</span> <span class="na">id=</span><span class="s">"accumulo"</span><span class="nt">&gt;</span>
+                    <span class="nt">&lt;module</span> <span class="na">slot=</span><span class="s">"main"</span> <span class="na">id=</span><span class="s">"org.jboss.teiid.resource-adapter.accumulo"</span><span class="nt">/&gt;</span>
+                <span class="nt">&lt;/resource-adapter&gt;</span>
+                <span class="nt">&lt;resource-adapter</span> <span class="na">id=</span><span class="s">"solr"</span><span class="nt">&gt;</span>
+                    <span class="nt">&lt;module</span> <span class="na">slot=</span><span class="s">"main"</span> <span class="na">id=</span><span class="s">"org.jboss.teiid.resource-adapter.solr"</span><span class="nt">/&gt;</span>
+                <span class="nt">&lt;/resource-adapter&gt;</span>
+            <span class="nt">&lt;/resource-adapters&gt;</span>        
+        <span class="nt">&lt;/subsystem&gt;</span>
+        <span class="nt">&lt;subsystem</span> <span class="na">xmlns=</span><span class="s">"urn:jboss:domain:security:1.2"</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;security-domains&gt;</span>
+                <span class="nt">&lt;security-domain</span> <span class="na">name=</span><span class="s">"teiid-security"</span> <span class="na">cache-type=</span><span class="s">"default"</span><span class="nt">&gt;</span>
+                    <span class="nt">&lt;authentication&gt;</span>
+                        <span class="nt">&lt;login-module</span> <span class="na">code=</span><span class="s">"RealmDirect"</span> <span class="na">flag=</span><span class="s">"required"</span><span class="nt">&gt;</span>
+                           <span class="nt">&lt;module-option</span> <span class="na">name=</span><span class="s">"password-stacking"</span> <span class="na">value=</span><span class="s">"useFirstPass"</span><span class="nt">/&gt;</span>
+                        <span class="nt">&lt;/login-module&gt;</span>
+                    <span class="nt">&lt;/authentication&gt;</span>
+                <span class="nt">&lt;/security-domain&gt;</span>                
+            <span class="nt">&lt;/security-domains&gt;</span>
+        <span class="nt">&lt;/subsystem&gt;</span>
+        <span class="nt">&lt;subsystem</span> <span class="na">xmlns=</span><span class="s">"urn:jboss:domain:teiid:1.0"</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;async-thread-pool&gt;</span>teiid-async<span class="nt">&lt;/async-thread-pool&gt;</span>
+            <span class="nt">&lt;resultset-cache</span> <span class="na">infinispan-container=</span><span class="s">"teiid"</span> <span class="na">name=</span><span class="s">"resultset"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;preparedplan-cache</span> <span class="na">infinispan-container=</span><span class="s">"teiid"</span> <span class="na">name=</span><span class="s">"preparedplan"</span><span class="nt">/&gt;</span>
+            
+            <span class="nt">&lt;transport</span> <span class="na">name=</span><span class="s">"embedded"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;transport</span> <span class="na">name=</span><span class="s">"odata"</span><span class="nt">&gt;</span>
+                <span class="nt">&lt;authentication</span> <span class="na">security-domain=</span><span class="s">"teiid-security"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;/transport&gt;</span>
+            <span class="nt">&lt;transport</span> <span class="na">name=</span><span class="s">"jdbc"</span> <span class="na">protocol=</span><span class="s">"teiid"</span> <span class="na">socket-binding=</span><span class="s">"teiid-jdbc"</span><span class="nt">&gt;</span>
+                <span class="nt">&lt;authentication</span> <span class="na">security-domain=</span><span class="s">"teiid-security"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;/transport&gt;</span>
+            <span class="nt">&lt;transport</span> <span class="na">name=</span><span class="s">"odbc"</span> <span class="na">protocol=</span><span class="s">"pg"</span> <span class="na">socket-binding=</span><span class="s">"teiid-odbc"</span><span class="nt">&gt;</span>
+                <span class="nt">&lt;authentication</span> <span class="na">security-domain=</span><span class="s">"teiid-security"</span><span class="nt">/&gt;</span>
+                <span class="nt">&lt;ssl</span> <span class="na">mode=</span><span class="s">"disabled"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;/transport&gt;</span>
+            <span class="nt">&lt;policy-decider-module&gt;</span>org.jboss.teiid<span class="nt">&lt;/policy-decider-module&gt;</span>        
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"jdbc-simple"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.jdbc"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"jdbc-ansi"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.jdbc"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"access"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.jdbc"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"db2"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.jdbc"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"derby"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.jdbc"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"h2"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.jdbc"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"hsql"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.jdbc"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"informix"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.jdbc"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"metamatrix"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.jdbc"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"mysql"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.jdbc"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"mysql5"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.jdbc"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"oracle"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.jdbc"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"postgresql"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.jdbc"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"sqlserver"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.jdbc"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"sybase"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.jdbc"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"sybaseiq"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.jdbc"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"teiid"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.jdbc"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"teradata"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.jdbc"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"modeshape"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.jdbc"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"ingres"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.jdbc"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"ingres93"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.jdbc"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"intersystems-cache"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.jdbc"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"netezza"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.jdbc"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"file"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.file"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"google-spreadsheet"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.google"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"ldap"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.ldap"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"loopback"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.loopback"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"olap"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.olap"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"ws"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.ws"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"salesforce"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.salesforce"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"hive"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.hive"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"jpa2"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.jpa"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"map-cache"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.object"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"odata"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.odata"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"sap-gateway"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.odata"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"sap-nw-gateway"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.odata"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"mongodb"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.mongodb"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"cassandra"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.cassandra"</span><span class="nt">/&gt;</span>
+	    <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"simpledb"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.simpledb"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"accumulo"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.accumulo"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"solr"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.solr"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"excel"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.excel"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"impala"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.hive"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"prestodb"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.prestodb"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;translator</span> <span class="na">name=</span><span class="s">"hbase"</span> <span class="na">module=</span><span class="s">"org.jboss.teiid.translator.hbase"</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;/subsystem&gt;</span>         
+        <span class="nt">&lt;subsystem</span> <span class="na">xmlns=</span><span class="s">"urn:jboss:domain:threads:1.1"</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;unbounded-queue-thread-pool</span> <span class="na">name=</span><span class="s">"teiid-async"</span><span class="nt">&gt;</span>
+                <span class="nt">&lt;max-threads</span> <span class="na">count=</span><span class="s">"4"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;/unbounded-queue-thread-pool&gt;</span>        
+        <span class="nt">&lt;/subsystem&gt;</span>
+    <span class="nt">&lt;/profile&gt;</span>
+    <span class="nt">&lt;socket-binding-group</span> <span class="na">name=</span><span class="s">"standard-sockets"</span> <span class="na">default-interface=</span><span class="s">"public"</span> <span class="na">port-offset=</span><span class="s">"${jboss.socket.binding.port-offset:0}"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;socket-binding</span> <span class="na">name=</span><span class="s">"teiid-jdbc"</span> <span class="na">port=</span><span class="s">"31000"</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;socket-binding</span> <span class="na">name=</span><span class="s">"teiid-odbc"</span> <span class="na">port=</span><span class="s">"35432"</span><span class="nt">/&gt;</span>        
+    <span class="nt">&lt;/socket-binding-group&gt;</span>
+<span class="nt">&lt;/server&gt;</span>
+</code></pre>
+</div>
+
+<p>As above configuration file, Teiid add the following in configuration file:</p>
+
+<ul>
+  <li>Teiid extension - which point to module <code class="highlighter-rouge">org.jboss.teiid</code></li>
+  <li>Data Source Drivers - Teiid add 2 drivers <code class="highlighter-rouge">teiid-local</code> and <code class="highlighter-rouge">teiid</code> under datasources subsystem</li>
+  <li>Infinispan Local cache - Teiid add 2 local cache <code class="highlighter-rouge">resultset</code>, <code class="highlighter-rouge">resultset-repl</code> and <code class="highlighter-rouge">preparedplan</code> under infinispan subsystem</li>
+  <li>Resource Adapters - Teiid add a series resource adapters including <code class="highlighter-rouge">file</code>, <code class="highlighter-rouge">google</code>, <code class="highlighter-rouge">ldap</code>, <code class="highlighter-rouge">salesforce</code>, <code class="highlighter-rouge">webservice</code>, etc</li>
+  <li>Security Domain - Teiid add security domain <code class="highlighter-rouge">teiid-security</code> under security subsystem</li>
+  <li>Teiid subsystem - The teiid subsystem main logics of Teiid, like jdbc/odbc transport, translators, etc.</li>
+  <li>Thread Pool - Teiid add unbounded-queue-thread-pool <code class="highlighter-rouge">teiid-async</code> under threads subsystem</li>
+  <li>Socket binding port - Teiid add 2 socket-binding <code class="highlighter-rouge">teiid-jdbc</code> and <code class="highlighter-rouge">teiid-odbc</code>, it listen on 31000 and 35432 correspondingly.</li>
+</ul>
+
+
+
+<br/>
+<ul class="btn pull-right">
+<div class="bdsharebuttonbox">
+  <a href="#" class="bds_more" data-cmd="more"></a>
+  <a title="分享到QQ空间" href="#" class="bds_qzone" data-cmd="qzone"></a>
+  <a title="分享到新浪微博" href="#" class="bds_tsina" data-cmd="tsina"></a>
+  <a title="分享到腾讯微博" href="#" class="bds_tqq" data-cmd="tqq"></a>
+  <a title="分享到人人网" href="#" class="bds_renren" data-cmd="renren"></a>
+  <a title="分享到微信" href="#" class="bds_weixin" data-cmd="weixin"></a>
+</div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"分享ksoong.org的文章「How Teiid be deployed on JBoss」 - ksoong.org","bdDesc":"","bdMini":"2","bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</ul>
+
+<div class="ds-thread" data-thread-key="ksoong2015031102" data-title="How Teiid be deployed on JBoss" data-url="ksoong.org/teiid-deploy-jboss"></div>
+
+	    <ul class="pager">
+		
+		<li class="previous"><a href="/teiid/2015/03/11/teiid-embedded-examples/">&laquo;&nbsp;Teiid embedded examples</a></li>
+		
+		
+		<li class="next"><a href="/jboss/2015/03/24/extending-wildfly/">扩展 WildFly 示例&nbsp;&raquo;</a></li>
+		
+	    </ul>
+
+
+        </div>
+        <aside id="sidebar" role="complementary">
+          <div class="subscribe">
+            <h2 class="icon news">
+              <a href="/feed.xml">Subscribe</a>
+            </h2>
+          </div>
+          <nav class="latest">
+            <h2>Latest Posts</h2>
+            <ul>
+            
+              <li>
+                <div class="title">
+                  <a href="/wfl-ds">WildFly Data Sources Configuration</a>
+                </div>
+                <div class="meta">
+                  Apr 26, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-transactions">Transaction in Teiid</a>
+                </div>
+                <div class="meta">
+                  Apr 20, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-getstart-code">Get Start Teiid From Source...</a>
+                </div>
+                <div class="meta">
+                  Apr 7, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-metadata">Understanding Teiid Metadata</a>
+                </div>
+                <div class="meta">
+                  Mar 27, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/rhel7-commands">Linux 命令集合</a>
+                </div>
+                <div class="meta">
+                  Mar 17, 2016
+                </div>
+              </li>
+             
+            </ul>
+            
+                        
+          </nav>
+          <nav class="tags">
+            <h2>Categories</h2>
+            <div class="tag-cloud">
+              
+              <span class="tag tag-1">
+                <a href="/categories/jekyll">Jekyll(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/jboss">Jboss(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/java">Java(18)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/css">Css(1)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/database">Database(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/javaee">Javaee(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/linux">Linux(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/teiid">Teiid(40)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/maven">Maven(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/netty">Netty(7)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/data">Data(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/git">Git(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/other">Other(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/performance">Performance(4)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/security">Security(3)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/docker">Docker(4)</a>
+              </span>
+              
+              
+            </div>
+          </nav>
+        </aside>
+      </div>
+
+
+    </div>
+    <footer>
+      <div class="container">
+        <div class="project">
+          <p class="bottom">
+            ©
+            Copyright 2009-2016 ksoong.
+            <br>
+            <i class="icon-fire"></i>
+            Mixed with <a href="http://twitter.github.com/bootstrap">Bootstrap</a>.
+            <br>
+            <i class="icon-share-alt"></i>
+            Website and docs licensed under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
+            <br>
+            Code released under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, v2.0</a>.
+          </p>
+        </div>
+        <div class="footer-nav">
+          <h4>Learn</h4>
+          <ul>
+            <li>
+              <a href="http://www.jboss.org/">JBoss</a>
+            </li>
+            <li>
+              <a href="http://infinispan.org/">Infinispan</a>
+            </li>
+            <li>
+              <a href="http://teiid.org/">Teiid</a>
+            </li>
+            <li>
+              <a href="https://github.com/kylinsoong">Github</a>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="sponser">
+          <div class="follow-us">
+            <h4>Stay Informed</h4>
+            <ul>
+              <li>
+                <a href="https://plus.google.com/103933729718268414460?rel=author"><img alt="Google+" src="/css/googleplus-16.png" title="Follow ksoong.org on Google+"></a>
+              </li>
+              <li>
+                <a href="http://www.weibo.com/kylinsoong"><img alt="Weibo" src="/css/weibo_logo.jpg" title="Follow me on Weibo"></a>
+              </li>
+	      <li>
+                <a href="https://github.com/kylinsoong"><img alt="Github" src="/css/Octocat.jpg" title="Fork me on Github"></a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+        <a class="visible-desktop" href="#" id="toTop">Top</a>
+      </div>
+        <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1258751305'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1258751305%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+    </footer>
+  
+ 
+    <script src="/css/jquery-1.11.1.min.js"></script>
+    <script src="/css/bootstrap.js"></script>
+
+   <script>
+      $(function() {
+        $('html').addClass('ready');
+        prettify();
+        activateFooterGravity();
+        activateTooltips();
+        activateToTopControl();
+      });
+    </script>
+    <script src="/css/site.js"></script>
+
+    
+            
+            <script type="text/javascript">
+                var duoshuoQuery = {short_name:"ksoong"};
+                (function() {
+                    var ds = document.createElement('script');
+                    ds.type = 'text/javascript';
+                    ds.async = true;
+                    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+                    ds.charset = 'UTF-8';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+                })();
+            </script>
+            
+        
+
+
+</body>
+</html>

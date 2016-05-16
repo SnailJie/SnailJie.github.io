@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html class="ready" lang="en"><head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="shenma-site-verification" content="8a69823d7371d1eec4379853d25200cd_1448504990"> 
+    <title>Kylin Soong . Blog</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="/feed.xml" rel="alternate" title="Kylin Soong . Blog Atom feed" type="application/atom+xml">
+    <link href="/css/screen.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.js"></script>
+    <![endif]-->
+    <link href="/favicon.ico" rel="shortcut icon">
+
+</head>
+
+  <body class="blog index">
+    <header class="navbar navbar-fixed-top" id="banner" role="banner">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-target=".nav-collapse" data-toggle="collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/">
+            <span class="logo"></span>
+            <span class="name">ksoong</span>
+          </a>
+          <nav class="nav-collapse" role="navigation">
+            <ul class="nav">
+              <li><a href="/">Home</a></li>
+	      <!--
+              <li><a href="/lab">Labs</a></li>
+              <li><a href="/blog/">Blog</a></li>
+	      -->
+	      <li><a href="/books">Books</a></li>
+              <li><a href="/archive">Archives</a></li>
+              <li><a href="/slide">Slides</a></li>
+              <li><a href="/about">About</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+    <div style="min-height: 250px;" id="main" role="main">
+      
+<div id="content-header">
+        <div class="container">
+         <h1>
+              <a href="/blog">Blog</a>
+              <!--a href="#">&raquo;</a>
+              <a href="/teiid-transport">Understanding Teiid Transport</a-->
+          </h1>
+        </div>
+</div>
+      <div class="container">
+        <div id="content">
+          
+<h2 class="title">
+                 <a class="post-link" href="/teiid-transport">Understanding Teiid Transport</a>
+              </h2>
+ 
+<header class="post">
+              <div class="byline">
+                <span class="author">Posted by
+                <a href="/about">Kylin Soong</a> on</span>
+                <span class="dateinline">Dec 3, 2015</span>
+		<i class="icon-tags"></i> categorized as <a class="tag" href="/categories/teiid">teiid</a>
+              </div>
+            </header>
+
+ 
+<ul id="markdown-toc">
+  <li><a href="#overview" id="markdown-toc-overview">Overview</a></li>
+  <li><a href="#netty-server" id="markdown-toc-netty-server">Netty Server</a></li>
+  <li><a href="#socket-client-in-jdbc-driver" id="markdown-toc-socket-client-in-jdbc-driver">Socket Client in JDBC Driver</a></li>
+  <li><a href="#transport-security" id="markdown-toc-transport-security">Transport Security</a>    <ul>
+      <li><a href="#userpassword-based-authentication" id="markdown-toc-userpassword-based-authentication">USERPASSWORD based authentication</a></li>
+      <li><a href="#secure-teiid-jdbc-transport-with-ssl" id="markdown-toc-secure-teiid-jdbc-transport-with-ssl">Secure Teiid JDBC Transport with SSL</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="overview">Overview</h2>
+
+<p><a href="http://teiid.jboss.org">Teiid</a> supply a jdbc driver which allows java applications to use data from multiple, heterogenous data stores,</p>
+
+<p><img src="/assets/blog/teiid-transport-architecure.png" alt="Architecture" /></p>
+
+<p>As above architecture, java application execute JDBC query(for example ‘select * from product’) via Teiid <code class="highlighter-rouge">JDBC Driver</code>, the Driver will assemble the query command to a Message Object, then send it to <code class="highlighter-rouge">Transport</code> via Socket client, the Transport listen on a port via netty server, receive the message, handle the message and pass it to <code class="highlighter-rouge">Query Enginer</code>, the Query Engine will choose related Resource Adapter and Translator to load and transfer Data from heterogenous data stores.</p>
+
+<p>One the left of vertical broken line, we can see it was Transport Layer, this article focus on it, diving into the details of how message be transfer between JDBC Driver and Transport.</p>
+
+<h2 id="netty-server">Netty Server</h2>
+
+<p><code class="highlighter-rouge">org.teiid.transport.SocketListener</code> is Server-side class to listen for new connection requests and create a <code class="highlighter-rouge">org.teiid.transport.SocketClientInstance</code> for each connection request, the revelant UML diagram as below:</p>
+
+<p><img src="/assets/blog/teiid-uml-transport-socketlistener.png" alt="SocketListener" /></p>
+
+<p>In SocketListener Constructor method the Netty Server be started, the code looks</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>this.nettyPool = Executors.newCachedThreadPool(new NamedThreadFactory("NIO"));
+if (maxWorkers == 0) {
+    maxWorkers = Math.max(4, 2*Runtime.getRuntime().availableProcessors());
+}
+ChannelFactory factory = new NioServerSocketChannelFactory(this.nettyPool, this.nettyPool, maxWorkers);
+bootstrap = new ServerBootstrap(factory);
+this.channelHandler = createChannelPipelineFactory(config, storageManager);
+bootstrap.setPipelineFactory(channelHandler);
+bootstrap.setOption("child.tcpNoDelay", true);
+bootstrap.setOption("child.keepAlive", Boolean.TRUE);
+this.serverChanel = bootstrap.bind(address);
+</code></pre>
+</div>
+
+<p>In above code snippets, the createChannelPipelineFactory() method will create a SSLAwareChannelHandler, which extends the <code class="highlighter-rouge">org.jboss.netty.channel.SimpleChannelHandler</code> and implment <code class="highlighter-rouge">org.jboss.netty.channel.ChannelPipelineFactory</code>, the UML diagram looks</p>
+
+<p><img src="/assets/blog/teiid-uml-transport-sslwaarehandler.png" alt="SSLAwareChannelHandler" /></p>
+
+<p>The methods list in above diagram is the entry in Server side, for example, messageReceived() method will handle the JDBC Driver’s Message, the detailed procedures looks</p>
+
+<p><img src="/assets/blog/teiid-seq-SSLAwareChannelHandler.png" alt="SSLAwareChannelHandler Entry" /></p>
+
+<p>Once theid server start up, netty server will listen on socket address, which wait for handling any incoming socket request:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ netstat -antulop | grep 15298
+tcp6       0      0 127.0.0.1:31000         :::*                    LISTEN      15298/java           off (0.00/0/0)
+</code></pre>
+</div>
+
+<blockquote>
+  <p>NOTE: By default, netty server will listen on port 31000 for JDBC connection.</p>
+</blockquote>
+
+<h2 id="socket-client-in-jdbc-driver">Socket Client in JDBC Driver</h2>
+
+<p>With the content of <code class="highlighter-rouge">Netty Server</code> section, we know that the <code class="highlighter-rouge">SocketListener</code> is the Server-side listener, SocketListener Constructor method init netty Server, <code class="highlighter-rouge">SSLAwareChannelHandler</code> registered as Netty Server’s ChannelPipelineFactory, each time a client connection incoming, a revelant <code class="highlighter-rouge">SocketClientInstance</code> be created, the <code class="highlighter-rouge">SocketClientInstance</code> wrapped a netty Channel in charge of sending/receiving message from client.</p>
+
+<p>Correspondingly, each client request has a related <code class="highlighter-rouge">SocketServerInstanceImpl</code> which wrapped a Socket, connect with Teiid Server, sending and receiving message, the UML diagram of <code class="highlighter-rouge">SocketServerInstanceImpl</code> looks</p>
+
+<p><img src="/assets/blog/teiid-uml-SocketServerInstanceImpl.png" alt="uml OF SocketServerInstanceImpl" /></p>
+
+<p>SocketServerInstanceImpl has a ObjectChannel attribute that wrap a Socket, used to send/recieve message, the revelant code extract from <code class="highlighter-rouge">org.teiid.net.socket.OioObjectChannel</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>package org.teiid.net.socket;
+
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+
+import org.teiid.netty.handler.codec.serialization.ObjectDecoderInputStream;
+import org.teiid.netty.handler.codec.serialization.ObjectEncoderOutputStream;
+
+class OioObjectChannel implements ObjectChannel {
+    private final Socket socket;
+    private ObjectOutputStream outputStream;
+    private ObjectInputStream inputStream;
+
+    private OioObjectChannel(Socket socket, int maxObjectSize) throws IOException{
+        this.socket = socket;
+        DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+        outputStream = new ObjectEncoderOutputStream(out, STREAM_BUFFER_SIZE);
+        final ClassLoader cl = this.getClass().getClassLoader();
+        inputStream = new ObjectDecoderInputStream(new AccessibleBufferedInputStream(socket.getInputStream(), STREAM_BUFFER_SIZE), cl, maxObjectSize);
+    }
+}
+</code></pre>
+</div>
+
+<blockquote>
+  <p>Note that, netty’s ObjectDecoderInputStream used to read Object message from Server(Netty Server), and ObjectEncoderOutputStream used to write Object message to Server(Netty Server).</p>
+</blockquote>
+
+<p>For detailed procedure of JDBC Driver create a Connection refer to <a href="http://ksoong.org/teiid-s-diagram#how-a-connection-be-created">http://ksoong.org/teiid-s-diagram#how-a-connection-be-created</a>.</p>
+
+<p>While Create Connection there are 2 types of security logon:</p>
+
+<ul>
+  <li>handshake</li>
+  <li>logon</li>
+</ul>
+
+<p>these 2 types security logon happens as a sequence, first do handshake to set Cryptor, then execute logon, both handshake and logon on top of SocketServerInstance. The process as below figure:</p>
+
+<p><img src="/assets/blog/teiid-client-logon.png" alt="Teiid Client logon" /></p>
+
+<ul>
+  <li>Once Client create a socket connect to Teiid Server, Teiid Server will send a <code class="highlighter-rouge">Hansshake</code> message to Client</li>
+  <li>Client received the <code class="highlighter-rouge">Handshake</code>, do some setting send it back to Server</li>
+  <li>Teiid Server send handshake ack to Client</li>
+  <li>Client send <code class="highlighter-rouge">Logon</code> message(contain JDBC url, username, password) to Teiid Server</li>
+  <li>Teiid Server handle <code class="highlighter-rouge">Logon</code> message, send logon ack to Client</li>
+</ul>
+
+<h2 id="transport-security">Transport Security</h2>
+
+<h3 id="userpassword-based-authentication">USERPASSWORD based authentication</h3>
+
+<p>The simplest way of authentication, ‘username/password’ be passed to Server side, Server do JAAS based authentication, if user is valid, authentication success, Server send a LogonResult to Client, the sequence diagram like:</p>
+
+<p><img src="/assets/blog/teiid-client-logon-usernamepassword.png" alt="Teiid Client logon usernamepassword" /></p>
+
+<h3 id="secure-teiid-jdbc-transport-with-ssl">Secure Teiid JDBC Transport with SSL</h3>
+
+<p><a href="https://developer.jboss.org/docs/DOC-55352">https://developer.jboss.org/docs/DOC-55352</a></p>
+
+
+<br/>
+<ul class="btn pull-right">
+<div class="bdsharebuttonbox">
+  <a href="#" class="bds_more" data-cmd="more"></a>
+  <a title="分享到QQ空间" href="#" class="bds_qzone" data-cmd="qzone"></a>
+  <a title="分享到新浪微博" href="#" class="bds_tsina" data-cmd="tsina"></a>
+  <a title="分享到腾讯微博" href="#" class="bds_tqq" data-cmd="tqq"></a>
+  <a title="分享到人人网" href="#" class="bds_renren" data-cmd="renren"></a>
+  <a title="分享到微信" href="#" class="bds_weixin" data-cmd="weixin"></a>
+</div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"分享ksoong.org的文章「Understanding Teiid Transport」 - ksoong.org","bdDesc":"","bdMini":"2","bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</ul>
+
+<div class="ds-thread" data-thread-key="ksoong2015120201" data-title="Understanding Teiid Transport" data-url="ksoong.org/teiid-transport"></div>
+
+	    <ul class="pager">
+		
+		<li class="previous"><a href="/hadoop-install">&laquo;&nbsp;Hadoop 安装</a></li>
+		
+		
+		<li class="next"><a href="/java/2015/12/07/java-proxy-example/">Java 动态代理使用案例 - Teiid 中动态代理的使用...&nbsp;&raquo;</a></li>
+		
+	    </ul>
+
+
+        </div>
+        <aside id="sidebar" role="complementary">
+          <div class="subscribe">
+            <h2 class="icon news">
+              <a href="/feed.xml">Subscribe</a>
+            </h2>
+          </div>
+          <nav class="latest">
+            <h2>Latest Posts</h2>
+            <ul>
+            
+              <li>
+                <div class="title">
+                  <a href="/wfl-ds">WildFly Data Sources Configuration</a>
+                </div>
+                <div class="meta">
+                  Apr 26, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-transactions">Transaction in Teiid</a>
+                </div>
+                <div class="meta">
+                  Apr 20, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-getstart-code">Get Start Teiid From Source...</a>
+                </div>
+                <div class="meta">
+                  Apr 7, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-metadata">Understanding Teiid Metadata</a>
+                </div>
+                <div class="meta">
+                  Mar 27, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/rhel7-commands">Linux 命令集合</a>
+                </div>
+                <div class="meta">
+                  Mar 17, 2016
+                </div>
+              </li>
+             
+            </ul>
+            
+                        
+          </nav>
+          <nav class="tags">
+            <h2>Categories</h2>
+            <div class="tag-cloud">
+              
+              <span class="tag tag-1">
+                <a href="/categories/jekyll">Jekyll(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/jboss">Jboss(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/java">Java(18)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/css">Css(1)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/database">Database(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/javaee">Javaee(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/linux">Linux(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/teiid">Teiid(40)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/maven">Maven(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/netty">Netty(7)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/data">Data(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/git">Git(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/other">Other(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/performance">Performance(4)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/security">Security(3)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/docker">Docker(4)</a>
+              </span>
+              
+              
+            </div>
+          </nav>
+        </aside>
+      </div>
+
+
+    </div>
+    <footer>
+      <div class="container">
+        <div class="project">
+          <p class="bottom">
+            ©
+            Copyright 2009-2016 ksoong.
+            <br>
+            <i class="icon-fire"></i>
+            Mixed with <a href="http://twitter.github.com/bootstrap">Bootstrap</a>.
+            <br>
+            <i class="icon-share-alt"></i>
+            Website and docs licensed under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
+            <br>
+            Code released under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, v2.0</a>.
+          </p>
+        </div>
+        <div class="footer-nav">
+          <h4>Learn</h4>
+          <ul>
+            <li>
+              <a href="http://www.jboss.org/">JBoss</a>
+            </li>
+            <li>
+              <a href="http://infinispan.org/">Infinispan</a>
+            </li>
+            <li>
+              <a href="http://teiid.org/">Teiid</a>
+            </li>
+            <li>
+              <a href="https://github.com/kylinsoong">Github</a>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="sponser">
+          <div class="follow-us">
+            <h4>Stay Informed</h4>
+            <ul>
+              <li>
+                <a href="https://plus.google.com/103933729718268414460?rel=author"><img alt="Google+" src="/css/googleplus-16.png" title="Follow ksoong.org on Google+"></a>
+              </li>
+              <li>
+                <a href="http://www.weibo.com/kylinsoong"><img alt="Weibo" src="/css/weibo_logo.jpg" title="Follow me on Weibo"></a>
+              </li>
+	      <li>
+                <a href="https://github.com/kylinsoong"><img alt="Github" src="/css/Octocat.jpg" title="Fork me on Github"></a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+        <a class="visible-desktop" href="#" id="toTop">Top</a>
+      </div>
+        <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1258751305'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1258751305%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+    </footer>
+  
+ 
+    <script src="/css/jquery-1.11.1.min.js"></script>
+    <script src="/css/bootstrap.js"></script>
+
+   <script>
+      $(function() {
+        $('html').addClass('ready');
+        prettify();
+        activateFooterGravity();
+        activateTooltips();
+        activateToTopControl();
+      });
+    </script>
+    <script src="/css/site.js"></script>
+
+    
+            
+            <script type="text/javascript">
+                var duoshuoQuery = {short_name:"ksoong"};
+                (function() {
+                    var ds = document.createElement('script');
+                    ds.type = 'text/javascript';
+                    ds.async = true;
+                    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+                    ds.charset = 'UTF-8';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+                })();
+            </script>
+            
+        
+
+
+</body>
+</html>

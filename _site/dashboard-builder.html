@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html class="ready" lang="en"><head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="shenma-site-verification" content="8a69823d7371d1eec4379853d25200cd_1448504990"> 
+    <title>Kylin Soong . Blog</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="/feed.xml" rel="alternate" title="Kylin Soong . Blog Atom feed" type="application/atom+xml">
+    <link href="/css/screen.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.js"></script>
+    <![endif]-->
+    <link href="/favicon.ico" rel="shortcut icon">
+
+</head>
+
+  <body class="blog index">
+    <header class="navbar navbar-fixed-top" id="banner" role="banner">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-target=".nav-collapse" data-toggle="collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/">
+            <span class="logo"></span>
+            <span class="name">ksoong</span>
+          </a>
+          <nav class="nav-collapse" role="navigation">
+            <ul class="nav">
+              <li><a href="/">Home</a></li>
+	      <!--
+              <li><a href="/lab">Labs</a></li>
+              <li><a href="/blog/">Blog</a></li>
+	      -->
+	      <li><a href="/books">Books</a></li>
+              <li><a href="/archive">Archives</a></li>
+              <li><a href="/slide">Slides</a></li>
+              <li><a href="/about">About</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+    <div style="min-height: 250px;" id="main" role="main">
+      
+<div id="content-header">
+        <div class="container">
+         <h1>
+              <a href="/blog">Blog</a>
+              <!--a href="#">&raquo;</a>
+              <a href="/dashboard-builder">JBoss Dashbuilder</a-->
+          </h1>
+        </div>
+</div>
+      <div class="container">
+        <div id="content">
+          
+<h2 class="title">
+                 <a class="post-link" href="/dashboard-builder">JBoss Dashbuilder</a>
+              </h2>
+ 
+<header class="post">
+              <div class="byline">
+                <span class="author">Posted by
+                <a href="/about">Kylin Soong</a> on</span>
+                <span class="dateinline">Jan 28, 2015</span>
+		<i class="icon-tags"></i> categorized as <a class="tag" href="/categories/jboss">jboss</a>
+              </div>
+            </header>
+
+ 
+<ul id="markdown-toc">
+  <li><a href="#objectives" id="markdown-toc-objectives">Objectives</a></li>
+  <li><a href="#deploy-dashboard-builder-to-wildfly" id="markdown-toc-deploy-dashboard-builder-to-wildfly">Deploy dashboard-builder to WildFly</a>    <ul>
+      <li><a href="#build-from-source-code" id="markdown-toc-build-from-source-code">Build from source code</a></li>
+      <li><a href="#create-user" id="markdown-toc-create-user">Create User</a></li>
+      <li><a href="#run-the-dashboard-builder" id="markdown-toc-run-the-dashboard-builder">Run the Dashboard Builder</a></li>
+    </ul>
+  </li>
+  <li><a href="#security-configuration-in-webxml" id="markdown-toc-security-configuration-in-webxml">Security configuration in web.xml</a>    <ul>
+      <li><a href="#form-based-authentication" id="markdown-toc-form-based-authentication">Form-Based Authentication</a></li>
+    </ul>
+  </li>
+  <li><a href="#use-mysql-with-dashboard-builder" id="markdown-toc-use-mysql-with-dashboard-builder">Use Mysql with dashboard-builder</a></li>
+  <li><a href="#controllerservlet" id="markdown-toc-controllerservlet">ControllerServlet</a>    <ul>
+      <li><a href="#web-fragment" id="markdown-toc-web-fragment">web fragment</a></li>
+      <li><a href="#controllerservlet-init" id="markdown-toc-controllerservlet-init">ControllerServlet init</a>        <ul>
+          <li><a href="#using-hibernate-service-api-create-sessionfactory" id="markdown-toc-using-hibernate-service-api-create-sessionfactory">Using Hibernate Service API create SessionFactory</a></li>
+          <li><a href="#using-hibernate-session-execute-jdbc-operations" id="markdown-toc-using-hibernate-session-execute-jdbc-operations">Using Hibernate Session execute JDBC operations</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="objectives">Objectives</h2>
+
+<p>This article is a supplement of Dashbuilder’s document on <a href="http://www.dashbuilder.org/">dashbuilder.org</a> and <a href="https://github.com/kylinsoong/dashboard-builder">github.com/kylinsoong/dashboard-builder</a>, primary purpose including:</p>
+
+<ul>
+  <li>Build <a href="https://github.com/kylinsoong/dashboard-builder">Dashbuilder</a> from source code</li>
+  <li>Debug source code under <a href="https://github.com/droolsjbpm/dashboard-builder/tree/master/modules">dashboard-builder</a>.</li>
+  <li>Trial Dashbuilder on WildFly</li>
+</ul>
+
+<h2 id="deploy-dashboard-builder-to-wildfly">Deploy dashboard-builder to WildFly</h2>
+
+<h3 id="build-from-source-code">Build from source code</h3>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ git clone git@github.com:kylinsoong/dashboard-builder.git
+$ cd dashboard-builder/
+$ mvn clean install -P h2,jetty -DskipTests
+$ cd builder/
+$ mvn clean install
+</code></pre>
+</div>
+
+<p>Execute above commands will generate <code class="highlighter-rouge">dashbuilder-VERSION-wildflyX.war</code> under ‘dashboard-builder/builder/target’ folder, this war need deploy to a running WildFly Server.</p>
+
+<h3 id="create-user">Create User</h3>
+
+<p>Navigate to WildFly Home, execute the following commands to create two user:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ ./bin/add-user.sh -a -u root -p password1! -g admin
+$ ./bin/add-user.sh -a -u user -p password1! -g user
+</code></pre>
+</div>
+
+<h3 id="run-the-dashboard-builder">Run the Dashboard Builder</h3>
+
+<p>Once WildFly id running, <code class="highlighter-rouge">dashbuilder-VERSION-wildflyX.war</code> deployed success, login Dashboard Builder via</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>http://localhost:8080/dashbuilder
+</code></pre>
+</div>
+
+<p>and use the recently created user <code class="highlighter-rouge">root/password1!</code> as below figure:</p>
+
+<p><img src="/assets/blog/dashbuilder-login.png" alt="Dashboard Builder Login" /></p>
+
+<h2 id="security-configuration-in-webxml">Security configuration in web.xml</h2>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>  &lt;security-role&gt;
+    &lt;description&gt;Administrator&lt;/description&gt;
+    &lt;role-name&gt;admin&lt;/role-name&gt;
+  &lt;/security-role&gt;
+
+  &lt;security-role&gt;
+    &lt;description&gt;End user&lt;/description&gt;
+    &lt;role-name&gt;user&lt;/role-name&gt;
+  &lt;/security-role&gt;
+
+  &lt;security-constraint&gt;
+    &lt;web-resource-collection&gt;
+      &lt;web-resource-name&gt;Free access&lt;/web-resource-name&gt;
+      &lt;url-pattern&gt;/images/jb_logo.png&lt;/url-pattern&gt;
+    &lt;/web-resource-collection&gt;
+  &lt;/security-constraint&gt;
+
+  &lt;security-constraint&gt;
+    &lt;web-resource-collection&gt;
+      &lt;web-resource-name&gt;Restricted access&lt;/web-resource-name&gt;
+      &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+    &lt;/web-resource-collection&gt;
+    &lt;auth-constraint&gt;
+      &lt;role-name&gt;admin&lt;/role-name&gt;
+      &lt;role-name&gt;user&lt;/role-name&gt;
+    &lt;/auth-constraint&gt;
+  &lt;/security-constraint&gt;
+
+  &lt;login-config&gt;
+    &lt;auth-method&gt;FORM&lt;/auth-method&gt;
+    &lt;form-login-config&gt;
+      &lt;form-login-page&gt;/login.jsp&lt;/form-login-page&gt;
+      &lt;form-error-page&gt;/login_failed.jsp&lt;/form-error-page&gt;
+    &lt;/form-login-config&gt;
+  &lt;/login-config&gt;
+
+  &lt;error-page&gt;
+    &lt;error-code&gt;403&lt;/error-code&gt;
+    &lt;location&gt;/not_authorized.jsp&lt;/location&gt;
+  &lt;/error-page&gt;
+</code></pre>
+</div>
+
+<ul>
+  <li>
+    <p><strong>security-role</strong> - lists all the security roles used in the application, these roles should be mapped with roles exist in Application Server, in WildFly, map roles to a specific appication via <code class="highlighter-rouge">security-domain</code> which defined in <code class="highlighter-rouge">jboss-web.xml</code> file.</p>
+  </li>
+  <li>
+    <p><strong>security-constraint</strong> - define the access privileges to a collection of resources using their URL mapping. <strong>web-resource-collection</strong> specifies a list of URL patterns, <strong>auth-constraint</strong> specifies whether authentication is to be used and names the roles authorized to perform the constrained requests.</p>
+  </li>
+  <li>
+    <p><strong>login-config</strong> - define authentication method, in above configuration, Form-based authentication be defined, refer to below <code class="highlighter-rouge">Form-Based Authentication</code> for more details.</p>
+  </li>
+</ul>
+
+<h3 id="form-based-authentication">Form-Based Authentication</h3>
+
+<p>Compare with Basic Authentication pop up a raw login form, Form-Based Authentication allows the developer to control the look and feel of the login authentication screens by customizing the login screen and error pages that an HTTP browser presents to the end user. As below figure:</p>
+
+<p><img src="/assets/blog/jee-web-form-login.png" alt="Form Based Login" /></p>
+
+<p>When form-based authentication is declared, the following actions occur:</p>
+
+<ul>
+  <li>A client requests access to a protected resource.</li>
+  <li>If the client is unauthenticated, the server redirects the client to a login page.</li>
+  <li>The client submits the login form to the server.</li>
+  <li>The server attempts to authenticate the user. If authentication succeeds, redirect to requested protected resource, If authentication fails, redirected to an error page.</li>
+</ul>
+
+<p>An example of login form:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>&lt;form method="POST" action="j_security_check"&gt;
+    &lt;input type="text" name="j_username"&gt;
+    &lt;input type="password" name="j_password"&gt;
+&lt;/form&gt;
+</code></pre>
+</div>
+
+<p>Note that, the action of the login form must always be <code class="highlighter-rouge">j_security_check</code>, the input name must be <code class="highlighter-rouge">j_username</code> and the input password must be <code class="highlighter-rouge">j_password</code>.</p>
+
+<h2 id="use-mysql-with-dashboard-builder">Use Mysql with dashboard-builder</h2>
+
+<ul>
+  <li><a href="https://github.com/droolsjbpm/dashboard-builder/blob/master/builder/src/main/wildfly8/README.md">Step by step procedure</a></li>
+  <li><a href="https://github.com/jbosschina/wildfly-dev-cookbook/blob/master/persistence/create-ds-mysql.cli">Set up Datasource</a></li>
+</ul>
+
+<h2 id="controllerservlet">ControllerServlet</h2>
+
+<p>ControllerServlet is the entry point for UI request, all request(/workspace/<em>, /jsp/</em>, /kpi/*) will go to ControllerServlet, below figure is the sequence diagram of dashboard-builder login:</p>
+
+<p><img src="/assets/blog/dashbuilder.war-servlet.png" alt="Login Process" /></p>
+
+<h3 id="web-fragment">web fragment</h3>
+
+<p>Started from Servlet 3.0, <code class="highlighter-rouge">web-fragment.xml</code> be introduced for pluggability of library jars which are packaged under WEB-INF/lib, The content of <code class="highlighter-rouge">web-fragment.xml</code> are almost same as <code class="highlighter-rouge">web.xml</code>, the <code class="highlighter-rouge">web-fragment.xml</code> be placed under classpath’s META-INF folder.</p>
+
+<p>For example, in dashbuilder.war’s index.jsp define a jsp forward to Servlet</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>&lt;jsp:forward page="workspace"/&gt;
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">workspace</code> define in WEB-INF/lib/dashboard-ui-core-6.4.0-SNAPSHOT.jar/META-INF/web-fragment.xml, rather than wewb.xml, the <code class="highlighter-rouge">workspace</code> definition looks:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>&lt;servlet&gt;
+    &lt;servlet-name&gt;Controller&lt;/servlet-name&gt;
+    &lt;servlet-class&gt;org.jboss.dashboard.ui.controller.ControllerServlet&lt;/servlet-class&gt;
+    &lt;load-on-startup&gt;5&lt;/load-on-startup&gt;
+&lt;/servlet&gt;
+&lt;servlet-mapping&gt;
+    &lt;servlet-name&gt;Controller&lt;/servlet-name&gt;
+    &lt;url-pattern&gt;/workspace/*&lt;/url-pattern&gt;
+&lt;/servlet-mapping&gt;
+</code></pre>
+</div>
+
+<h3 id="controllerservlet-init">ControllerServlet init</h3>
+
+<p>The following will dive into ControllerServlet init.</p>
+
+<p><strong>init App Directories</strong></p>
+
+<p>The following 3 directory path be formed and set to @ApplicationScoped scope entiry <code class="highlighter-rouge">org.jboss.dashboard.Application</code>:</p>
+
+<ul>
+  <li><strong>baseAppDir</strong> -&gt; standalone/deployments/dashbuilder.war</li>
+  <li><strong>baseConfigDir</strong> -&gt; standalone/deployments/dashbuilder.war/WEB-INF/etc</li>
+  <li><strong>baseLibDir</strong> -&gt; standalone/deployments/dashbuilder.war/WEB-INF/lib</li>
+</ul>
+
+<p>Key code used to extract baseAppDir:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>baseAppDir = new File(getServletContext().getRealPath("/")).getPath();
+</code></pre>
+</div>
+
+<p><strong>Startable Start</strong></p>
+
+<p>The Startable happens in ControllerServlet init, the sequence like</p>
+
+<p><img src="/assets/blog/jboss-dashbuilder-controllerServlet-init.png" alt="Startable Start" /></p>
+
+<p>All 10 Startable be started including:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>org.jboss.dashboard.database.hibernate.HibernateInitializer
+org.jboss.dashboard.security.UIPolicy
+org.jboss.dashboard.workspace.PanelsProvidersManagerImpl
+org.jboss.dashboard.workspace.SkinsManagerImpl
+org.jboss.dashboard.cluster.ClusterNodesManager
+org.jboss.dashboard.workspace.LayoutsManagerImpl
+org.jboss.dashboard.ui.resources.ResourceManagerImpl
+org.jboss.dashboard.workspace.EnvelopesManagerImpl
+org.jboss.dashboard.DeploymentScanner
+org.jboss.dashboard.initialModule.InitialModulesManager
+</code></pre>
+</div>
+
+<p><strong>Hibernate cfg</strong></p>
+
+<p>Startable HibernateInitializer start initializes the Hibernate framework. It reads all the *.hbm.xml files and push them as part of the Hibernate configuration. Furthermore, initializes a SessionFactory object that will be used further by transactions.</p>
+
+<p>dashbuilder.war’s total 16 .hbm.xml files be placed in 7 places:</p>
+
+<p><strong>1. dashbuilder.war/WEB-INFO/etc</strong></p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>hibernate.cfg.xml
+</code></pre>
+</div>
+
+<p><strong>2. dashbuilder.war/WEB-INF/lib/dashboard-security-VERSION.jar</strong></p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>org/jboss/dashboard/security/PermissionDescriptor.hbm.xml
+</code></pre>
+</div>
+
+<p><strong>3. dashbuilder.war/WEB-INF/lib/dashboard-commons-VERSION.jar</strong></p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>org/jboss/dashboard/cluster/ClusterNode.hbm.xml
+org/jboss/dashboard/database/InstalledModule.hbm.xml
+org/jboss/dashboard/database/DataSourceEntry.hbm.xml
+</code></pre>
+</div>
+
+<p><strong>4. dashbuilder.war/WEB-INF/lib/dashboard-provider-core-VERSION.jar</strong></p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>org/jboss/dashboard/provider/DataProvider.hbm.xml
+</code></pre>
+</div>
+
+<p><strong>5. dashbuilder.war/WEB-INF/lib/dashboard-ui-core-VERSION.jar</strong></p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>org/jboss/dashboard/ui/resources/GraphicElement.hbm.xml
+org/jboss/dashboard/workspace/Section.hbm.xml
+org/jboss/dashboard/workspace/PanelInstance.hbm.xml
+org/jboss/dashboard/workspace/PanelParameter.hbm.xml
+org/jboss/dashboard/workspace/Panel.hbm.xml
+org/jboss/dashboard/workspace/Workspace.hbm.xml
+</code></pre>
+</div>
+
+<p><strong>6. dashbuilder.war/WEB-INF/lib/dashboard-displayer-core-VERSION.jar</strong></p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>org/jboss/dashboard/kpi/KPI.hbm.xml
+</code></pre>
+</div>
+
+<p><strong>7. dashbuilder.war/WEB-INF/lib/dashboard-ui-panels-VERSION.jar</strong></p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>org/jboss/dashboard/ui/panel/advancedHTML/HtmlCode.hbm.xml
+org/jboss/dashboard/ui/panel/dataSourceManagement/DataSourceColumnEntry.hbm.xml
+org/jboss/dashboard/ui/panel/dataSourceManagement/DataSourceTableEntry.hbm.xml
+</code></pre>
+</div>
+
+<h4 id="using-hibernate-service-api-create-sessionfactory">Using Hibernate Service API create SessionFactory</h4>
+
+<p>The key Hibernate API used in dashbuilder to init the SessionFactory looks</p>
+
+<p><img src="/assets/blog/hibernate-createSessionFactory-api.png" alt="Hibernate SessionFactory Create API" /></p>
+
+<ul>
+  <li>第 2 - 3 行实例化一个 <code class="highlighter-rouge">org.hibernate.cfg.Configuration</code> 对象，加载 Hibernate 配置文件 *.hbm.xml</li>
+  <li>第 4 - 5 行通过 <code class="highlighter-rouge">org.hibernate.service.ServiceRegistryBuilder</code> 实例化一个 <code class="highlighter-rouge">org.hibernate.service.ServiceRegistry</code></li>
+  <li>第 6 行创建 SessionFactory</li>
+</ul>
+
+<p>Completed runable code refer to <a href="https://raw.githubusercontent.com/kylinsoong/teiid-test/master/dashboard/src/main/java/org/jboss/teiid/dashboard/hibernate/HibernateInitializerH2.java">HibernateInitializerH2</a></p>
+
+<h4 id="using-hibernate-session-execute-jdbc-operations">Using Hibernate Session execute JDBC operations</h4>
+
+<p>The <code class="highlighter-rouge">org.hibernate.Session</code> can be used to execute JDBC operations, it looks</p>
+
+<p><img src="/assets/blog/hibernate-session-jdbc.png" alt="Hibernate Session JDBC" /></p>
+
+<ul>
+  <li>第 2 - 19 行实例化了一个 <code class="highlighter-rouge">org.hibernate.jdbc.Work</code>，execute(Connection connection) 方法用来执行 JDBC 操作</li>
+  <li>第 20 行通过 sessionFactory 创建一个 <code class="highlighter-rouge">org.hibernate.Session</code></li>
+  <li>第 21 - 23 执行 Work，重写的 execute(Connection connection) 方法被调运</li>
+</ul>
+
+
+
+<br/>
+<ul class="btn pull-right">
+<div class="bdsharebuttonbox">
+  <a href="#" class="bds_more" data-cmd="more"></a>
+  <a title="分享到QQ空间" href="#" class="bds_qzone" data-cmd="qzone"></a>
+  <a title="分享到新浪微博" href="#" class="bds_tsina" data-cmd="tsina"></a>
+  <a title="分享到腾讯微博" href="#" class="bds_tqq" data-cmd="tqq"></a>
+  <a title="分享到人人网" href="#" class="bds_renren" data-cmd="renren"></a>
+  <a title="分享到微信" href="#" class="bds_weixin" data-cmd="weixin"></a>
+</div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"分享ksoong.org的文章「JBoss Dashbuilder」 - ksoong.org","bdDesc":"","bdMini":"2","bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</ul>
+
+<div class="ds-thread" data-thread-key="ksoong20150127" data-title="JBoss Dashbuilder" data-url="ksoong.org/dashboard-builder"></div>
+
+	    <ul class="pager">
+		
+		<li class="previous"><a href="/phoenix-nanros">&laquo;&nbsp;Phoenix nanos > 999999999 or...</a></li>
+		
+		
+		<li class="next"><a href="/teiid-on-top-hbase">Teiid on top of HBase...&nbsp;&raquo;</a></li>
+		
+	    </ul>
+
+
+        </div>
+        <aside id="sidebar" role="complementary">
+          <div class="subscribe">
+            <h2 class="icon news">
+              <a href="/feed.xml">Subscribe</a>
+            </h2>
+          </div>
+          <nav class="latest">
+            <h2>Latest Posts</h2>
+            <ul>
+            
+              <li>
+                <div class="title">
+                  <a href="/wfl-ds">WildFly Data Sources Configuration</a>
+                </div>
+                <div class="meta">
+                  Apr 26, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-transactions">Transaction in Teiid</a>
+                </div>
+                <div class="meta">
+                  Apr 20, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-getstart-code">Get Start Teiid From Source...</a>
+                </div>
+                <div class="meta">
+                  Apr 7, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-metadata">Understanding Teiid Metadata</a>
+                </div>
+                <div class="meta">
+                  Mar 27, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/rhel7-commands">Linux 命令集合</a>
+                </div>
+                <div class="meta">
+                  Mar 17, 2016
+                </div>
+              </li>
+             
+            </ul>
+            
+                        
+          </nav>
+          <nav class="tags">
+            <h2>Categories</h2>
+            <div class="tag-cloud">
+              
+              <span class="tag tag-1">
+                <a href="/categories/jekyll">Jekyll(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/jboss">Jboss(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/java">Java(18)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/css">Css(1)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/database">Database(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/javaee">Javaee(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/linux">Linux(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/teiid">Teiid(40)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/maven">Maven(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/netty">Netty(7)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/data">Data(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/git">Git(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/other">Other(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/performance">Performance(4)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/security">Security(3)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/docker">Docker(4)</a>
+              </span>
+              
+              
+            </div>
+          </nav>
+        </aside>
+      </div>
+
+
+    </div>
+    <footer>
+      <div class="container">
+        <div class="project">
+          <p class="bottom">
+            ©
+            Copyright 2009-2016 ksoong.
+            <br>
+            <i class="icon-fire"></i>
+            Mixed with <a href="http://twitter.github.com/bootstrap">Bootstrap</a>.
+            <br>
+            <i class="icon-share-alt"></i>
+            Website and docs licensed under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
+            <br>
+            Code released under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, v2.0</a>.
+          </p>
+        </div>
+        <div class="footer-nav">
+          <h4>Learn</h4>
+          <ul>
+            <li>
+              <a href="http://www.jboss.org/">JBoss</a>
+            </li>
+            <li>
+              <a href="http://infinispan.org/">Infinispan</a>
+            </li>
+            <li>
+              <a href="http://teiid.org/">Teiid</a>
+            </li>
+            <li>
+              <a href="https://github.com/kylinsoong">Github</a>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="sponser">
+          <div class="follow-us">
+            <h4>Stay Informed</h4>
+            <ul>
+              <li>
+                <a href="https://plus.google.com/103933729718268414460?rel=author"><img alt="Google+" src="/css/googleplus-16.png" title="Follow ksoong.org on Google+"></a>
+              </li>
+              <li>
+                <a href="http://www.weibo.com/kylinsoong"><img alt="Weibo" src="/css/weibo_logo.jpg" title="Follow me on Weibo"></a>
+              </li>
+	      <li>
+                <a href="https://github.com/kylinsoong"><img alt="Github" src="/css/Octocat.jpg" title="Fork me on Github"></a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+        <a class="visible-desktop" href="#" id="toTop">Top</a>
+      </div>
+        <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1258751305'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1258751305%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+    </footer>
+  
+ 
+    <script src="/css/jquery-1.11.1.min.js"></script>
+    <script src="/css/bootstrap.js"></script>
+
+   <script>
+      $(function() {
+        $('html').addClass('ready');
+        prettify();
+        activateFooterGravity();
+        activateTooltips();
+        activateToTopControl();
+      });
+    </script>
+    <script src="/css/site.js"></script>
+
+    
+            
+            <script type="text/javascript">
+                var duoshuoQuery = {short_name:"ksoong"};
+                (function() {
+                    var ds = document.createElement('script');
+                    ds.type = 'text/javascript';
+                    ds.async = true;
+                    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+                    ds.charset = 'UTF-8';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+                })();
+            </script>
+            
+        
+
+
+</body>
+</html>

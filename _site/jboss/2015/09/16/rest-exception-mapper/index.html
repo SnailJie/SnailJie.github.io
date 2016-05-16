@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html class="ready" lang="en"><head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="shenma-site-verification" content="8a69823d7371d1eec4379853d25200cd_1448504990"> 
+    <title>Kylin Soong . Blog</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="/feed.xml" rel="alternate" title="Kylin Soong . Blog Atom feed" type="application/atom+xml">
+    <link href="/css/screen.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.js"></script>
+    <![endif]-->
+    <link href="/favicon.ico" rel="shortcut icon">
+
+</head>
+
+  <body class="blog index">
+    <header class="navbar navbar-fixed-top" id="banner" role="banner">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-target=".nav-collapse" data-toggle="collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/">
+            <span class="logo"></span>
+            <span class="name">ksoong</span>
+          </a>
+          <nav class="nav-collapse" role="navigation">
+            <ul class="nav">
+              <li><a href="/">Home</a></li>
+	      <!--
+              <li><a href="/lab">Labs</a></li>
+              <li><a href="/blog/">Blog</a></li>
+	      -->
+	      <li><a href="/books">Books</a></li>
+              <li><a href="/archive">Archives</a></li>
+              <li><a href="/slide">Slides</a></li>
+              <li><a href="/about">About</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+    <div style="min-height: 250px;" id="main" role="main">
+      
+<div id="content-header">
+        <div class="container">
+         <h1>
+              <a href="/blog">Blog</a>
+              <!--a href="#">&raquo;</a>
+              <a href="/jboss/2015/09/16/rest-exception-mapper/">RESTEasy Exception Handling with ExceptionMapper</a-->
+          </h1>
+        </div>
+</div>
+      <div class="container">
+        <div id="content">
+          
+<h2 class="title">
+                 <a class="post-link" href="/jboss/2015/09/16/rest-exception-mapper/">RESTEasy Exception Handling with ExceptionMapper</a>
+              </h2>
+ 
+<header class="post">
+              <div class="byline">
+                <span class="author">Posted by
+                <a href="/about">Kylin Soong</a> on</span>
+                <span class="dateinline">Sep 16, 2015</span>
+		<i class="icon-tags"></i> categorized as <a class="tag" href="/categories/jboss">jboss</a>
+              </div>
+            </header>
+
+ 
+<h2 id="whats-this">What’s this</h2>
+
+<p>JAX-RS has defined a ExceptionMapper(javax.ws.rs.ext.ExceptionMapper), which contract for a provider that maps Java exceptions to a <code class="highlighter-rouge">javax.ws.rs.core.Response</code>. Purpose of the article is to show how to handle exception in RESTEasy.</p>
+
+<h2 id="how-to-do">How to do</h2>
+
+<p>As <a href="https://developer.jboss.org/wiki/RESTEasyExceptionHandlingWithExceptionMapper">document</a>, the following 2 steps are necessary for applying ExceptionMapper in RESTEasy:</p>
+
+<ul>
+  <li>Implements ExceptionMapper</li>
+  <li>Register ExceptionMapper in the web.xml</li>
+</ul>
+
+<h3 id="implements-exceptionmapper">Implements ExceptionMapper</h3>
+
+<p>The following is a example of ExceptionMapper implements.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>package org.jboss.resteasy.examples;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
+
+import org.jboss.resteasy.spi.InternalServerErrorException;
+import org.jboss.resteasy.spi.NotFoundException;
+
+@Provider
+public class DefaultExceptionHandler implements ExceptionMapper&lt;Exception&gt; {
+
+	@Override
+	public Response toResponse(Exception e) {
+		String status = "ERROR";
+        if(e instanceof NotFoundException){
+                status = "404";
+        } else if(e instanceof InternalServerErrorException){
+                status = "500";
+        }
+
+        String message = e.getMessage();
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        e.printStackTrace(pw);
+        String details = sw.toString();
+
+        StringBuilder response = new StringBuilder("&lt;error&gt;");
+		response.append("&lt;code&gt;" + status + "&lt;/code&gt;");
+		response.append("&lt;message&gt;" + message + "&lt;/message&gt;");
+		response.append("&lt;details&gt;" + details + "&lt;/details&gt;");
+		response.append("&lt;/error&gt;");
+		return Response.serverError().entity(response.toString()).type(MediaType.APPLICATION_XML).build();
+	}
+
+}
+</code></pre>
+</div>
+
+<h3 id="register-exceptionmapper-in-the-webxml">Register ExceptionMapper in the web.xml</h3>
+
+<p>Register the DefaultExceptionHandler in your web.xml</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>  &lt;context-param&gt;
+        &lt;param-name&gt;resteasy.providers&lt;/param-name&gt;
+        &lt;param-value&gt;org.jboss.samples.rs.webservices.DefaultExceptionHandler&lt;/param-value&gt;
+  &lt;/context-param&gt;
+</code></pre>
+</div>
+
+<h2 id="run">Run</h2>
+
+<h3 id="requirements">Requirements</h3>
+
+<ul>
+  <li>Clone Build Test Project（Maven 3.x and Java 7）</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ git clone git@github.com:kylinsoong/jaxrs.git
+$ cd jaxrs/exceptionMapper/
+$ mvn clean install
+</code></pre>
+</div>
+
+<p>Once build completed, <code class="highlighter-rouge">a.war</code> and <code class="highlighter-rouge">b.war</code> will be generated under ‘HttpServletDispatcher/target’ and ‘FilterDispatcher/target’ correspondingly.</p>
+
+<ul>
+  <li>JBoss EAP 6.x</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ ./bin/standalone.sh
+</code></pre>
+</div>
+
+<h3 id="deploy-and-run-awar">Deploy and Run a.war</h3>
+
+<p>a.war use ServletDispatcher in web.xml to supply RESTEasy support, it looks as below:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>  &lt;servlet&gt;
+    &lt;servlet-name&gt;Resteasy&lt;/servlet-name&gt;
+    &lt;servlet-class&gt;org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher&lt;/servlet-class&gt;
+  &lt;/servlet&gt;
+  &lt;servlet-mapping&gt;
+    &lt;servlet-name&gt;Resteasy&lt;/servlet-name&gt;
+    &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+  &lt;/servlet-mapping&gt;
+</code></pre>
+</div>
+
+<p>Deploy a.war to JBoss EAP 6.x, once deploy completed, test via http://localhost:8080/a/MyRESTApplication/customerList, all customer will be listed:</p>
+
+<p><img src="/assets/blog/rest-exception-mapper-a1.png" alt="war a list customer" /></p>
+
+<p>If test with a not exist api like http://localhost:8080/a/MyRESTApplication/customerList-noexist, 404 response return:</p>
+
+<p><img src="/assets/blog/rest-exception-mapper-a2.png" alt="war a 404" /></p>
+
+<h3 id="deploy-and-run-bwar">Deploy and Run b.war</h3>
+
+<p>b.war use FilterDispatcher in web.xml to supply RESTEasy support, it looks as below:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>    &lt;filter&gt;
+        &lt;filter-name&gt;Resteasy&lt;/filter-name&gt;
+        &lt;filter-class&gt;org.jboss.resteasy.plugins.server.servlet.FilterDispatcher&lt;/filter-class&gt;
+    &lt;/filter&gt;
+    &lt;filter-mapping&gt;
+        &lt;filter-name&gt;Resteasy&lt;/filter-name&gt;
+        &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+    &lt;/filter-mapping&gt;
+</code></pre>
+</div>
+
+<p>Deploy b.war to JBoss EAP 6.x, once deploy completed, test via http://localhost:8080/b/MyRESTApplication/customerList, all customer will be listed:</p>
+
+<p><img src="/assets/blog/rest-exception-mapper-b1.png" alt="war b list customer" /></p>
+
+<p>If test with a not exist api like http://localhost:8080/b/MyRESTApplication/customerList-noexist, 404 page return:</p>
+
+<p><img src="/assets/blog/rest-exception-mapper-b2.png" alt="war b 404" /></p>
+
+<h2 id="why-behave-differently">Why behave differently</h2>
+
+<p>From above Run section, we can see FilterDispatcher and ServletDispatcher behave differently, If use FilterDispatcher, Http Error Code can not be mapped. In this section we will find the the reson for why behave differently.</p>
+
+
+
+<br/>
+<ul class="btn pull-right">
+<div class="bdsharebuttonbox">
+  <a href="#" class="bds_more" data-cmd="more"></a>
+  <a title="分享到QQ空间" href="#" class="bds_qzone" data-cmd="qzone"></a>
+  <a title="分享到新浪微博" href="#" class="bds_tsina" data-cmd="tsina"></a>
+  <a title="分享到腾讯微博" href="#" class="bds_tqq" data-cmd="tqq"></a>
+  <a title="分享到人人网" href="#" class="bds_renren" data-cmd="renren"></a>
+  <a title="分享到微信" href="#" class="bds_weixin" data-cmd="weixin"></a>
+</div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"分享ksoong.org的文章「RESTEasy Exception Handling with ExceptionMapper」 - ksoong.org","bdDesc":"","bdMini":"2","bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</ul>
+
+<div class="ds-thread" data-thread-key="ksoong2015091501" data-title="RESTEasy Exception Handling with ExceptionMapper" data-url="ksoong.org/jboss/2015/09/16/rest-exception-mapper/"></div>
+
+	    <ul class="pager">
+		
+		<li class="previous"><a href="/jaas-auth-process">&laquo;&nbsp;JAAS 认证过程</a></li>
+		
+		
+		<li class="next"><a href="/picketbox-j2se">Picketbox authentication in j2se&nbsp;&raquo;</a></li>
+		
+	    </ul>
+
+
+        </div>
+        <aside id="sidebar" role="complementary">
+          <div class="subscribe">
+            <h2 class="icon news">
+              <a href="/feed.xml">Subscribe</a>
+            </h2>
+          </div>
+          <nav class="latest">
+            <h2>Latest Posts</h2>
+            <ul>
+            
+              <li>
+                <div class="title">
+                  <a href="/wfl-ds">WildFly Data Sources Configuration</a>
+                </div>
+                <div class="meta">
+                  Apr 26, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-transactions">Transaction in Teiid</a>
+                </div>
+                <div class="meta">
+                  Apr 20, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-getstart-code">Get Start Teiid From Source...</a>
+                </div>
+                <div class="meta">
+                  Apr 7, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-metadata">Understanding Teiid Metadata</a>
+                </div>
+                <div class="meta">
+                  Mar 27, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/rhel7-commands">Linux 命令集合</a>
+                </div>
+                <div class="meta">
+                  Mar 17, 2016
+                </div>
+              </li>
+             
+            </ul>
+            
+                        
+          </nav>
+          <nav class="tags">
+            <h2>Categories</h2>
+            <div class="tag-cloud">
+              
+              <span class="tag tag-1">
+                <a href="/categories/jekyll">Jekyll(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/jboss">Jboss(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/java">Java(18)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/css">Css(1)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/database">Database(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/javaee">Javaee(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/linux">Linux(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/teiid">Teiid(40)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/maven">Maven(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/netty">Netty(7)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/data">Data(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/git">Git(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/other">Other(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/performance">Performance(4)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/security">Security(3)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/docker">Docker(4)</a>
+              </span>
+              
+              
+            </div>
+          </nav>
+        </aside>
+      </div>
+
+
+    </div>
+    <footer>
+      <div class="container">
+        <div class="project">
+          <p class="bottom">
+            ©
+            Copyright 2009-2016 ksoong.
+            <br>
+            <i class="icon-fire"></i>
+            Mixed with <a href="http://twitter.github.com/bootstrap">Bootstrap</a>.
+            <br>
+            <i class="icon-share-alt"></i>
+            Website and docs licensed under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
+            <br>
+            Code released under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, v2.0</a>.
+          </p>
+        </div>
+        <div class="footer-nav">
+          <h4>Learn</h4>
+          <ul>
+            <li>
+              <a href="http://www.jboss.org/">JBoss</a>
+            </li>
+            <li>
+              <a href="http://infinispan.org/">Infinispan</a>
+            </li>
+            <li>
+              <a href="http://teiid.org/">Teiid</a>
+            </li>
+            <li>
+              <a href="https://github.com/kylinsoong">Github</a>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="sponser">
+          <div class="follow-us">
+            <h4>Stay Informed</h4>
+            <ul>
+              <li>
+                <a href="https://plus.google.com/103933729718268414460?rel=author"><img alt="Google+" src="/css/googleplus-16.png" title="Follow ksoong.org on Google+"></a>
+              </li>
+              <li>
+                <a href="http://www.weibo.com/kylinsoong"><img alt="Weibo" src="/css/weibo_logo.jpg" title="Follow me on Weibo"></a>
+              </li>
+	      <li>
+                <a href="https://github.com/kylinsoong"><img alt="Github" src="/css/Octocat.jpg" title="Fork me on Github"></a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+        <a class="visible-desktop" href="#" id="toTop">Top</a>
+      </div>
+        <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1258751305'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1258751305%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+    </footer>
+  
+ 
+    <script src="/css/jquery-1.11.1.min.js"></script>
+    <script src="/css/bootstrap.js"></script>
+
+   <script>
+      $(function() {
+        $('html').addClass('ready');
+        prettify();
+        activateFooterGravity();
+        activateTooltips();
+        activateToTopControl();
+      });
+    </script>
+    <script src="/css/site.js"></script>
+
+    
+            
+            <script type="text/javascript">
+                var duoshuoQuery = {short_name:"ksoong"};
+                (function() {
+                    var ds = document.createElement('script');
+                    ds.type = 'text/javascript';
+                    ds.async = true;
+                    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+                    ds.charset = 'UTF-8';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+                })();
+            </script>
+            
+        
+
+
+</body>
+</html>

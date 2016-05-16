@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html class="ready" lang="en"><head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="shenma-site-verification" content="8a69823d7371d1eec4379853d25200cd_1448504990"> 
+    <title>Kylin Soong . Blog</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="/feed.xml" rel="alternate" title="Kylin Soong . Blog Atom feed" type="application/atom+xml">
+    <link href="/css/screen.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.js"></script>
+    <![endif]-->
+    <link href="/favicon.ico" rel="shortcut icon">
+
+</head>
+
+  <body class="blog index">
+    <header class="navbar navbar-fixed-top" id="banner" role="banner">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-target=".nav-collapse" data-toggle="collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/">
+            <span class="logo"></span>
+            <span class="name">ksoong</span>
+          </a>
+          <nav class="nav-collapse" role="navigation">
+            <ul class="nav">
+              <li><a href="/">Home</a></li>
+	      <!--
+              <li><a href="/lab">Labs</a></li>
+              <li><a href="/blog/">Blog</a></li>
+	      -->
+	      <li><a href="/books">Books</a></li>
+              <li><a href="/archive">Archives</a></li>
+              <li><a href="/slide">Slides</a></li>
+              <li><a href="/about">About</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+    <div style="min-height: 250px;" id="main" role="main">
+      
+<div id="content-header">
+        <div class="container">
+         <h1>
+              <a href="/blog">Blog</a>
+              <!--a href="#">&raquo;</a>
+              <a href="/git-pages-books">How to use Github Pages, Gitbook with your Github Repositories</a-->
+          </h1>
+        </div>
+</div>
+      <div class="container">
+        <div id="content">
+          
+<h2 class="title">
+                 <a class="post-link" href="/git-pages-books">How to use Github Pages, Gitbook with your Github Repositories</a>
+              </h2>
+ 
+<header class="post">
+              <div class="byline">
+                <span class="author">Posted by
+                <a href="/about">Kylin Soong</a> on</span>
+                <span class="dateinline">Jan 5, 2016</span>
+		<i class="icon-tags"></i> categorized as <a class="tag" href="/categories/git">git</a>
+              </div>
+            </header>
+
+ 
+<ul id="markdown-toc">
+  <li><a href="#concepts" id="markdown-toc-concepts">Concepts</a></li>
+  <li><a href="#creating-project-pages-via-gitbook-generated-static-site" id="markdown-toc-creating-project-pages-via-gitbook-generated-static-site">Creating Project Pages via GitBook generated static site</a>    <ul>
+      <li><a href="#install-gitbook" id="markdown-toc-install-gitbook">Install gitbook</a></li>
+      <li><a href="#create-summarymd-for-pages-indexs" id="markdown-toc-create-summarymd-for-pages-indexs">Create SUMMARY.md for pages indexs</a></li>
+      <li><a href="#generate-static-site" id="markdown-toc-generate-static-site">Generate static site</a></li>
+      <li><a href="#push-genetated-static-site-to-gh-pages-branch" id="markdown-toc-push-genetated-static-site-to-gh-pages-branch">Push genetated static site to gh-pages branch</a></li>
+    </ul>
+  </li>
+  <li><a href="#gitbook-writing-and-collaboration-via-github-repositorys-webhooks" id="markdown-toc-gitbook-writing-and-collaboration-via-github-repositorys-webhooks">Gitbook writing and collaboration via Github Repository’s Webhooks</a>    <ul>
+      <li><a href="#create-a-document-repository" id="markdown-toc-create-a-document-repository">Create a document repository</a></li>
+      <li><a href="#add-webhook-to-a-gitbook-book" id="markdown-toc-add-webhook-to-a-gitbook-book">Add webhook to a Gitbook book</a></li>
+      <li><a href="#update-github-repository-and-verify-change" id="markdown-toc-update-github-repository-and-verify-change">Update Github Repository and verify change</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="concepts">Concepts</h2>
+
+<ul>
+  <li><strong>Github Repositories</strong> - Github Repositories are where you’ll work and collaborate on projects, more details refer to <a href="https://github.com/">github.com/</a>.</li>
+  <li><strong>Github Pages</strong> - Github Pages supply a easy way to create your personal website or project website in minutes, hosted directly from your GitHub repository, one github account or group can get one site, for example, <a href="http://ksoong.org/">ksoong.org</a>, <a href="http://infinispan.org/">infinispan.org</a> are all build from Github Pages, more details refer to <a href="https://pages.github.com/">pages.github.com</a>.</li>
+  <li><strong>GitBook</strong> - GitBook is a modern publishing toolchain. Making both writing and collaboration easy, more details refer to <a href="https://www.gitbook.com/">gitbook.com</a>.</li>
+</ul>
+
+<h2 id="creating-project-pages-via-gitbook-generated-static-site">Creating Project Pages via GitBook generated static site</h2>
+
+<p>The following steps are use to create a project page with GitBook generated static site.</p>
+
+<h3 id="install-gitbook">Install gitbook</h3>
+
+<p>If you want to generate static site, gitbook is necessary, gitbook depend on node.js, make sure node.js are installed:</p>
+
+<p><img src="/assets/blog/nodejs-install.png" alt="Nodejs install version" /></p>
+
+<p>Install gitbook via executing</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ npm install gitbook-cli -g
+</code></pre>
+</div>
+
+<p>make sure gitbook installed</p>
+
+<p><img src="/assets/blog/gitbook-install-version.png" alt="Gitbook install version" /></p>
+
+<h3 id="create-summarymd-for-pages-indexs">Create SUMMARY.md for pages indexs</h3>
+
+<p>GitBook uses a <code class="highlighter-rouge">SUMMARY.md</code> file to define the structure of chapters and subchapters, for example <a href="https://github.com/kylinsoong/teiid-embedded-examples"><strong>teiid-embedded-examples</strong></a> has define a <code class="highlighter-rouge">SUMMARY.md</code> as below:</p>
+
+<p><img src="/assets/blog/gitbook-example-summary.png" alt="gitbooks example summary" /></p>
+
+<p>A <code class="highlighter-rouge">README.md</code> file also is necessary, more details refer to <a href="https://help.gitbook.com/format/introduction.html">help.gitbook.com</a>.</p>
+
+<h3 id="generate-static-site">Generate static site</h3>
+
+<p>Execute <code class="highlighter-rouge">gitbook serve</code> commands will generate a static site</p>
+
+<p><img src="/assets/blog/gitbook-example-serve.png" alt="gitbooks example serve" /></p>
+
+<blockquote>
+  <p>NOTE: once build success, <code class="highlighter-rouge">_book</code> folder generated which contain static site, you can view static site via <a href="http://localhost:4000/">http://localhost:4000/</a>.</p>
+</blockquote>
+
+<h3 id="push-genetated-static-site-to-gh-pages-branch">Push genetated static site to gh-pages branch</h3>
+
+<p>Once you have a clean repository, you’ll need to create the new gh-pages branch and remove all content from the working directory and index:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ git checkout --orphan gh-pages
+$ git rm -rf 
+$ mv _book/* ./
+$ rm -fr _book
+$ git commit -m "First pages commit"
+$ git push origin gh-pages
+</code></pre>
+</div>
+
+<p>Once above steps finished, Project Pages be added to your Github Pages website with path: <code class="highlighter-rouge">http(s)://&lt;username&gt;.github.io/&lt;projectname&gt;</code>. For example, access <a href="http://ksoong.org/teiid-embedded-examples/">http://ksoong.org/teiid-embedded-examples/</a> will get <a href="https://github.com/kylinsoong/teiid-embedded-examples">kylinsoong/teiid-embedded-examples</a> project pages.</p>
+
+<h2 id="gitbook-writing-and-collaboration-via-github-repositorys-webhooks">Gitbook writing and collaboration via Github Repository’s Webhooks</h2>
+
+<p>In Gitbook, each book can reference a webhook to a exist Github Repository, once the content of Github Repository be updated, Gitbook will execute a build and redeploy. The following is a example to demonstrate Webhooks.</p>
+
+<h3 id="create-a-document-repository">Create a document repository</h3>
+
+<p><a href="https://github.com/kylinsoong/document">https://github.com/kylinsoong/document</a> is a repository which hold the content of book <a href="https://teiid.gitbooks.io/document/content/index.html">https://teiid.gitbooks.io/document/content/index.html</a>, note that <code class="highlighter-rouge">SUMMARY.md</code> define the chapters and <code class="highlighter-rouge">README.md</code> define introfuction page.</p>
+
+<h3 id="add-webhook-to-a-gitbook-book">Add webhook to a Gitbook book</h3>
+
+<p>The following 4 steps are necessary to add webhook to a Gitbook book:</p>
+
+<ul>
+  <li>Open the GitHub section in your book settings</li>
+  <li>Enter your repository id: kylinsoong/document</li>
+  <li>Save your settings</li>
+  <li>Click on the button <strong>Add a deployment webhook</strong></li>
+</ul>
+
+<p>Once above 4 steps completed, webhook be add success, you can verify via Github Repository -&gt; Settings -&gt; Webhooks &amp; services, you will see</p>
+
+<p><img src="/assets/blog/gitbook-example-webhook.png" alt="gitbooks example webhook" /></p>
+
+<h3 id="update-github-repository-and-verify-change">Update Github Repository and verify change</h3>
+
+<p>Edit the markdown docs under content repository</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ git clone git@github.com:kylinsoong/document.git
+$ cd document
+$ vim README.md
+$ git add README.md
+$ git commit -m "update readme"
+$ git push origin master
+</code></pre>
+</div>
+
+<p>Verify change from</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>https://teiid.gitbooks.io/document/content/index.html
+</code></pre>
+</div>
+
+
+<br/>
+<ul class="btn pull-right">
+<div class="bdsharebuttonbox">
+  <a href="#" class="bds_more" data-cmd="more"></a>
+  <a title="分享到QQ空间" href="#" class="bds_qzone" data-cmd="qzone"></a>
+  <a title="分享到新浪微博" href="#" class="bds_tsina" data-cmd="tsina"></a>
+  <a title="分享到腾讯微博" href="#" class="bds_tqq" data-cmd="tqq"></a>
+  <a title="分享到人人网" href="#" class="bds_renren" data-cmd="renren"></a>
+  <a title="分享到微信" href="#" class="bds_weixin" data-cmd="weixin"></a>
+</div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"分享ksoong.org的文章「How to use Github Pages, Gitbook with your Github Repositories」 - ksoong.org","bdDesc":"","bdMini":"2","bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</ul>
+
+<div class="ds-thread" data-thread-key="ksoong2016010401" data-title="How to use Github Pages, Gitbook with your Github Repositories" data-url="ksoong.org/git-pages-books"></div>
+
+	    <ul class="pager">
+		
+		<li class="previous"><a href="/java-nio-class">&laquo;&nbsp;java.nio 包中的类</a></li>
+		
+		
+		<li class="next"><a href="/jboss-keycloak">JBoss keycloak&nbsp;&raquo;</a></li>
+		
+	    </ul>
+
+
+        </div>
+        <aside id="sidebar" role="complementary">
+          <div class="subscribe">
+            <h2 class="icon news">
+              <a href="/feed.xml">Subscribe</a>
+            </h2>
+          </div>
+          <nav class="latest">
+            <h2>Latest Posts</h2>
+            <ul>
+            
+              <li>
+                <div class="title">
+                  <a href="/wfl-ds">WildFly Data Sources Configuration</a>
+                </div>
+                <div class="meta">
+                  Apr 26, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-transactions">Transaction in Teiid</a>
+                </div>
+                <div class="meta">
+                  Apr 20, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-getstart-code">Get Start Teiid From Source...</a>
+                </div>
+                <div class="meta">
+                  Apr 7, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-metadata">Understanding Teiid Metadata</a>
+                </div>
+                <div class="meta">
+                  Mar 27, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/rhel7-commands">Linux 命令集合</a>
+                </div>
+                <div class="meta">
+                  Mar 17, 2016
+                </div>
+              </li>
+             
+            </ul>
+            
+                        
+          </nav>
+          <nav class="tags">
+            <h2>Categories</h2>
+            <div class="tag-cloud">
+              
+              <span class="tag tag-1">
+                <a href="/categories/jekyll">Jekyll(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/jboss">Jboss(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/java">Java(18)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/css">Css(1)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/database">Database(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/javaee">Javaee(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/linux">Linux(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/teiid">Teiid(40)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/maven">Maven(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/netty">Netty(7)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/data">Data(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/git">Git(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/other">Other(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/performance">Performance(4)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/security">Security(3)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/docker">Docker(4)</a>
+              </span>
+              
+              
+            </div>
+          </nav>
+        </aside>
+      </div>
+
+
+    </div>
+    <footer>
+      <div class="container">
+        <div class="project">
+          <p class="bottom">
+            ©
+            Copyright 2009-2016 ksoong.
+            <br>
+            <i class="icon-fire"></i>
+            Mixed with <a href="http://twitter.github.com/bootstrap">Bootstrap</a>.
+            <br>
+            <i class="icon-share-alt"></i>
+            Website and docs licensed under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
+            <br>
+            Code released under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, v2.0</a>.
+          </p>
+        </div>
+        <div class="footer-nav">
+          <h4>Learn</h4>
+          <ul>
+            <li>
+              <a href="http://www.jboss.org/">JBoss</a>
+            </li>
+            <li>
+              <a href="http://infinispan.org/">Infinispan</a>
+            </li>
+            <li>
+              <a href="http://teiid.org/">Teiid</a>
+            </li>
+            <li>
+              <a href="https://github.com/kylinsoong">Github</a>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="sponser">
+          <div class="follow-us">
+            <h4>Stay Informed</h4>
+            <ul>
+              <li>
+                <a href="https://plus.google.com/103933729718268414460?rel=author"><img alt="Google+" src="/css/googleplus-16.png" title="Follow ksoong.org on Google+"></a>
+              </li>
+              <li>
+                <a href="http://www.weibo.com/kylinsoong"><img alt="Weibo" src="/css/weibo_logo.jpg" title="Follow me on Weibo"></a>
+              </li>
+	      <li>
+                <a href="https://github.com/kylinsoong"><img alt="Github" src="/css/Octocat.jpg" title="Fork me on Github"></a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+        <a class="visible-desktop" href="#" id="toTop">Top</a>
+      </div>
+        <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1258751305'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1258751305%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+    </footer>
+  
+ 
+    <script src="/css/jquery-1.11.1.min.js"></script>
+    <script src="/css/bootstrap.js"></script>
+
+   <script>
+      $(function() {
+        $('html').addClass('ready');
+        prettify();
+        activateFooterGravity();
+        activateTooltips();
+        activateToTopControl();
+      });
+    </script>
+    <script src="/css/site.js"></script>
+
+    
+            
+            <script type="text/javascript">
+                var duoshuoQuery = {short_name:"ksoong"};
+                (function() {
+                    var ds = document.createElement('script');
+                    ds.type = 'text/javascript';
+                    ds.async = true;
+                    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+                    ds.charset = 'UTF-8';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+                })();
+            </script>
+            
+        
+
+
+</body>
+</html>

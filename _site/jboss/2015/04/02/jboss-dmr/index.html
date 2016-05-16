@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html class="ready" lang="en"><head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="shenma-site-verification" content="8a69823d7371d1eec4379853d25200cd_1448504990"> 
+    <title>Kylin Soong . Blog</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="/feed.xml" rel="alternate" title="Kylin Soong . Blog Atom feed" type="application/atom+xml">
+    <link href="/css/screen.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.js"></script>
+    <![endif]-->
+    <link href="/favicon.ico" rel="shortcut icon">
+
+</head>
+
+  <body class="blog index">
+    <header class="navbar navbar-fixed-top" id="banner" role="banner">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-target=".nav-collapse" data-toggle="collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/">
+            <span class="logo"></span>
+            <span class="name">ksoong</span>
+          </a>
+          <nav class="nav-collapse" role="navigation">
+            <ul class="nav">
+              <li><a href="/">Home</a></li>
+	      <!--
+              <li><a href="/lab">Labs</a></li>
+              <li><a href="/blog/">Blog</a></li>
+	      -->
+	      <li><a href="/books">Books</a></li>
+              <li><a href="/archive">Archives</a></li>
+              <li><a href="/slide">Slides</a></li>
+              <li><a href="/about">About</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+    <div style="min-height: 250px;" id="main" role="main">
+      
+<div id="content-header">
+        <div class="container">
+         <h1>
+              <a href="/blog">Blog</a>
+              <!--a href="#">&raquo;</a>
+              <a href="/jboss/2015/04/02/jboss-dmr/">JBoss DMR</a-->
+          </h1>
+        </div>
+</div>
+      <div class="container">
+        <div id="content">
+          
+<h2 class="title">
+                 <a class="post-link" href="/jboss/2015/04/02/jboss-dmr/">JBoss DMR</a>
+              </h2>
+ 
+<header class="post">
+              <div class="byline">
+                <span class="author">Posted by
+                <a href="/about">Kylin Soong</a> on</span>
+                <span class="dateinline">Apr 2, 2015</span>
+		<i class="icon-tags"></i> categorized as <a class="tag" href="/categories/jboss">jboss</a>
+              </div>
+            </header>
+
+ 
+<ul id="markdown-toc">
+  <li><a href="#jboss-dmr" id="markdown-toc-jboss-dmr">JBoss DMR</a></li>
+  <li><a href="#key-method-of-modelnode" id="markdown-toc-key-method-of-modelnode">Key Method of ModelNode</a></li>
+  <li><a href="#examples" id="markdown-toc-examples">Examples</a>    <ul>
+      <li><a href="#form-and-operate-matrix-data" id="markdown-toc-form-and-operate-matrix-data">Form and Operate matrix Data</a></li>
+    </ul>
+  </li>
+  <li><a href="#link" id="markdown-toc-link">Link</a></li>
+</ul>
+
+<h2 id="jboss-dmr">JBoss DMR</h2>
+
+<p>JBoss DMR(Dynamic Model Representation) is a siample management API of JBoss 7/WildFly. It’s key API is <strong>ModelNode</strong> which can be thought as a datastructure of all management activities. It has 2 main characteristics:</p>
+
+<ul>
+  <li>Dynamic Structure</li>
+  <li>JSON-like Format(can output JSON)</li>
+</ul>
+
+<p>The following code snippet show how to form a <strong>ModelNode</strong>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>ModelNode node = new ModelNode();
+node.get("description").set("A managable resource");
+node.get("type").set(ModelType.OBJECT);
+node.get("tail-comment-allowed").set(false);
+node.get("attributes").get("foo").set("some description of foo");
+node.get("attributes").get("bar").set("some description of bar");
+node.get("attributes").get("list").add("value1");
+node.get("attributes").get("list").add("value2");
+node.get("attributes").get("list").add("value3");
+node.get("value-type").get("size").set(ModelType.INT);
+node.get("value-type").get("color").set(ModelType.STRING);
+node.get("big-decimal-value").set(BigDecimal.valueOf(10.0));
+node.get("big-integer-value").set(BigInteger.TEN);
+node.get("bytes-value").set(new byte[] { (byte) 0, (byte) 55 });
+node.get("double-value").set(Double.valueOf("55"));
+node.get("max-double-value").set(Double.MAX_VALUE);
+node.get("int-value").set(Integer.valueOf("12"));
+node.get("max-int-value").set(Integer.MAX_VALUE);
+node.get("long-value").set(Long.valueOf("14"));
+node.get("max-long-value").set(Long.MAX_VALUE);
+node.get("property-value").set("property", ModelType.PROPERTY);
+node.get("expression-value").set(new ValueExpression("$expression"));
+node.get("true-value").set(true);
+node.get("false-value").set(false);
+        
+System.out.println(node);
+</code></pre>
+</div>
+
+<p>Run the code will show it’s JSON-like Format:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"description"</span><span class="w"> </span><span class="err">=&gt;</span><span class="w"> </span><span class="nt">"A managable resource"</span><span class="err">,</span><span class="w">
+    </span><span class="nt">"type"</span><span class="w"> </span><span class="err">=&gt;</span><span class="w"> </span><span class="err">OBJECT,</span><span class="w">
+    </span><span class="nt">"tail-comment-allowed"</span><span class="w"> </span><span class="err">=&gt;</span><span class="w"> </span><span class="err">false,</span><span class="w">
+    </span><span class="nt">"attributes"</span><span class="w"> </span><span class="err">=&gt;</span><span class="w"> </span><span class="err">{</span><span class="w">
+        </span><span class="nt">"foo"</span><span class="w"> </span><span class="err">=&gt;</span><span class="w"> </span><span class="nt">"some description of foo"</span><span class="err">,</span><span class="w">
+        </span><span class="nt">"bar"</span><span class="w"> </span><span class="err">=&gt;</span><span class="w"> </span><span class="nt">"some description of bar"</span><span class="err">,</span><span class="w">
+        </span><span class="nt">"list"</span><span class="w"> </span><span class="err">=&gt;</span><span class="w"> </span><span class="err">[</span><span class="w">
+            </span><span class="nt">"value1"</span><span class="err">,</span><span class="w">
+            </span><span class="nt">"value2"</span><span class="err">,</span><span class="w">
+            </span><span class="nt">"value3"</span><span class="w">
+        </span><span class="err">]</span><span class="w">
+    </span><span class="err">},</span><span class="w">
+    </span><span class="s2">"value-type"</span><span class="w"> </span><span class="err">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"size"</span><span class="w"> </span><span class="err">=&gt;</span><span class="w"> </span><span class="err">INT,</span><span class="w">
+        </span><span class="nt">"color"</span><span class="w"> </span><span class="err">=&gt;</span><span class="w"> </span><span class="err">STRING</span><span class="w">
+    </span><span class="err">},</span><span class="w">
+    </span><span class="s2">"big-decimal-value"</span><span class="w"> </span><span class="err">=&gt;</span><span class="w"> </span><span class="err">big</span><span class="w"> </span><span class="err">decimal</span><span class="w"> </span><span class="mf">10.0</span><span class="err">,</span><span class="w">
+    </span><span class="s2">"big-integer-value"</span><span class="w"> </span><span class="err">=&gt;</span><span class="w"> </span><span class="err">big</span><span class="w"> </span><span class="err">integer</span><span class="w"> </span><span class="mi">10</span><span class="err">,</span><span class="w">
+    </span><span class="s2">"bytes-value"</span><span class="w"> </span><span class="err">=&gt;</span><span class="w"> </span><span class="err">bytes</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="err">0x00,</span><span class="w"> </span><span class="err">0x37</span><span class="w">
+    </span><span class="p">}</span><span class="err">,</span><span class="w">
+    </span><span class="s2">"double-value"</span><span class="w"> </span><span class="err">=&gt;</span><span class="w"> </span><span class="mf">55.0</span><span class="err">,</span><span class="w">
+    </span><span class="s2">"max-double-value"</span><span class="w"> </span><span class="err">=&gt;</span><span class="w"> </span><span class="mf">1.7976931348623157</span><span class="err">E</span><span class="mi">308</span><span class="err">,</span><span class="w">
+    </span><span class="s2">"int-value"</span><span class="w"> </span><span class="err">=&gt;</span><span class="w"> </span><span class="mi">12</span><span class="err">,</span><span class="w">
+    </span><span class="s2">"max-int-value"</span><span class="w"> </span><span class="err">=&gt;</span><span class="w"> </span><span class="mi">2147483647</span><span class="err">,</span><span class="w">
+    </span><span class="s2">"long-value"</span><span class="w"> </span><span class="err">=&gt;</span><span class="w"> </span><span class="mi">14</span><span class="err">L,</span><span class="w">
+    </span><span class="s2">"max-long-value"</span><span class="w"> </span><span class="err">=&gt;</span><span class="w"> </span><span class="mi">9223372036854775807</span><span class="err">L,</span><span class="w">
+    </span><span class="s2">"property-value"</span><span class="w"> </span><span class="err">=&gt;</span><span class="w"> </span><span class="err">(</span><span class="s2">"property"</span><span class="w"> </span><span class="err">=&gt;</span><span class="w"> </span><span class="err">PROPERTY),</span><span class="w">
+    </span><span class="s2">"expression-value"</span><span class="w"> </span><span class="err">=&gt;</span><span class="w"> </span><span class="err">expression</span><span class="w"> </span><span class="s2">"$expression"</span><span class="err">,</span><span class="w">
+    </span><span class="s2">"true-value"</span><span class="w"> </span><span class="err">=&gt;</span><span class="w"> </span><span class="kc">true</span><span class="err">,</span><span class="w">
+    </span><span class="s2">"false-value"</span><span class="w"> </span><span class="err">=&gt;</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span><span class="err">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>In WildFly, all the management actions will be translated into the management commands that are encapsulated in the DMR format. For example, if we deploy <code class="highlighter-rouge">cluster-demo1.war</code> to WildFly, it will send the following JSON-like DMR commands to the deployment module:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>[{
+    "operation" =&gt;"composite",
+    "address" =&gt; [],
+    "steps" =&gt; [
+    {
+	"operation" =&gt;"add",
+	"address" =&gt; [("deployment" =&gt;"cluster-demo1.war")],
+	"content" =&gt; [{
+	    "path" =&gt;"deployments/cluster-demo1.war",
+	    "relative-to" =&gt;"jboss.server.base.dir",
+	}],
+    },
+    {
+	"operation" =&gt;"deploy",
+	"address" =&gt; [("deployment" =&gt;"cluster-demo1.war")]
+    }
+}]
+</code></pre>
+</div>
+
+<h2 id="key-method-of-modelnode">Key Method of ModelNode</h2>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>String toString() 
+String toJSONString(false);
+writeString(writer, false);
+ModelNode formatAsJSON(writer, 0, true);
+writeJSONString(writer, false);
+ModelNode fromBase64(in);
+long asLong()
+long asLong(final long defVal)
+int asInt()
+int asInt(final int defVal)
+boolean asBoolean()
+boolean asBoolean(final boolean defVal)
+String asString()
+double asDouble()
+double asDouble(final double defVal)
+ModelType asType()
+...
+</code></pre>
+</div>
+
+<h2 id="examples">Examples</h2>
+
+<h3 id="form-and-operate-matrix-data">Form and Operate matrix Data</h3>
+
+<p>A matrix data, like a SQL Query, assuming a query have 2 columns and 2 rows.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>final ModelNode outcome = new ModelNode();
+outcome.get("outcome").set("success");
+ModelNode resultsNode = new ModelNode();
+ModelNode row1 = new ModelNode();
+row1.get("column_1").set("value_11");
+row1.get("column_2").set("value_12");
+resultsNode.add(row1);
+ModelNode row2 = new ModelNode();
+row2.get("column_1").set("value_21");
+row2.get("column_2").set("value_22");
+resultsNode.add(row2);
+outcome.get("result").set(resultsNode);
+  
+System.out.println(outcome);
+
+List&lt;ModelNode&gt; list = outcome.get("result").asList();
+System.out.println("column_1  column_2");
+for(ModelNode rowNode : list) {
+    System.out.println(rowNode.get("column_1").asString() + "  " + rowNode.get("column_2").asString());
+}
+</code></pre>
+</div>
+
+<p>Run above code the output like</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"outcome"</span><span class="w"> </span><span class="err">=&gt;</span><span class="w"> </span><span class="nt">"success"</span><span class="err">,</span><span class="w">
+    </span><span class="nt">"result"</span><span class="w"> </span><span class="err">=&gt;</span><span class="w"> </span><span class="err">[</span><span class="w">
+        </span><span class="err">{</span><span class="w">
+            </span><span class="nt">"column_1"</span><span class="w"> </span><span class="err">=&gt;</span><span class="w"> </span><span class="nt">"value_11"</span><span class="err">,</span><span class="w">
+            </span><span class="nt">"column_2"</span><span class="w"> </span><span class="err">=&gt;</span><span class="w"> </span><span class="nt">"value_12"</span><span class="w">
+        </span><span class="err">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"column_1"</span><span class="w"> </span><span class="err">=&gt;</span><span class="w"> </span><span class="nt">"value_21"</span><span class="err">,</span><span class="w">
+            </span><span class="nt">"column_2"</span><span class="w"> </span><span class="err">=&gt;</span><span class="w"> </span><span class="nt">"value_22"</span><span class="w">
+        </span><span class="err">}</span><span class="w">
+    </span><span class="err">]</span><span class="w">
+</span><span class="err">}</span><span class="w">
+</span><span class="err">column_</span><span class="mi">1</span><span class="w">  </span><span class="err">column_</span><span class="mi">2</span><span class="w">
+</span><span class="err">value_</span><span class="mi">11</span><span class="w">  </span><span class="err">value_</span><span class="mi">12</span><span class="w">
+</span><span class="err">value_</span><span class="mi">21</span><span class="w">  </span><span class="err">value_</span><span class="mi">22</span><span class="w">
+</span></code></pre>
+</div>
+
+<h2 id="link">Link</h2>
+
+<ul>
+  <li><a href="https://github.com/jbossas/jboss-dmr">https://github.com/jbossas/jboss-dmr</a></li>
+  <li><a href="https://docs.jboss.org/author/display/WFLY8/Detyped+management+and+the+jboss-dmr+library">https://docs.jboss.org/author/display/WFLY8/Detyped+management+and+the+jboss-dmr+library</a></li>
+</ul>
+
+
+
+<br/>
+<ul class="btn pull-right">
+<div class="bdsharebuttonbox">
+  <a href="#" class="bds_more" data-cmd="more"></a>
+  <a title="分享到QQ空间" href="#" class="bds_qzone" data-cmd="qzone"></a>
+  <a title="分享到新浪微博" href="#" class="bds_tsina" data-cmd="tsina"></a>
+  <a title="分享到腾讯微博" href="#" class="bds_tqq" data-cmd="tqq"></a>
+  <a title="分享到人人网" href="#" class="bds_renren" data-cmd="renren"></a>
+  <a title="分享到微信" href="#" class="bds_weixin" data-cmd="weixin"></a>
+</div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"分享ksoong.org的文章「JBoss DMR」 - ksoong.org","bdDesc":"","bdMini":"2","bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</ul>
+
+<div class="ds-thread" data-thread-key="ksoong2015040101" data-title="JBoss DMR" data-url="ksoong.org/jboss/2015/04/02/jboss-dmr/"></div>
+
+	    <ul class="pager">
+		
+		<li class="previous"><a href="/jvmhighcpu">&laquo;&nbsp;JVM High CPU 问题分析步骤</a></li>
+		
+		
+		<li class="next"><a href="/jboss/2015/04/05/staxmapper/">JBoss staxmapper&nbsp;&raquo;</a></li>
+		
+	    </ul>
+
+
+        </div>
+        <aside id="sidebar" role="complementary">
+          <div class="subscribe">
+            <h2 class="icon news">
+              <a href="/feed.xml">Subscribe</a>
+            </h2>
+          </div>
+          <nav class="latest">
+            <h2>Latest Posts</h2>
+            <ul>
+            
+              <li>
+                <div class="title">
+                  <a href="/wfl-ds">WildFly Data Sources Configuration</a>
+                </div>
+                <div class="meta">
+                  Apr 26, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-transactions">Transaction in Teiid</a>
+                </div>
+                <div class="meta">
+                  Apr 20, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-getstart-code">Get Start Teiid From Source...</a>
+                </div>
+                <div class="meta">
+                  Apr 7, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-metadata">Understanding Teiid Metadata</a>
+                </div>
+                <div class="meta">
+                  Mar 27, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/rhel7-commands">Linux 命令集合</a>
+                </div>
+                <div class="meta">
+                  Mar 17, 2016
+                </div>
+              </li>
+             
+            </ul>
+            
+                        
+          </nav>
+          <nav class="tags">
+            <h2>Categories</h2>
+            <div class="tag-cloud">
+              
+              <span class="tag tag-1">
+                <a href="/categories/jekyll">Jekyll(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/jboss">Jboss(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/java">Java(18)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/css">Css(1)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/database">Database(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/javaee">Javaee(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/linux">Linux(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/teiid">Teiid(40)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/maven">Maven(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/netty">Netty(7)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/data">Data(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/git">Git(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/other">Other(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/performance">Performance(4)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/security">Security(3)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/docker">Docker(4)</a>
+              </span>
+              
+              
+            </div>
+          </nav>
+        </aside>
+      </div>
+
+
+    </div>
+    <footer>
+      <div class="container">
+        <div class="project">
+          <p class="bottom">
+            ©
+            Copyright 2009-2016 ksoong.
+            <br>
+            <i class="icon-fire"></i>
+            Mixed with <a href="http://twitter.github.com/bootstrap">Bootstrap</a>.
+            <br>
+            <i class="icon-share-alt"></i>
+            Website and docs licensed under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
+            <br>
+            Code released under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, v2.0</a>.
+          </p>
+        </div>
+        <div class="footer-nav">
+          <h4>Learn</h4>
+          <ul>
+            <li>
+              <a href="http://www.jboss.org/">JBoss</a>
+            </li>
+            <li>
+              <a href="http://infinispan.org/">Infinispan</a>
+            </li>
+            <li>
+              <a href="http://teiid.org/">Teiid</a>
+            </li>
+            <li>
+              <a href="https://github.com/kylinsoong">Github</a>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="sponser">
+          <div class="follow-us">
+            <h4>Stay Informed</h4>
+            <ul>
+              <li>
+                <a href="https://plus.google.com/103933729718268414460?rel=author"><img alt="Google+" src="/css/googleplus-16.png" title="Follow ksoong.org on Google+"></a>
+              </li>
+              <li>
+                <a href="http://www.weibo.com/kylinsoong"><img alt="Weibo" src="/css/weibo_logo.jpg" title="Follow me on Weibo"></a>
+              </li>
+	      <li>
+                <a href="https://github.com/kylinsoong"><img alt="Github" src="/css/Octocat.jpg" title="Fork me on Github"></a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+        <a class="visible-desktop" href="#" id="toTop">Top</a>
+      </div>
+        <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1258751305'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1258751305%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+    </footer>
+  
+ 
+    <script src="/css/jquery-1.11.1.min.js"></script>
+    <script src="/css/bootstrap.js"></script>
+
+   <script>
+      $(function() {
+        $('html').addClass('ready');
+        prettify();
+        activateFooterGravity();
+        activateTooltips();
+        activateToTopControl();
+      });
+    </script>
+    <script src="/css/site.js"></script>
+
+    
+            
+            <script type="text/javascript">
+                var duoshuoQuery = {short_name:"ksoong"};
+                (function() {
+                    var ds = document.createElement('script');
+                    ds.type = 'text/javascript';
+                    ds.async = true;
+                    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+                    ds.charset = 'UTF-8';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+                })();
+            </script>
+            
+        
+
+
+</body>
+</html>

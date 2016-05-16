@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html class="ready" lang="en"><head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="shenma-site-verification" content="8a69823d7371d1eec4379853d25200cd_1448504990"> 
+    <title>Kylin Soong . Blog</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="/feed.xml" rel="alternate" title="Kylin Soong . Blog Atom feed" type="application/atom+xml">
+    <link href="/css/screen.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.js"></script>
+    <![endif]-->
+    <link href="/favicon.ico" rel="shortcut icon">
+
+</head>
+
+  <body class="blog index">
+    <header class="navbar navbar-fixed-top" id="banner" role="banner">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-target=".nav-collapse" data-toggle="collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/">
+            <span class="logo"></span>
+            <span class="name">ksoong</span>
+          </a>
+          <nav class="nav-collapse" role="navigation">
+            <ul class="nav">
+              <li><a href="/">Home</a></li>
+	      <!--
+              <li><a href="/lab">Labs</a></li>
+              <li><a href="/blog/">Blog</a></li>
+	      -->
+	      <li><a href="/books">Books</a></li>
+              <li><a href="/archive">Archives</a></li>
+              <li><a href="/slide">Slides</a></li>
+              <li><a href="/about">About</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+    <div style="min-height: 250px;" id="main" role="main">
+      
+<div id="content-header">
+        <div class="container">
+         <h1>
+              <a href="/blog">Blog</a>
+              <!--a href="#">&raquo;</a>
+              <a href="/hadoop-install">Hadoop 安装</a-->
+          </h1>
+        </div>
+</div>
+      <div class="container">
+        <div id="content">
+          
+<h2 class="title">
+                 <a class="post-link" href="/hadoop-install">Hadoop 安装</a>
+              </h2>
+ 
+<header class="post">
+              <div class="byline">
+                <span class="author">Posted by
+                <a href="/about">Kylin Soong</a> on</span>
+                <span class="dateinline">Dec 2, 2015</span>
+		<i class="icon-tags"></i> categorized as <a class="tag" href="/categories/data">data</a>
+              </div>
+            </header>
+
+ 
+<p>Hadoop 集群支持三种模式：</p>
+
+<ul>
+  <li>本地模式</li>
+  <li>单节点分布式模式</li>
+  <li>多节点分布式模式</li>
+</ul>
+
+<p>本文档分三个部分分别说明这三种模式的安装。Hadoop 集群的安装推荐使用 Linux 服务器和 Java：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ uname -a
+Linux kylin.xx.com 2.6.32-431.20.3.el6.x86_64 #1 SMP Fri Jun 6 18:30:54 EDT 2014 x86_64 x86_64 x86_64 GNU/Linux
+
+$ java -version
+java version "1.7.0_60"
+Java(TM) SE Runtime Environment (build 1.7.0_60-b19)
+Java HotSpot(TM) 64-Bit Server VM (build 24.60-b09, mixed mode)
+</code></pre>
+</div>
+
+<p>本文档以 hadoop 1.2.1 为例演示安装步骤。</p>
+
+<h2 id="section">本地模式</h2>
+
+<p>本地模式不具有分布式功能，它主要用于运行示例代码或代码调试。</p>
+
+<h4 id="section-1">1. 下载安装</h4>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ wget http://apache.mesi.com.ar/hadoop/common/hadoop-1.2.1/hadoop-1.2.1.tar.gz
+$ tar -xvf hadoop-1.2.1.tar.gz
+$ cd hadoop-1.2.1
+</code></pre>
+</div>
+
+<h4 id="section-2">2. 配置</h4>
+
+<p>编辑 <code class="highlighter-rouge">conf/hadoop-env.sh</code>，添加 JAVA_HOME 配置：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>export JAVA_HOME=/usr/java/jdk1.7.0_60
+</code></pre>
+</div>
+
+<blockquote>
+  <p>注意: Hadoop 1.2.1 需要 java 1.6 或以上版本.</p>
+</blockquote>
+
+<h4 id="section-3">3. 启动</h4>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ mkdir input 
+$ cp conf/*.xml input 
+$ ./bin/hadoop jar hadoop-examples-1.2.1.jar grep input output 'dfs[a-z.]+'
+$ cat output/*
+</code></pre>
+</div>
+
+<h2 id="section-4">单节点分布式模式</h2>
+
+<h4 id="section-5">1. 下载安装</h4>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ wget http://apache.mesi.com.ar/hadoop/common/hadoop-1.2.1/hadoop-1.2.1.tar.gz
+$ tar -xvf hadoop-1.2.1.tar.gz
+$ cd hadoop-1.2.1
+</code></pre>
+</div>
+
+<h4 id="section-6">2. 配置</h4>
+
+<p>编辑 <code class="highlighter-rouge">conf/hadoop-env.sh</code>，添加 JAVA_HOME 配置：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>export JAVA_HOME=/usr/java/jdk1.7.0_60
+</code></pre>
+</div>
+
+<p>编辑 <code class="highlighter-rouge">conf/core-site.xml</code>，添加 fs.default.name 配置：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>&lt;configuration&gt;
+     &lt;property&gt;
+         &lt;name&gt;fs.default.name&lt;/name&gt;
+         &lt;value&gt;hdfs://localhost:9000&lt;/value&gt;
+     &lt;/property&gt;
+&lt;/configuration&gt;
+</code></pre>
+</div>
+
+<p>编辑 <code class="highlighter-rouge">conf/hdfs-site.xml</code>，添加 dfs.replication 配置：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>&lt;configuration&gt;
+     &lt;property&gt;
+         &lt;name&gt;dfs.replication&lt;/name&gt;
+         &lt;value&gt;1&lt;/value&gt;
+     &lt;/property&gt;
+&lt;/configuration&gt;
+</code></pre>
+</div>
+
+<p>编辑 <code class="highlighter-rouge">conf/mapred-site.xml</code>，添加 mapred.job.tracker 配置：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>&lt;configuration&gt;
+     &lt;property&gt;
+         &lt;name&gt;mapred.job.tracker&lt;/name&gt;
+         &lt;value&gt;localhost:9001&lt;/value&gt;
+     &lt;/property&gt;
+&lt;/configuration&gt;
+</code></pre>
+</div>
+
+<p>格式化文件系统</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>./bin/hadoop namenode -format
+</code></pre>
+</div>
+
+<h4 id="section-7">3. 启动</h4>
+
+<p>执行如下脚本启动所有服务</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ ./bin/start-all.sh
+</code></pre>
+</div>
+
+<p>启动完成后将有 5 个 java 进程启动，它们分别是 <code class="highlighter-rouge">NameNode</code>, <code class="highlighter-rouge">SecondaryNameNode</code>, <code class="highlighter-rouge">DataNode</code>, <code class="highlighter-rouge">JobTracker</code>, <code class="highlighter-rouge">TaskTracker</code>。使用 jps 命令查看进程:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ jps -l
+4056 org.apache.hadoop.hdfs.server.namenode.NameNode
+4271 org.apache.hadoop.hdfs.server.datanode.DataNode
+4483 org.apache.hadoop.hdfs.server.namenode.SecondaryNameNode
+4568 org.apache.hadoop.mapred.JobTracker
+4796 org.apache.hadoop.mapred.TaskTracker
+</code></pre>
+</div>
+
+<p>其中 <code class="highlighter-rouge">NameNode</code>, <code class="highlighter-rouge">JobTracker</code>, <code class="highlighter-rouge">TaskTracker</code> 都有对应的 Web 控制台用于查看的监控</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>http://localhost:50030/   for the Jobtracker
+http://localhost:50070/   for the Namenode
+http://localhost:50060/   for the Tasktracker
+</code></pre>
+</div>
+
+<h4 id="section-8">4. 停止</h4>
+
+<p>执行如下脚本停止所有服务</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code># bin/stop-all.sh
+</code></pre>
+</div>
+
+<h2 id="section-9">多节点分布式模式</h2>
+
+
+
+<br/>
+<ul class="btn pull-right">
+<div class="bdsharebuttonbox">
+  <a href="#" class="bds_more" data-cmd="more"></a>
+  <a title="分享到QQ空间" href="#" class="bds_qzone" data-cmd="qzone"></a>
+  <a title="分享到新浪微博" href="#" class="bds_tsina" data-cmd="tsina"></a>
+  <a title="分享到腾讯微博" href="#" class="bds_tqq" data-cmd="tqq"></a>
+  <a title="分享到人人网" href="#" class="bds_renren" data-cmd="renren"></a>
+  <a title="分享到微信" href="#" class="bds_weixin" data-cmd="weixin"></a>
+</div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"分享ksoong.org的文章「Hadoop 安装」 - ksoong.org","bdDesc":"","bdMini":"2","bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</ul>
+
+<div class="ds-thread" data-thread-key="ksoong2015120101" data-title="Hadoop 安装" data-url="ksoong.org/hadoop-install"></div>
+
+	    <ul class="pager">
+		
+		<li class="previous"><a href="/teiid-query-sql-api">&laquo;&nbsp;Teiid Query Sql API</a></li>
+		
+		
+		<li class="next"><a href="/teiid-transport">Understanding Teiid Transport&nbsp;&raquo;</a></li>
+		
+	    </ul>
+
+
+        </div>
+        <aside id="sidebar" role="complementary">
+          <div class="subscribe">
+            <h2 class="icon news">
+              <a href="/feed.xml">Subscribe</a>
+            </h2>
+          </div>
+          <nav class="latest">
+            <h2>Latest Posts</h2>
+            <ul>
+            
+              <li>
+                <div class="title">
+                  <a href="/wfl-ds">WildFly Data Sources Configuration</a>
+                </div>
+                <div class="meta">
+                  Apr 26, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-transactions">Transaction in Teiid</a>
+                </div>
+                <div class="meta">
+                  Apr 20, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-getstart-code">Get Start Teiid From Source...</a>
+                </div>
+                <div class="meta">
+                  Apr 7, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-metadata">Understanding Teiid Metadata</a>
+                </div>
+                <div class="meta">
+                  Mar 27, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/rhel7-commands">Linux 命令集合</a>
+                </div>
+                <div class="meta">
+                  Mar 17, 2016
+                </div>
+              </li>
+             
+            </ul>
+            
+                        
+          </nav>
+          <nav class="tags">
+            <h2>Categories</h2>
+            <div class="tag-cloud">
+              
+              <span class="tag tag-1">
+                <a href="/categories/jekyll">Jekyll(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/jboss">Jboss(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/java">Java(18)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/css">Css(1)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/database">Database(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/javaee">Javaee(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/linux">Linux(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/teiid">Teiid(40)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/maven">Maven(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/netty">Netty(7)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/data">Data(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/git">Git(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/other">Other(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/performance">Performance(4)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/security">Security(3)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/docker">Docker(4)</a>
+              </span>
+              
+              
+            </div>
+          </nav>
+        </aside>
+      </div>
+
+
+    </div>
+    <footer>
+      <div class="container">
+        <div class="project">
+          <p class="bottom">
+            ©
+            Copyright 2009-2016 ksoong.
+            <br>
+            <i class="icon-fire"></i>
+            Mixed with <a href="http://twitter.github.com/bootstrap">Bootstrap</a>.
+            <br>
+            <i class="icon-share-alt"></i>
+            Website and docs licensed under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
+            <br>
+            Code released under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, v2.0</a>.
+          </p>
+        </div>
+        <div class="footer-nav">
+          <h4>Learn</h4>
+          <ul>
+            <li>
+              <a href="http://www.jboss.org/">JBoss</a>
+            </li>
+            <li>
+              <a href="http://infinispan.org/">Infinispan</a>
+            </li>
+            <li>
+              <a href="http://teiid.org/">Teiid</a>
+            </li>
+            <li>
+              <a href="https://github.com/kylinsoong">Github</a>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="sponser">
+          <div class="follow-us">
+            <h4>Stay Informed</h4>
+            <ul>
+              <li>
+                <a href="https://plus.google.com/103933729718268414460?rel=author"><img alt="Google+" src="/css/googleplus-16.png" title="Follow ksoong.org on Google+"></a>
+              </li>
+              <li>
+                <a href="http://www.weibo.com/kylinsoong"><img alt="Weibo" src="/css/weibo_logo.jpg" title="Follow me on Weibo"></a>
+              </li>
+	      <li>
+                <a href="https://github.com/kylinsoong"><img alt="Github" src="/css/Octocat.jpg" title="Fork me on Github"></a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+        <a class="visible-desktop" href="#" id="toTop">Top</a>
+      </div>
+        <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1258751305'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1258751305%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+    </footer>
+  
+ 
+    <script src="/css/jquery-1.11.1.min.js"></script>
+    <script src="/css/bootstrap.js"></script>
+
+   <script>
+      $(function() {
+        $('html').addClass('ready');
+        prettify();
+        activateFooterGravity();
+        activateTooltips();
+        activateToTopControl();
+      });
+    </script>
+    <script src="/css/site.js"></script>
+
+    
+            
+            <script type="text/javascript">
+                var duoshuoQuery = {short_name:"ksoong"};
+                (function() {
+                    var ds = document.createElement('script');
+                    ds.type = 'text/javascript';
+                    ds.async = true;
+                    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+                    ds.charset = 'UTF-8';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+                })();
+            </script>
+            
+        
+
+
+</body>
+</html>

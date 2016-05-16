@@ -1,0 +1,71 @@
+# Site settings
+title: Kylin Soong . Blog
+email: kylinsoong.1214@gmail.com
+description: "Kylin Soong Blog"
+#baseurl: ""
+url: ksoong.org
+twitter_username: kylinsoong
+github_username:  kylinsoong
+author: Kylin Soong
+
+
+# Build settings
+markdown: kramdown
+#markdown: redcarpet
+#redcarpet:
+#  extensions: ["no_intra_emphasis", "fenced_code_blocks", "autolink", "tables", "strikethrough", "superscript", "with_toc_data"]
+
+permalink: pretty
+
+paginate: 15
+paginate_path: "/page:num"
+
+# Global Configuration
+source: .
+destination: ./_site
+safe: true
+exclude: []
+include: ['.htaccess']
+timezone: Asia/Shanghai
+encoding: UTF-8
+
+# Build Command Options
+future: true
+#lsi: true
+limit_posts: 10000
+
+# Serve Command Options
+port: 8888
+host: localhost
+baseurl: ""
+detach: false
+
+#gems: [jekyll-paginate]
+
+gems:
+- jekyll-mentions
+- jemoji
+- jekyll-redirect-from
+- jekyll-sitemap
+- jekyll-paginate
+defaults:
+  -
+    scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "default"
+
+#collections:
+#  my_collection:
+#    output: true
+#    permalink: /awesome/:path/
+#    foo: bar
+# Comments   
+disqus:
+  config: false
+  id: need register
+
+duoshuo:
+  config: true
+  id: ksoong   

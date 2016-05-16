@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html class="ready" lang="en"><head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="shenma-site-verification" content="8a69823d7371d1eec4379853d25200cd_1448504990"> 
+    <title>Kylin Soong . Blog</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="/feed.xml" rel="alternate" title="Kylin Soong . Blog Atom feed" type="application/atom+xml">
+    <link href="/css/screen.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.js"></script>
+    <![endif]-->
+    <link href="/favicon.ico" rel="shortcut icon">
+
+</head>
+
+  <body class="blog index">
+    <header class="navbar navbar-fixed-top" id="banner" role="banner">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-target=".nav-collapse" data-toggle="collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/">
+            <span class="logo"></span>
+            <span class="name">ksoong</span>
+          </a>
+          <nav class="nav-collapse" role="navigation">
+            <ul class="nav">
+              <li><a href="/">Home</a></li>
+	      <!--
+              <li><a href="/lab">Labs</a></li>
+              <li><a href="/blog/">Blog</a></li>
+	      -->
+	      <li><a href="/books">Books</a></li>
+              <li><a href="/archive">Archives</a></li>
+              <li><a href="/slide">Slides</a></li>
+              <li><a href="/about">About</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+    <div style="min-height: 250px;" id="main" role="main">
+      
+<div id="content-header">
+        <div class="container">
+         <h1>
+              <a href="/blog">Blog</a>
+              <!--a href="#">&raquo;</a>
+              <a href="/maven-plugin-gallery">Maven Plugin Example Gallery</a-->
+          </h1>
+        </div>
+</div>
+      <div class="container">
+        <div id="content">
+          
+<h2 class="title">
+                 <a class="post-link" href="/maven-plugin-gallery">Maven Plugin Example Gallery</a>
+              </h2>
+ 
+<header class="post">
+              <div class="byline">
+                <span class="author">Posted by
+                <a href="/about">Kylin Soong</a> on</span>
+                <span class="dateinline">Aug 21, 2014</span>
+		<i class="icon-tags"></i> categorized as <a class="tag" href="/categories/maven">maven</a>
+              </div>
+            </header>
+
+ 
+<ul id="markdown-toc">
+  <li><a href="#maven-dependency-plugin" id="markdown-toc-maven-dependency-plugin">maven-dependency-plugin</a>    <ul>
+      <li><a href="#example-download-unpack-wildfly-server--install-modules" id="markdown-toc-example-download-unpack-wildfly-server--install-modules">Example: Download Unpack WildFly Server &amp; Install Modules</a></li>
+    </ul>
+  </li>
+  <li><a href="#maven-enforcer-plugin" id="markdown-toc-maven-enforcer-plugin">maven-enforcer-plugin</a>    <ul>
+      <li><a href="#example-1-jdk-version-control-example" id="markdown-toc-example-1-jdk-version-control-example">Example-1: JDK version control example</a></li>
+    </ul>
+  </li>
+  <li><a href="#maven-antrun-plugin" id="markdown-toc-maven-antrun-plugin">maven-antrun-plugin</a></li>
+  <li><a href="#javacc-maven-plugin" id="markdown-toc-javacc-maven-plugin">javacc-maven-plugin</a></li>
+  <li><a href="#maven-bundle-plugin" id="markdown-toc-maven-bundle-plugin">maven-bundle-plugin</a></li>
+  <li><a href="#maven-jar-plugin" id="markdown-toc-maven-jar-plugin">maven-jar-plugin</a></li>
+</ul>
+
+<h2 id="maven-dependency-plugin">maven-dependency-plugin</h2>
+
+<p><a href="https://maven.apache.org/plugins/maven-dependency-plugin/">Apache Maven Dependency Plugin</a> provides the capability to manipulate artifacts. It can copy and/or unpack artifacts from local or remote repositories to a specified location.</p>
+
+<h3 id="example-download-unpack-wildfly-server--install-modules">Example: Download Unpack WildFly Server &amp; Install Modules</h3>
+
+<p>This example will demonstrate:</p>
+
+<ol>
+  <li>Download, unpack a WildFly Server</li>
+  <li>Install a module to WildFly modules.</li>
+</ol>
+
+<p><strong>Run and Test</strong></p>
+
+<p><a href="https://github.com/kylinsoong/teiid-test/tree/master/console/build">Downlad example</a>, execute</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ mvn clean install
+</code></pre>
+</div>
+
+<p>Once build success, check from Command line:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ ls -l  target/wildfly-9.0.2.Final/modules/system/layers/dv/org/jboss/as/console/main/
+-rw-rw-r--. 1 kylin kylin    1565 Mar 11 15:00 module.xml
+-rw-rw-r--. 1 kylin kylin 9806914 Mar 11 15:00 teiid-hal-console-2.6.1-SNAPSHOT-resources.jar
+</code></pre>
+</div>
+
+<blockquote>
+  <p>NOTE: <code class="highlighter-rouge">wildfly-9.0.2.Final</code> be download and unpacked under target folder, <code class="highlighter-rouge">teiid-hal-console</code> modules be installed successfully.</p>
+</blockquote>
+
+<p><strong>Plugin Configure Files</strong></p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>&lt;plugin&gt;
+    &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+    &lt;artifactId&gt;maven-dependency-plugin&lt;/artifactId&gt;
+    &lt;executions&gt;
+        &lt;execution&gt;
+            &lt;id&gt;unpack-server-deps&lt;/id&gt;
+            &lt;phase&gt;package&lt;/phase&gt;
+            &lt;goals&gt;
+                &lt;goal&gt;unpack&lt;/goal&gt;
+            &lt;/goals&gt;
+            &lt;configuration&gt;
+                &lt;artifactItems&gt;
+                    &lt;artifactItem&gt;
+                        &lt;groupId&gt;org.wildfly&lt;/groupId&gt;
+                        &lt;artifactId&gt;wildfly-dist&lt;/artifactId&gt;
+                        &lt;version&gt;${version.org.wildfly}&lt;/version&gt;
+                        &lt;type&gt;zip&lt;/type&gt;
+                        &lt;outputDirectory&gt;${project.build.directory}&lt;/outputDirectory&gt;
+                    &lt;/artifactItem&gt;
+                    &lt;artifactItem&gt;
+                        &lt;groupId&gt;org.jboss.teiid.hal&lt;/groupId&gt;
+                        &lt;artifactId&gt;dist&lt;/artifactId&gt;
+                        &lt;version&gt;${version.teiid.console}&lt;/version&gt;
+                        &lt;classifier&gt;overlay&lt;/classifier&gt;
+                        &lt;type&gt;zip&lt;/type&gt;
+                        &lt;outputDirectory&gt;${project.build.directory}/${dir.wildfly}&lt;/outputDirectory&gt;
+                     &lt;/artifactItem&gt;
+                &lt;/artifactItems&gt;
+            &lt;/configuration&gt;
+        &lt;/execution&gt;
+    &lt;/executions&gt;
+&lt;/plugin&gt;
+</code></pre>
+</div>
+
+<p><a href="https://raw.githubusercontent.com/kylinsoong/teiid-test/master/console/build/pom.xml">Completed pom.xml</a></p>
+
+<h2 id="maven-enforcer-plugin">maven-enforcer-plugin</h2>
+
+<p><a href="https://maven.apache.org/enforcer/maven-enforcer-plugin/">Maven Enforcer Plugin</a> provides goals to control certain environmental constraints such as Maven version, JDK version and OS family along with many more standard rules and user created rules.</p>
+
+<h3 id="example-1-jdk-version-control-example">Example-1: JDK version control example</h3>
+
+<p>This example will demonstrate how <code class="highlighter-rouge">maven-enforcer-plugin</code> enforce Project build use JDK 1.9.</p>
+
+<p><strong>Run and Test</strong></p>
+
+<p><a href="https://github.com/kylinsoong/teiid-test/tree/master/console/enforcer-plugin-example">Download example</a>, execute</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ mvn clean install
+</code></pre>
+</div>
+
+<p>If your build environment not use JDK 1.9, build will failed with plugin notification <code class="highlighter-rouge">The build works with JDK 9 only</code>.</p>
+
+<p><strong>Plugin Configure Files</strong></p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>&lt;plugin&gt;
+    &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+    &lt;artifactId&gt;maven-enforcer-plugin&lt;/artifactId&gt;
+    &lt;version&gt;1.2&lt;/version&gt;
+    &lt;executions&gt;
+        &lt;execution&gt;
+            &lt;id&gt;enforce-versions&lt;/id&gt;
+            &lt;goals&gt;
+                &lt;goal&gt;enforce&lt;/goal&gt;
+            &lt;/goals&gt;
+            &lt;configuration&gt;
+                &lt;rules&gt;
+                    &lt;requireJavaVersion&gt;
+                        &lt;version&gt;[1.9,]&lt;/version&gt;
+                        &lt;message&gt;*** The build works with JDK 9 only! ***&lt;/message&gt;
+                    &lt;/requireJavaVersion&gt;
+                &lt;/rules&gt;
+            &lt;/configuration&gt;
+        &lt;/execution&gt;
+    &lt;/executions&gt;
+&lt;/plugin&gt;
+</code></pre>
+</div>
+
+<p><a href="https://raw.githubusercontent.com/kylinsoong/teiid-test/master/console/enforcer-plugin-example/pom.xml">Completed pom.xml</a></p>
+
+<h2 id="maven-antrun-plugin">maven-antrun-plugin</h2>
+
+<p>Maven AntRun Plugin provides the ability to run Ant tasks from within Maven. More details refer to <a href="http://maven.apache.org/plugins/maven-antrun-plugin/">http://maven.apache.org/plugins/maven-antrun-plugin/</a></p>
+
+<p>Usage example, the following pom will execute ant target before maven build:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>&lt;project&gt;
+  &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+  &lt;artifactId&gt;my-test-app&lt;/artifactId&gt;
+  &lt;groupId&gt;my-test-group&lt;/groupId&gt;
+  &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+  &lt;build&gt;
+    &lt;plugins&gt;
+      &lt;plugin&gt;
+	&lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+        &lt;artifactId&gt;maven-antrun-plugin&lt;/artifactId&gt;
+        &lt;version&gt;1.7&lt;/version&gt;
+        &lt;executions&gt;
+          &lt;execution&gt;
+	    &lt;id&gt;process-sources&lt;/id&gt;
+            &lt;phase&gt;generate-sources&lt;/phase&gt;
+            &lt;configuration&gt;
+              &lt;target&gt;
+		&lt;echo&gt;This is target for maven-antrun-plugin &lt;/echo&gt; 
+	      &lt;/target&gt;
+            &lt;/configuration&gt;
+            &lt;goals&gt;
+              &lt;goal&gt;run&lt;/goal&gt;
+            &lt;/goals&gt;
+          &lt;/execution&gt;
+        &lt;/executions&gt;
+      &lt;/plugin&gt;
+    &lt;/plugins&gt;
+  &lt;/build&gt;
+&lt;/project&gt;
+</code></pre>
+</div>
+
+<h2 id="javacc-maven-plugin">javacc-maven-plugin</h2>
+
+<p>JavaCC Maven Plugin uses the JavaCC parser generator to process JavaCC grammar files and generate the appropriate Java source files. More details refer to <a href="http://mojo.codehaus.org/javacc-maven-plugin/">http://mojo.codehaus.org/javacc-maven-plugin/</a></p>
+
+<p>Usage example, as below pom:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>&lt;project&gt;
+  &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+  &lt;artifactId&gt;my-test-app&lt;/artifactId&gt;
+  &lt;groupId&gt;my-test-group&lt;/groupId&gt;
+  &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+  &lt;build&gt;
+    &lt;plugins&gt;
+       &lt;plugin&gt;
+        &lt;groupId&gt;org.codehaus.mojo&lt;/groupId&gt;
+        &lt;artifactId&gt;javacc-maven-plugin&lt;/artifactId&gt;
+        &lt;version&gt;2.6&lt;/version&gt;
+        &lt;executions&gt;
+          &lt;execution&gt;
+            &lt;id&gt;javacc&lt;/id&gt;
+            &lt;goals&gt;
+              &lt;goal&gt;javacc&lt;/goal&gt;
+            &lt;/goals&gt;
+          &lt;/execution&gt;
+        &lt;/executions&gt;
+      &lt;/plugin&gt;
+    &lt;/plugins&gt;
+  &lt;/build&gt;
+&lt;/project&gt;
+</code></pre>
+</div>
+
+<p>Execute maven build or execute goal <code class="highlighter-rouge">mvn javacc:javacc</code> will generate java via grammars .jj file.</p>
+
+<h2 id="maven-bundle-plugin">maven-bundle-plugin</h2>
+
+<h2 id="maven-jar-plugin">maven-jar-plugin</h2>
+
+
+
+<br/>
+<ul class="btn pull-right">
+<div class="bdsharebuttonbox">
+  <a href="#" class="bds_more" data-cmd="more"></a>
+  <a title="分享到QQ空间" href="#" class="bds_qzone" data-cmd="qzone"></a>
+  <a title="分享到新浪微博" href="#" class="bds_tsina" data-cmd="tsina"></a>
+  <a title="分享到腾讯微博" href="#" class="bds_tqq" data-cmd="tqq"></a>
+  <a title="分享到人人网" href="#" class="bds_renren" data-cmd="renren"></a>
+  <a title="分享到微信" href="#" class="bds_weixin" data-cmd="weixin"></a>
+</div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"分享ksoong.org的文章「Maven Plugin Example Gallery」 - ksoong.org","bdDesc":"","bdMini":"2","bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</ul>
+
+<div class="ds-thread" data-thread-key="ksoong20140820" data-title="Maven Plugin Example Gallery" data-url="ksoong.org/maven-plugin-gallery"></div>
+
+	    <ul class="pager">
+		
+		<li class="previous"><a href="/teiid-file-connector">&laquo;&nbsp;Teiid File Translator and Connector...</a></li>
+		
+		
+		<li class="next"><a href="/2-ways-bootstrap-netty">2 ways of bootstrap netty...&nbsp;&raquo;</a></li>
+		
+	    </ul>
+
+
+        </div>
+        <aside id="sidebar" role="complementary">
+          <div class="subscribe">
+            <h2 class="icon news">
+              <a href="/feed.xml">Subscribe</a>
+            </h2>
+          </div>
+          <nav class="latest">
+            <h2>Latest Posts</h2>
+            <ul>
+            
+              <li>
+                <div class="title">
+                  <a href="/wfl-ds">WildFly Data Sources Configuration</a>
+                </div>
+                <div class="meta">
+                  Apr 26, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-transactions">Transaction in Teiid</a>
+                </div>
+                <div class="meta">
+                  Apr 20, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-getstart-code">Get Start Teiid From Source...</a>
+                </div>
+                <div class="meta">
+                  Apr 7, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-metadata">Understanding Teiid Metadata</a>
+                </div>
+                <div class="meta">
+                  Mar 27, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/rhel7-commands">Linux 命令集合</a>
+                </div>
+                <div class="meta">
+                  Mar 17, 2016
+                </div>
+              </li>
+             
+            </ul>
+            
+                        
+          </nav>
+          <nav class="tags">
+            <h2>Categories</h2>
+            <div class="tag-cloud">
+              
+              <span class="tag tag-1">
+                <a href="/categories/jekyll">Jekyll(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/jboss">Jboss(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/java">Java(18)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/css">Css(1)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/database">Database(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/javaee">Javaee(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/linux">Linux(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/teiid">Teiid(40)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/maven">Maven(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/netty">Netty(7)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/data">Data(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/git">Git(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/other">Other(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/performance">Performance(4)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/security">Security(3)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/docker">Docker(4)</a>
+              </span>
+              
+              
+            </div>
+          </nav>
+        </aside>
+      </div>
+
+
+    </div>
+    <footer>
+      <div class="container">
+        <div class="project">
+          <p class="bottom">
+            ©
+            Copyright 2009-2016 ksoong.
+            <br>
+            <i class="icon-fire"></i>
+            Mixed with <a href="http://twitter.github.com/bootstrap">Bootstrap</a>.
+            <br>
+            <i class="icon-share-alt"></i>
+            Website and docs licensed under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
+            <br>
+            Code released under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, v2.0</a>.
+          </p>
+        </div>
+        <div class="footer-nav">
+          <h4>Learn</h4>
+          <ul>
+            <li>
+              <a href="http://www.jboss.org/">JBoss</a>
+            </li>
+            <li>
+              <a href="http://infinispan.org/">Infinispan</a>
+            </li>
+            <li>
+              <a href="http://teiid.org/">Teiid</a>
+            </li>
+            <li>
+              <a href="https://github.com/kylinsoong">Github</a>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="sponser">
+          <div class="follow-us">
+            <h4>Stay Informed</h4>
+            <ul>
+              <li>
+                <a href="https://plus.google.com/103933729718268414460?rel=author"><img alt="Google+" src="/css/googleplus-16.png" title="Follow ksoong.org on Google+"></a>
+              </li>
+              <li>
+                <a href="http://www.weibo.com/kylinsoong"><img alt="Weibo" src="/css/weibo_logo.jpg" title="Follow me on Weibo"></a>
+              </li>
+	      <li>
+                <a href="https://github.com/kylinsoong"><img alt="Github" src="/css/Octocat.jpg" title="Fork me on Github"></a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+        <a class="visible-desktop" href="#" id="toTop">Top</a>
+      </div>
+        <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1258751305'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1258751305%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+    </footer>
+  
+ 
+    <script src="/css/jquery-1.11.1.min.js"></script>
+    <script src="/css/bootstrap.js"></script>
+
+   <script>
+      $(function() {
+        $('html').addClass('ready');
+        prettify();
+        activateFooterGravity();
+        activateTooltips();
+        activateToTopControl();
+      });
+    </script>
+    <script src="/css/site.js"></script>
+
+    
+            
+            <script type="text/javascript">
+                var duoshuoQuery = {short_name:"ksoong"};
+                (function() {
+                    var ds = document.createElement('script');
+                    ds.type = 'text/javascript';
+                    ds.async = true;
+                    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+                    ds.charset = 'UTF-8';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+                })();
+            </script>
+            
+        
+
+
+</body>
+</html>

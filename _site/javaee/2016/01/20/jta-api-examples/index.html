@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html class="ready" lang="en"><head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="shenma-site-verification" content="8a69823d7371d1eec4379853d25200cd_1448504990"> 
+    <title>Kylin Soong . Blog</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="/feed.xml" rel="alternate" title="Kylin Soong . Blog Atom feed" type="application/atom+xml">
+    <link href="/css/screen.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.js"></script>
+    <![endif]-->
+    <link href="/favicon.ico" rel="shortcut icon">
+
+</head>
+
+  <body class="blog index">
+    <header class="navbar navbar-fixed-top" id="banner" role="banner">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-target=".nav-collapse" data-toggle="collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/">
+            <span class="logo"></span>
+            <span class="name">ksoong</span>
+          </a>
+          <nav class="nav-collapse" role="navigation">
+            <ul class="nav">
+              <li><a href="/">Home</a></li>
+	      <!--
+              <li><a href="/lab">Labs</a></li>
+              <li><a href="/blog/">Blog</a></li>
+	      -->
+	      <li><a href="/books">Books</a></li>
+              <li><a href="/archive">Archives</a></li>
+              <li><a href="/slide">Slides</a></li>
+              <li><a href="/about">About</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+    <div style="min-height: 250px;" id="main" role="main">
+      
+<div id="content-header">
+        <div class="container">
+         <h1>
+              <a href="/blog">Blog</a>
+              <!--a href="#">&raquo;</a>
+              <a href="/javaee/2016/01/20/jta-api-examples/">Java Transaction API and Examples</a-->
+          </h1>
+        </div>
+</div>
+      <div class="container">
+        <div id="content">
+          
+<h2 class="title">
+                 <a class="post-link" href="/javaee/2016/01/20/jta-api-examples/">Java Transaction API and Examples</a>
+              </h2>
+ 
+<header class="post">
+              <div class="byline">
+                <span class="author">Posted by
+                <a href="/about">Kylin Soong</a> on</span>
+                <span class="dateinline">Jan 20, 2016</span>
+		<i class="icon-tags"></i> categorized as <a class="tag" href="/categories/javaee">javaee</a>
+              </div>
+            </header>
+
+ 
+<p>This page contain examples of Java Transaction API.</p>
+
+<ul id="markdown-toc">
+  <li><a href="#transactionmanager" id="markdown-toc-transactionmanager">TransactionManager</a>    <ul>
+      <li><a href="#example1-begin-commit" id="markdown-toc-example1-begin-commit">Example.1: begin(), commit()</a></li>
+      <li><a href="#example2-begin-rollback" id="markdown-toc-example2-begin-rollback">Example.2: begin(), rollback()</a></li>
+      <li><a href="#example3-begin-setrollbackonly-commit" id="markdown-toc-example3-begin-setrollbackonly-commit">Example.3: begin(), setRollbackOnly(), commit()</a></li>
+      <li><a href="#example4-begin-getstatus-commit" id="markdown-toc-example4-begin-getstatus-commit">Example.4: begin(), getStatus(), commit()</a></li>
+      <li><a href="#example5-settransactiontimeout-begin-commit" id="markdown-toc-example5-settransactiontimeout-begin-commit">Example.5: setTransactionTimeout(), begin(), commit()</a></li>
+      <li><a href="#example6-begin-gettransaction" id="markdown-toc-example6-begin-gettransaction">Example.6: begin(), getTransaction()</a></li>
+    </ul>
+  </li>
+  <li><a href="#usertransaction" id="markdown-toc-usertransaction">UserTransaction</a></li>
+  <li><a href="#synchronization" id="markdown-toc-synchronization">Synchronization</a>    <ul>
+      <li><a href="#example1-print-notes-before-and-after-the-transaction-completes" id="markdown-toc-example1-print-notes-before-and-after-the-transaction-completes">Example.1: Print notes before and after the transaction completes</a></li>
+    </ul>
+  </li>
+  <li><a href="#xaresource" id="markdown-toc-xaresource">XAResource</a></li>
+</ul>
+
+<h2 id="transactionmanager">TransactionManager</h2>
+
+<p><img src="/assets/blog/teiid/jta-api-TransactionManager.png" alt="TransactionManager" /></p>
+
+<p>The <code class="highlighter-rouge">javax.transaction.TransactionManager</code> interface defines the methods that allow an application server to manage transactions on behalf of the applications.</p>
+
+<p>User applications should not use this interface directly, but use <a href="#UserTransaction">UserTransaction</a> insted if they need to do their own transaction management.</p>
+
+<p>Internally, the transaction manager associates transactions with threads, and the methods here operate on the transaction associated with the calling thread.</p>
+
+<h3 id="example1-begin-commit">Example.1: begin(), commit()</h3>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>TransactionManager tm = getTransactionManager();
+tm.begin();
+tm.commit();
+</code></pre>
+</div>
+
+<h3 id="example2-begin-rollback">Example.2: begin(), rollback()</h3>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>TransactionManager tm = getTransactionManager();
+tm.begin();
+tm.rollback();
+</code></pre>
+</div>
+
+<h3 id="example3-begin-setrollbackonly-commit">Example.3: begin(), setRollbackOnly(), commit()</h3>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>TransactionManager tm = getTransactionManager();
+tm.begin();
+tm.setRollbackOnly();
+tm.commit();
+</code></pre>
+</div>
+
+<blockquote>
+  <p>NOTE: this will throw <code class="highlighter-rouge">javax.transaction.RollbackException</code></p>
+</blockquote>
+
+<h3 id="example4-begin-getstatus-commit">Example.4: begin(), getStatus(), commit()</h3>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>TransactionManager tm = getTransactionManager();
+tm.begin();
+System.out.println(Status.STATUS_ACTIVE == tm.getStatus());
+tm.commit();
+System.out.println(Status.STATUS_NO_TRANSACTION == tm.getStatus());
+</code></pre>
+</div>
+
+<p>Run this code will output:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>true
+true
+</code></pre>
+</div>
+
+<h3 id="example5-settransactiontimeout-begin-commit">Example.5: setTransactionTimeout(), begin(), commit()</h3>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>TransactionManager tm = getTransactionManager();
+tm.setTransactionTimeout(3);
+tm.begin();
+Thread.sleep(1000 * 5);
+tm.commit();
+</code></pre>
+</div>
+
+<blockquote>
+  <p>NOTE: this will throw <code class="highlighter-rouge">javax.transaction.RollbackException</code></p>
+</blockquote>
+
+<h3 id="example6-begin-gettransaction">Example.6: begin(), getTransaction()</h3>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>TransactionManager tm = getTransactionManager();
+tm.begin();
+Transaction t = tm.getTransaction();
+</code></pre>
+</div>
+
+<h2 id="usertransaction">UserTransaction</h2>
+
+<p>//TODO</p>
+
+<h2 id="synchronization">Synchronization</h2>
+
+<p>The The transaction manager supports a <code class="highlighter-rouge">javax.transaction.Synchronization</code> that allows the interested party to be notified before and after the transaction completes. Using the registerSynchronization method, the application server registers a Synchronization object for the transaction currently associated with the target Transaction object.</p>
+
+<h3 id="example1-print-notes-before-and-after-the-transaction-completes">Example.1: Print notes before and after the transaction completes</h3>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>TransactionManager tm = getTransactionManager();
+tm.begin();
+Transaction t = tm.getTransaction();
+t.registerSynchronization(new Synchronization(){
+
+    public void beforeCompletion() {
+        System.out.println("transaction before completion");
+    }
+
+    public void afterCompletion(int status) {
+        System.out.println("transaction after completion, status: " + status);
+    }
+            
+});
+tm.commit(); 
+</code></pre>
+</div>
+
+<p>Run this code will output:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>transaction before completion
+transaction after completion, status: 3
+</code></pre>
+</div>
+
+<blockquote>
+  <p>NOTE: status is 3 means <code class="highlighter-rouge">STATUS_COMMITTED</code>.</p>
+</blockquote>
+
+<h2 id="xaresource">XAResource</h2>
+
+<p><img src="/assets/blog/teiid/jta-api-XAResource.png" alt="XAResource" /></p>
+
+<p>The <code class="highlighter-rouge">javax.transaction.xa.XAResource</code> interface is a Java mapping of the industry standard XA interface based on the <strong>X/Open CAE Specification (Distributed Transaction Processing: The XA Specification)</strong>.</p>
+
+<p>The XA interface defines the contract between a Resource Manager and a Transaction Manager in a distributed transaction processing (DTP) environment. An XA resource such as a JDBC driver or a JMS provider implements this interface to support association between a global transaction and a database or message service connection.</p>
+
+<p>The <code class="highlighter-rouge">XAResource</code> interface can be supported by any transactional resource that is intended to be used by application programs in an environment where transactions are controlled by an external transaction manager. An example of such a resource is a database management system. An application may access data through multiple database connections. Each database connection is enlisted with the transaction manager as a transactional resource. The transaction manager obtains an XAResource for each connection participating in a global transaction. The transaction manager uses the <code class="highlighter-rouge">start(Xid, int)</code> method to associate the global transaction with the resource, and it uses the <code class="highlighter-rouge">end(Xid, int)</code> method to disassociate the transaction from the resource. The resource manager is responsible for associating the global transaction to all work performed on its data between the start and end method invocation.</p>
+
+<p>At transaction commit time, the resource managers are informed by the transaction manager to prepare, commit, or rollback a transaction according to the two-phase commit protocol.</p>
+
+<p>Behind the resources that implement this interface the resource manager exists. The resource manager does not have a public interface or direct references, and can manage several resources. To see if two resources are managed by the same resource manager, the <code class="highlighter-rouge">isSameRM(XAResource)</code> method can be used.</p>
+
+<p>The Xid interface is a Java mapping of the X/Open transaction identifier XID structure. A transaction id is an aggregate of three parts:</p>
+
+<ol>
+  <li>The format identifier indicates the transaction family and tells how the other two parts should be interpreted.</li>
+  <li>The global transaction id denotes, with the format specifier, the id of the global transaction.</li>
+  <li>The branch qualifier denotes a particular branch of the global transaction.</li>
+</ol>
+
+<p>The Xid interface is used by the application server, the transaction manager and the resource managers, and is not used in application programs.</p>
+
+
+<br/>
+<ul class="btn pull-right">
+<div class="bdsharebuttonbox">
+  <a href="#" class="bds_more" data-cmd="more"></a>
+  <a title="分享到QQ空间" href="#" class="bds_qzone" data-cmd="qzone"></a>
+  <a title="分享到新浪微博" href="#" class="bds_tsina" data-cmd="tsina"></a>
+  <a title="分享到腾讯微博" href="#" class="bds_tqq" data-cmd="tqq"></a>
+  <a title="分享到人人网" href="#" class="bds_renren" data-cmd="renren"></a>
+  <a title="分享到微信" href="#" class="bds_weixin" data-cmd="weixin"></a>
+</div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"分享ksoong.org的文章「Java Transaction API and Examples」 - ksoong.org","bdDesc":"","bdMini":"2","bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</ul>
+
+<div class="ds-thread" data-thread-key="ksoong2016012601" data-title="Java Transaction API and Examples" data-url="ksoong.org/javaee/2016/01/20/jta-api-examples/"></div>
+
+	    <ul class="pager">
+		
+		<li class="previous"><a href="/jboss-keycloak">&laquo;&nbsp;JBoss keycloak</a></li>
+		
+		
+		<li class="next"><a href="/teiid-planning">Understanding Federated Planning&nbsp;&raquo;</a></li>
+		
+	    </ul>
+
+
+        </div>
+        <aside id="sidebar" role="complementary">
+          <div class="subscribe">
+            <h2 class="icon news">
+              <a href="/feed.xml">Subscribe</a>
+            </h2>
+          </div>
+          <nav class="latest">
+            <h2>Latest Posts</h2>
+            <ul>
+            
+              <li>
+                <div class="title">
+                  <a href="/wfl-ds">WildFly Data Sources Configuration</a>
+                </div>
+                <div class="meta">
+                  Apr 26, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-transactions">Transaction in Teiid</a>
+                </div>
+                <div class="meta">
+                  Apr 20, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-getstart-code">Get Start Teiid From Source...</a>
+                </div>
+                <div class="meta">
+                  Apr 7, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-metadata">Understanding Teiid Metadata</a>
+                </div>
+                <div class="meta">
+                  Mar 27, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/rhel7-commands">Linux 命令集合</a>
+                </div>
+                <div class="meta">
+                  Mar 17, 2016
+                </div>
+              </li>
+             
+            </ul>
+            
+                        
+          </nav>
+          <nav class="tags">
+            <h2>Categories</h2>
+            <div class="tag-cloud">
+              
+              <span class="tag tag-1">
+                <a href="/categories/jekyll">Jekyll(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/jboss">Jboss(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/java">Java(18)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/css">Css(1)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/database">Database(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/javaee">Javaee(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/linux">Linux(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/teiid">Teiid(40)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/maven">Maven(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/netty">Netty(7)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/data">Data(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/git">Git(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/other">Other(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/performance">Performance(4)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/security">Security(3)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/docker">Docker(4)</a>
+              </span>
+              
+              
+            </div>
+          </nav>
+        </aside>
+      </div>
+
+
+    </div>
+    <footer>
+      <div class="container">
+        <div class="project">
+          <p class="bottom">
+            ©
+            Copyright 2009-2016 ksoong.
+            <br>
+            <i class="icon-fire"></i>
+            Mixed with <a href="http://twitter.github.com/bootstrap">Bootstrap</a>.
+            <br>
+            <i class="icon-share-alt"></i>
+            Website and docs licensed under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
+            <br>
+            Code released under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, v2.0</a>.
+          </p>
+        </div>
+        <div class="footer-nav">
+          <h4>Learn</h4>
+          <ul>
+            <li>
+              <a href="http://www.jboss.org/">JBoss</a>
+            </li>
+            <li>
+              <a href="http://infinispan.org/">Infinispan</a>
+            </li>
+            <li>
+              <a href="http://teiid.org/">Teiid</a>
+            </li>
+            <li>
+              <a href="https://github.com/kylinsoong">Github</a>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="sponser">
+          <div class="follow-us">
+            <h4>Stay Informed</h4>
+            <ul>
+              <li>
+                <a href="https://plus.google.com/103933729718268414460?rel=author"><img alt="Google+" src="/css/googleplus-16.png" title="Follow ksoong.org on Google+"></a>
+              </li>
+              <li>
+                <a href="http://www.weibo.com/kylinsoong"><img alt="Weibo" src="/css/weibo_logo.jpg" title="Follow me on Weibo"></a>
+              </li>
+	      <li>
+                <a href="https://github.com/kylinsoong"><img alt="Github" src="/css/Octocat.jpg" title="Fork me on Github"></a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+        <a class="visible-desktop" href="#" id="toTop">Top</a>
+      </div>
+        <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1258751305'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1258751305%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+    </footer>
+  
+ 
+    <script src="/css/jquery-1.11.1.min.js"></script>
+    <script src="/css/bootstrap.js"></script>
+
+   <script>
+      $(function() {
+        $('html').addClass('ready');
+        prettify();
+        activateFooterGravity();
+        activateTooltips();
+        activateToTopControl();
+      });
+    </script>
+    <script src="/css/site.js"></script>
+
+    
+            
+            <script type="text/javascript">
+                var duoshuoQuery = {short_name:"ksoong"};
+                (function() {
+                    var ds = document.createElement('script');
+                    ds.type = 'text/javascript';
+                    ds.async = true;
+                    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+                    ds.charset = 'UTF-8';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+                })();
+            </script>
+            
+        
+
+
+</body>
+</html>

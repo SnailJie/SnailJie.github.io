@@ -1,0 +1,268 @@
+---
+layout: presentation
+---
+
+<section data-transition="slide" data-background="#4d7e65" data-background-transition="slide">
+	<h2>Commanding the CLI</h2>
+	<p>
+		<small>Created by <a href="ksoong.org">kylin.</a>24th, Dec</small>
+	</p>
+</section>
+
+<section data-transition="slide" data-background="#4d7e65" data-background-transition="slide">
+        <h3>Agenda</h3>
+	<ul>
+		<li>Invoking CLI commands</li>
+		<li>Checking WildFly version</li>
+		<li>Checking WildFly operational mode</li>
+		<li>Getting OS version</li>
+		<li>Getting JVM version</li>
+		<li>Checking JVM option</li>
+		<li>Checking JVM memories</li>
+		<li>Checking server status</li>
+		<li>Checking JNDI tree view</li>
+		<li>Invoking server stop|start|reload</li>
+		<li>Invoking server-group stop|start|restart|reload</li>
+		<li>Creating server-group</li>
+		<li>Creating server<li>
+		<li>Managing an application – deploy, undeploy</li>
+	</ul>
+</section>
+
+<section>
+    <section data-transition="slide" data-background="#4d7e65" data-background-transition="slide">
+	<p>Invoking CLI commands</p>
+        <pre>
+            <code class="shell" data-trim contenteditable style="font-size: 18px;">
+//
+cp -a standalone std-commands
+
+$ ./bin/standalone.sh -Djboss.server.base.dir=std-commands -bmanagement=192.168.1.106
+
+$ ./bin/jboss-cli.sh -c --controller=192.168.1.106 --user=admin --password=password1!
+
+:read-attribute(name=release-codename)
+
+curl --digest --user admin http://192.168.1.106:9990/management/?operation=attribute\&name=release-codename
+curl --digest --user admin:password1! http://192.168.1.106:9990/management/?operation=attribute\&name=release-codename
+            </code>
+        </pre>
+    </section>
+</section>
+
+<section>
+    <section data-transition="slide" data-background="#4d7e65" data-background-transition="slide">
+	<p>Checking the WildFly version</p>
+        <pre>
+            <code class="shell" data-trim contenteditable style="font-size: 18px;">
+//
+:read-attribute(name=release-version)
+
+curl --digest --user admin http://192.168.1.106:9990/management/?operation=attribute\&name=release-version
+curl --digest --user admin:password1! http://192.168.1.106:9990/management/?operation=attribute\&name=release-version
+            </code>
+        </pre>
+    </section>
+</section>
+
+<section>
+    <section data-transition="slide" data-background="#4d7e65" data-background-transition="slide">
+	<p>Checking WildlyFly operational mode</p>
+        <pre>
+            <code class="shell" data-trim contenteditable style="font-size: 18px;">
+//
+:read-attribute(name=launch-type)
+
+curl --digest --user admin http://192.168.1.106:9990/management/?operation=attribute\&name=launch-type
+curl --digest --user admin:password1! http://192.168.1.106:9990/management/?operation=attribute\&name=launch-type
+            </code>
+        </pre>
+    </section>
+</section>
+
+
+<section>
+    <section data-transition="slide" data-background="#4d7e65" data-background-transition="slide">
+	<p>Getting OS version</p>
+        <pre>
+            <code class="shell" data-trim contenteditable style="font-size: 18px;">
+//
+/core-service=platform-mbean/type=operating-system:read-resource(include-runtime=true,include-defaults=true)
+
+curl --digest --user admin:password1! http://192.168.1.106:9990/management/core-service/platform-mbean/type/operating-system?operation=resource\&include-runtime=true\&include-defaults=true\&json.pretty=true
+            </code>
+        </pre>
+    </section>
+</section>
+
+
+<section>
+    <section data-transition="slide" data-background="#4d7e65" data-background-transition="slide">
+	<p>Getting JVM version</p>
+        <pre>
+            <code class="shell" data-trim contenteditable style="font-size: 18px;">
+//
+/core-service=platform-mbean/type=runtime:read-attribute(name=spec-version)
+
+curl --digest --user admin:password1! http://192.168.1.106:9990/management/core-service/platform-mbean/type/runtime?operation=attribute\&name=spec-version
+            </code>
+        </pre>
+    </section>
+</section>
+
+
+<section>
+    <section data-transition="slide" data-background="#4d7e65" data-background-transition="slide">
+	<p>Checking JVM options</p>
+         <pre>
+            <code class="shell" data-trim contenteditable style="font-size: 18px;">
+//
+/core-service=platform-mbean/type=runtime:read-attribute(name=input-arguments,include-defaults=true)
+
+curl --digest --user admin:password1! http://192.168.1.106:9990/management/core-service/platform-mbean/type/runtime?operation=attribute\&name=input-arguments\&include-defaults=true\&json.pretty=true
+            </code>
+        </pre>
+    </section>
+</section>
+
+
+<section>
+    <section data-transition="slide" data-background="#4d7e65" data-background-transition="slide">
+	<p>Checking JVM memories</p>
+        <pre>
+            <code class="shell" data-trim contenteditable style="font-size: 18px;">
+//
+/core-service=platform-mbean/type=memory:read-attribute(name=non-heap-memory-usage,include-defaults=true)
+
+/core-service=platform-mbean/type=memory-pool/name=PS_Eden_Space:read-resource(include-runtime=true, include-defaults=true)
+/core-service=platform-mbean/type=memory-pool/name=PS_Eden_Space:read-attribute(name=usage,include-defaults=true)
+
+/core-service=platform-mbean/type=memory-pool/name=PS_Old_Gen:read-resource(include-runtime=true,include-defaults=true)
+/core-service=platform-mbean/type=memory-pool/name=PS_Old_Gen:read-attribute(name=usage,include-defaults=true)
+
+/core-service=platform-mbean/type=memory-pool/name=PS_Survivor_Space:read-resource(include-runtime=true,include-defaults=true)
+/core-service=platform-mbean/type=memory-pool/name=PS_Survivor_Space:read-attribute(name=usage,include-defaults=true)
+
+curl --digest --user admin:password1! http://192.168.1.106:9990/management/core-service/platform-mbean/type/memory?operation=attribute\&name=heap-memory-usage
+
+            </code>
+        </pre>
+    </section>
+</section>
+
+
+<section>
+    <section data-transition="slide" data-background="#4d7e65" data-background-transition="slide">
+	<p>Checking server status</p>
+        <pre>
+            <code class="shell" data-trim contenteditable style="font-size: 18px;">
+//
+:read-attribute(name=server-state)
+
+curl --digest --user admin:password1! http://192.168.1.106:9990/management/?operation=attribute\&name=server-state
+            </code>
+        </pre>
+    </section>
+</section>
+
+<section>
+    <section data-transition="slide" data-background="#4d7e65" data-background-transition="slide">
+        <p>Checking JNDI tree view</p>
+        <pre>
+            <code class="shell" data-trim contenteditable style="font-size: 18px;">
+//
+/subsystem=naming:jndi-view
+
+            </code>
+        </pre>
+    </section>
+</section>
+
+<section>
+    <section data-transition="slide" data-background="#4d7e65" data-background-transition="slide">
+        <p>Invoking server using stop, start, and reload</p>
+        <pre>
+            <code class="shell" data-trim contenteditable style="font-size: 18px;">
+//
+:shutdown(restart=false)
+:shutdown(restart=true)
+:reload()
+
+curl --digest --user admin:password1! http://192.168.1.106:9990/management/ -X POST -H "Content-Type: application/json" -d '{"operation":"reload"}'
+            </code>
+        </pre>
+    </section>
+</section>
+
+<section>
+    <section data-transition="slide" data-background="#4d7e65" data-background-transition="slide">
+        <p>Invoking server-group using stop, start, restart, and reload</p>
+        <pre>
+            <code class="shell" data-trim contenteditable style="font-size: 18px;">
+//
+/server-group=main-server-group:stop-servers()
+/server-group=main-server-group:start-servers()
+/server-group=main-server-group:restart-servers()
+
+curl --digest --user admin:password1! http://192.168.1.106:9990/management/ -X POST -H "Content-Type: application/json" -d '{"operation" : "composite", "address" : [], "steps" : [{"operation" : "add", "address" : {"server-group" : "next-server-group"}, "profile" : "ha", "socket-binding-group" : "ha-sockets"}]}'
+            </code>
+        </pre>
+    </section>
+</section>
+
+<section>
+    <section data-transition="slide" data-background="#4d7e65" data-background-transition="slide">
+        <p>Creating a server-group</p>
+        <pre>
+            <code class="shell" data-trim contenteditable style="font-size: 18px;">
+//
+/server-group=next-server-group:add(profile=ha,socket-binding-group=ha-sockets)
+
+/server-group=next-server-group:remove()
+
+curl --digest --user admin:password1! http://192.168.1.106:9990/management/ -X POST -H "Content-Type: application/json" -d '{"operation" : "composite", "address" : [], "steps" : [{"operation" : "add", "address" : {"server-group" : "next-server-group"}, "profile" : "ha", "socket-binding-group" : "ha-sockets"}]}'
+	    </code>
+        </pre>
+    </section>
+</section>
+
+
+<section>
+    <section data-transition="slide" data-background="#4d7e65" data-background-transition="slide">
+        <p>Creating a server</p>
+        <pre>
+            <code class="shell" data-trim contenteditable style="font-size: 18px;">
+//
+/host=master/server-config=server-four:add(group=main-server-group, auto-start=true, socket-binding-port-offset=450
+
+curl --digest --user admin:password1! http://192.168.1.106:9990/management/ -X POST -H "Content-Type: application/json" -d '{"operation" : "composite", "address" : [], "steps" : [{"operation" : "add", "address" : [{"host" : "master"},{"server-config" : "server-four"}], "group" : "main-server-group", "auto-start" : "true", "socket-binding-port-offset" : "450"}]}'
+            </code>
+        </pre>
+    </section>
+</section>
+
+<section>
+    <section data-transition="slide" data-background="#4d7e65" data-background-transition="slide">
+        <p>Managing an application – deploy, undeploy</p>
+        <pre>
+            <code class="shell" data-trim contenteditable style="font-size: 18px;">
+//
+deploy example.war
+deploy example.war --server-groups=main-server-group
+
+undeploy example.war
+undeploy example.war --all-relevant-server-groups
+
+deployment-info example.war
+
+curl  --digest --user admin:password1! http://192.168.1.106:9990/management -X POST -H "Content-Type: application/json" -d '{"content":[{"hash": {"BYTES_VALUE" : "eqfGfLVOCv+p1gz5gjDgwX79ERk="}}], "address": [{"deployment":"example.war"}], "server-groups":"main-server-group", "runtime-name":"example.war", "operation":"add", "enabled":"true"}'
+curl --digest --user admin:password1! http://192.168.1.106:9990/management/ -X POST -H "Content-Type: application/json" -d '{"address" : [{"deployment":"example.war"}],"operation":"undeploy"}'
+            </code>
+        </pre>
+    </section>
+</section>
+
+<section data-transition="slide" data-background="#4d7e65" data-background-transition="slide">
+	<h1>THE END</h1>
+</section>
+

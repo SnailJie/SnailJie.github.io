@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html class="ready" lang="en"><head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="shenma-site-verification" content="8a69823d7371d1eec4379853d25200cd_1448504990"> 
+    <title>Kylin Soong . Blog</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="/feed.xml" rel="alternate" title="Kylin Soong . Blog Atom feed" type="application/atom+xml">
+    <link href="/css/screen.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.js"></script>
+    <![endif]-->
+    <link href="/favicon.ico" rel="shortcut icon">
+
+</head>
+
+  <body class="blog index">
+    <header class="navbar navbar-fixed-top" id="banner" role="banner">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-target=".nav-collapse" data-toggle="collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/">
+            <span class="logo"></span>
+            <span class="name">ksoong</span>
+          </a>
+          <nav class="nav-collapse" role="navigation">
+            <ul class="nav">
+              <li><a href="/">Home</a></li>
+	      <!--
+              <li><a href="/lab">Labs</a></li>
+              <li><a href="/blog/">Blog</a></li>
+	      -->
+	      <li><a href="/books">Books</a></li>
+              <li><a href="/archive">Archives</a></li>
+              <li><a href="/slide">Slides</a></li>
+              <li><a href="/about">About</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+    <div style="min-height: 250px;" id="main" role="main">
+      
+<div id="content-header">
+        <div class="container">
+         <h1>
+              <a href="/blog">Blog</a>
+              <!--a href="#">&raquo;</a>
+              <a href="/big-data">Big Data Specialization</a-->
+          </h1>
+        </div>
+</div>
+      <div class="container">
+        <div id="content">
+          
+<h2 class="title">
+                 <a class="post-link" href="/big-data">Big Data Specialization</a>
+              </h2>
+ 
+<header class="post">
+              <div class="byline">
+                <span class="author">Posted by
+                <a href="/about">Kylin Soong</a> on</span>
+                <span class="dateinline">Feb 21, 2016</span>
+		<i class="icon-tags"></i> categorized as <a class="tag" href="/categories/data">data</a>
+              </div>
+            </header>
+
+ 
+<ul id="markdown-toc">
+  <li><a href="#introduction-to-big-data" id="markdown-toc-introduction-to-big-data">Introduction to Big Data</a>    <ul>
+      <li><a href="#getting-started-in-hadoop" id="markdown-toc-getting-started-in-hadoop">Getting Started in Hadoop</a></li>
+    </ul>
+  </li>
+  <li><a href="#hadoop-platform-and-application-framework" id="markdown-toc-hadoop-platform-and-application-framework">Hadoop Platform and Application Framework</a>    <ul>
+      <li><a href="#big-data-hadoop-stack" id="markdown-toc-big-data-hadoop-stack">Big Data Hadoop Stack</a>        <ul>
+          <li><a href="#apache-sqoop" id="markdown-toc-apache-sqoop">Apache Sqoop</a></li>
+          <li><a href="#apache-flume" id="markdown-toc-apache-flume">Apache Flume</a></li>
+        </ul>
+      </li>
+      <li><a href="#overview-of-the-hadoop-stack" id="markdown-toc-overview-of-the-hadoop-stack">Overview of the Hadoop Stack</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="introduction-to-big-data">Introduction to Big Data</h2>
+
+<p><a href="https://www.linkedin.com/in/natasha-balac-1992964">Natasha Balac</a>. SDSC - <a href="http://www.sdsc.edu/">San Diego Supercomputer Center</a>.</p>
+
+<p><strong>Outpacing Time</strong> - <em>Predicting the Future to Solve Tomorrow’s Business Challenges</em>.</p>
+
+<p><img src="/assets/blog/bigddata-data-to-insight.png" alt="Data Source to Insight" /></p>
+
+<p>Big Data is making the world <strong>go around</strong>.</p>
+
+<p><img src="/assets/blog/using-it-is-hardest-part.jpg" alt="world go around" /></p>
+
+<p><strong>Data Growth</strong> - Driven by Unstructured Data.</p>
+
+<p><img src="/assets/blog/bigdata-tendencias-storage.jpg" alt="Unstructured Data" /></p>
+
+<ol>
+  <li><strong>Zettabyte</strong> - 1 « 70 -&gt; 1 * (2^70)</li>
+  <li><strong>Exabyte</strong> - 1 « 60 -&gt; 1 * (2^60)</li>
+  <li><strong>Petabyte</strong> - 1 « 50 -&gt; 1 * (2^50)</li>
+  <li><strong>Terabyte</strong> - 1 « 40 -&gt; 1 * (2^40)</li>
+  <li><strong>Gigabyte</strong> - 1 « 30 -&gt; 1 * (2^30)</li>
+</ol>
+
+<h3 id="getting-started-in-hadoop">Getting Started in Hadoop</h3>
+
+<p><strong>Hardware and Software Requirements</strong></p>
+
+<ul>
+  <li>Fedora 20, VirtualBox 5+</li>
+  <li>intel CORE i5, 8GB RAM, 20GB Disk</li>
+  <li><a href="http://www.cloudera.com/content/www/en-us/downloads/quickstart_vms/5-4.html?src=Coursera">Cloudera QuickStart VM</a></li>
+</ul>
+
+<p><strong>Install Cloudera QuickStart VM with VirtualBox</strong></p>
+
+<ol>
+  <li>Go to <a href="https://www.virtualbox.org/wiki/Downloads">https://www.virtualbox.org/wiki/Downloads</a> to download and install VirtualBox for your computer. A alternative way, download <a href="/assets/download/virtualbox.repo">virtualbox.repo</a>, yum install via execute <code class="highlighter-rouge">yum install VirtualBox-5.0</code>.</li>
+  <li>Download the VirtualBox VM from <a href="https://downloads.cloudera.com/demo_vm/virtualbox/cloudera-quickstart-vm-5.4.2-0-virtualbox.zip">https://downloads.cloudera.com/demo_vm/virtualbox/cloudera-quickstart-vm-5.4.2-0-virtualbox.zip</a>.</li>
+  <li>Unzip the VirtualBox VM</li>
+  <li>Start VirtualBox</li>
+  <li>Import the VM to VirtualBox</li>
+</ol>
+
+<p><strong>Additional Resource</strong></p>
+
+<ol>
+  <li><a href="http://hadoop.apache.org/">Apache Hadoop web site</a></li>
+  <li><a href="http://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-common/FileSystemShell.html">Apache Hadoop shell command guide</a></li>
+  <li><a href="http://www.cloudera.com/documentation/enterprise/latest/topics/cloudera_quickstart_vm.html">More about Cloudera QuickStart Virtual Machine</a></li>
+</ol>
+
+<p><strong>Why Hadoop?</strong> - Low-cost, Scalable, Fault tolerant, Flexible</p>
+
+<h2 id="hadoop-platform-and-application-framework">Hadoop Platform and Application Framework</h2>
+
+<p><img src="/assets/blog/hadoop-logo.jpg" alt="Hadoop logo" /></p>
+
+<p>Apache Hadoop is an open source software framework for storage and large scale processing of data-sets on clusters of commodity hardware.</p>
+
+<p><a href="https://www.linkedin.com/in/cutting"><strong>Doug Cutting</strong></a>, <a href="https://en.wikipedia.org/wiki/Mike_Cafarella"><strong>Mike Cafarella</strong></a></p>
+
+<h3 id="big-data-hadoop-stack">Big Data Hadoop Stack</h3>
+
+<p><strong>Highlights of Hadoop</strong></p>
+
+<ul>
+  <li>Moving Computation to Data</li>
+</ul>
+
+<p><img src="/assets/blog/hadoop-highlisht-movecomputationtodata.png" alt="Hadoop highlight 1" /></p>
+
+<ul>
+  <li>Scalability at Hadoop’s core</li>
+</ul>
+
+<p><img src="/assets/blog/haddop-highlisht-scalability.png" alt="Hadoop highlight 2" /></p>
+
+<ul>
+  <li>Reliability</li>
+  <li>New Approach to Data - unstructured/semi-structured</li>
+  <li>New Kinds of Analysis</li>
+</ul>
+
+<p><strong>Hadoop Modules</strong></p>
+
+<p><img src="/assets/blog/hadoop-modules.png" alt="Hadoop Modules" /></p>
+
+<ul>
+  <li><em>Hadoop Common</em> - contains libraries and utilities needed by other Hadoop modules.</li>
+  <li><em>Hadoop Distributed File System(HDFS)</em> - is a distributed file system that stores data on a commodity machine. Providing very high aggregate bandwidth across the entire cluster.</li>
+  <li><em>Hadoop YARN</em> - is a resource management platform responsible for managing compute resources in the cluster and using them in order to schedule users and applications.</li>
+  <li><em>Hadoop MapReduce</em> is a programming model that scales data across a lot of different processes.</li>
+</ul>
+
+<p><img src="/assets/blog/Hadoop-Echosystem.jpg" alt="Hadoop-Echosystem.jpg" /></p>
+
+<ul>
+  <li>Sqoop - <a href="#Apache Sqoop">Apache Sqoop</a></li>
+  <li>HBase - Column-oriented database management system, Key-value store, Based on Google Big Table, Can hold extremely large data, Dynamic data model, Not a Relational DBMS. <a href="https://hbase.apache.org/">hbase.apache.org</a>.</li>
+  <li>Pig - PIG Highlevel programming on top of Hadoop MapReduce, The language: Pig Latin, Data analysis problems as data flows, Originally developed at Yahoo 2006.</li>
+  <li>Hive - Data warehouse software facilitates querying and managing large datasets residing in distributed storage.</li>
+  <li>Oozie - A workflow scheduler system to manage Apache Hadoop jobs.</li>
+  <li>Zookeeper - Provides operational services for a Hadoop cluster group services. Centralized service for: maintaining configuration information naming services, <strong>providing distributed synchronization and providing group services</strong></li>
+  <li>Flume - <a href="#Apache Flume">Apache Flume</a></li>
+</ul>
+
+<h4 id="apache-sqoop">Apache Sqoop</h4>
+
+<p><a href="http://sqoop.apache.org/">sqoop.apache.org/</a></p>
+
+<p><img src="/assets/blog/apache-sqoop.jpg" alt="Apache Sqoop" /></p>
+
+<p>Apache Sqoop is a tool that uses MapReduce to transfer data between Hadoop clusters and relational databases very efficiently. It works by spawning tasks on multiple data nodes to download various portions of the data in parallel. When you’re finished, each piece of data is replicated to ensure reliability, and spread out across the cluster to ensure you can process it in parallel on your cluster.</p>
+
+<p>An Example:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ sqoop import-all-tables \
+    -m 1 \
+    --connect jdbc:mysql://quickstart:3306/test_db \
+    --username=test_user \
+    --password=test_pass \
+    --compression-codec=snappy \
+    --as-avrodatafile \
+    --warehouse-dir=/user/hive/warehouse
+</code></pre>
+</div>
+
+<h4 id="apache-flume">Apache Flume</h4>
+
+<p><a href="https://flume.apache.org/">flume.apache.org</a></p>
+
+<p><img src="/assets/blog/apache-flume.png" alt="Apache Flume" /></p>
+
+<p>Flume is a scalable real-time framework that allows you to route, filter and aggregate in to all kinds of mini-operations on the data as you transfer it on its way to scalable processing platform like a Hadoop.</p>
+
+<h3 id="overview-of-the-hadoop-stack">Overview of the Hadoop Stack</h3>
+
+
+
+<br/>
+<ul class="btn pull-right">
+<div class="bdsharebuttonbox">
+  <a href="#" class="bds_more" data-cmd="more"></a>
+  <a title="分享到QQ空间" href="#" class="bds_qzone" data-cmd="qzone"></a>
+  <a title="分享到新浪微博" href="#" class="bds_tsina" data-cmd="tsina"></a>
+  <a title="分享到腾讯微博" href="#" class="bds_tqq" data-cmd="tqq"></a>
+  <a title="分享到人人网" href="#" class="bds_renren" data-cmd="renren"></a>
+  <a title="分享到微信" href="#" class="bds_weixin" data-cmd="weixin"></a>
+</div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"分享ksoong.org的文章「Big Data Specialization」 - ksoong.org","bdDesc":"","bdMini":"2","bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</ul>
+
+<div class="ds-thread" data-thread-key="ksoong2016022101" data-title="Big Data Specialization" data-url="ksoong.org/big-data"></div>
+
+	    <ul class="pager">
+		
+		<li class="previous"><a href="/free-data-sourvces">&laquo;&nbsp;Free Data Sources</a></li>
+		
+		
+		<li class="next"><a href="/netty4-uml">Netty 4 源码分析&nbsp;&raquo;</a></li>
+		
+	    </ul>
+
+
+        </div>
+        <aside id="sidebar" role="complementary">
+          <div class="subscribe">
+            <h2 class="icon news">
+              <a href="/feed.xml">Subscribe</a>
+            </h2>
+          </div>
+          <nav class="latest">
+            <h2>Latest Posts</h2>
+            <ul>
+            
+              <li>
+                <div class="title">
+                  <a href="/wfl-ds">WildFly Data Sources Configuration</a>
+                </div>
+                <div class="meta">
+                  Apr 26, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-transactions">Transaction in Teiid</a>
+                </div>
+                <div class="meta">
+                  Apr 20, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-getstart-code">Get Start Teiid From Source...</a>
+                </div>
+                <div class="meta">
+                  Apr 7, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-metadata">Understanding Teiid Metadata</a>
+                </div>
+                <div class="meta">
+                  Mar 27, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/rhel7-commands">Linux 命令集合</a>
+                </div>
+                <div class="meta">
+                  Mar 17, 2016
+                </div>
+              </li>
+             
+            </ul>
+            
+                        
+          </nav>
+          <nav class="tags">
+            <h2>Categories</h2>
+            <div class="tag-cloud">
+              
+              <span class="tag tag-1">
+                <a href="/categories/jekyll">Jekyll(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/jboss">Jboss(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/java">Java(18)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/css">Css(1)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/database">Database(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/javaee">Javaee(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/linux">Linux(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/teiid">Teiid(40)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/maven">Maven(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/netty">Netty(7)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/data">Data(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/git">Git(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/other">Other(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/performance">Performance(4)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/security">Security(3)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/docker">Docker(4)</a>
+              </span>
+              
+              
+            </div>
+          </nav>
+        </aside>
+      </div>
+
+
+    </div>
+    <footer>
+      <div class="container">
+        <div class="project">
+          <p class="bottom">
+            ©
+            Copyright 2009-2016 ksoong.
+            <br>
+            <i class="icon-fire"></i>
+            Mixed with <a href="http://twitter.github.com/bootstrap">Bootstrap</a>.
+            <br>
+            <i class="icon-share-alt"></i>
+            Website and docs licensed under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
+            <br>
+            Code released under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, v2.0</a>.
+          </p>
+        </div>
+        <div class="footer-nav">
+          <h4>Learn</h4>
+          <ul>
+            <li>
+              <a href="http://www.jboss.org/">JBoss</a>
+            </li>
+            <li>
+              <a href="http://infinispan.org/">Infinispan</a>
+            </li>
+            <li>
+              <a href="http://teiid.org/">Teiid</a>
+            </li>
+            <li>
+              <a href="https://github.com/kylinsoong">Github</a>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="sponser">
+          <div class="follow-us">
+            <h4>Stay Informed</h4>
+            <ul>
+              <li>
+                <a href="https://plus.google.com/103933729718268414460?rel=author"><img alt="Google+" src="/css/googleplus-16.png" title="Follow ksoong.org on Google+"></a>
+              </li>
+              <li>
+                <a href="http://www.weibo.com/kylinsoong"><img alt="Weibo" src="/css/weibo_logo.jpg" title="Follow me on Weibo"></a>
+              </li>
+	      <li>
+                <a href="https://github.com/kylinsoong"><img alt="Github" src="/css/Octocat.jpg" title="Fork me on Github"></a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+        <a class="visible-desktop" href="#" id="toTop">Top</a>
+      </div>
+        <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1258751305'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1258751305%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+    </footer>
+  
+ 
+    <script src="/css/jquery-1.11.1.min.js"></script>
+    <script src="/css/bootstrap.js"></script>
+
+   <script>
+      $(function() {
+        $('html').addClass('ready');
+        prettify();
+        activateFooterGravity();
+        activateTooltips();
+        activateToTopControl();
+      });
+    </script>
+    <script src="/css/site.js"></script>
+
+    
+            
+            <script type="text/javascript">
+                var duoshuoQuery = {short_name:"ksoong"};
+                (function() {
+                    var ds = document.createElement('script');
+                    ds.type = 'text/javascript';
+                    ds.async = true;
+                    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+                    ds.charset = 'UTF-8';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+                })();
+            </script>
+            
+        
+
+
+</body>
+</html>

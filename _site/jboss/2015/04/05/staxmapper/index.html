@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html class="ready" lang="en"><head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="shenma-site-verification" content="8a69823d7371d1eec4379853d25200cd_1448504990"> 
+    <title>Kylin Soong . Blog</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="/feed.xml" rel="alternate" title="Kylin Soong . Blog Atom feed" type="application/atom+xml">
+    <link href="/css/screen.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.js"></script>
+    <![endif]-->
+    <link href="/favicon.ico" rel="shortcut icon">
+
+</head>
+
+  <body class="blog index">
+    <header class="navbar navbar-fixed-top" id="banner" role="banner">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-target=".nav-collapse" data-toggle="collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/">
+            <span class="logo"></span>
+            <span class="name">ksoong</span>
+          </a>
+          <nav class="nav-collapse" role="navigation">
+            <ul class="nav">
+              <li><a href="/">Home</a></li>
+	      <!--
+              <li><a href="/lab">Labs</a></li>
+              <li><a href="/blog/">Blog</a></li>
+	      -->
+	      <li><a href="/books">Books</a></li>
+              <li><a href="/archive">Archives</a></li>
+              <li><a href="/slide">Slides</a></li>
+              <li><a href="/about">About</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+    <div style="min-height: 250px;" id="main" role="main">
+      
+<div id="content-header">
+        <div class="container">
+         <h1>
+              <a href="/blog">Blog</a>
+              <!--a href="#">&raquo;</a>
+              <a href="/jboss/2015/04/05/staxmapper/">JBoss staxmapper</a-->
+          </h1>
+        </div>
+</div>
+      <div class="container">
+        <div id="content">
+          
+<h2 class="title">
+                 <a class="post-link" href="/jboss/2015/04/05/staxmapper/">JBoss staxmapper</a>
+              </h2>
+ 
+<header class="post">
+              <div class="byline">
+                <span class="author">Posted by
+                <a href="/about">Kylin Soong</a> on</span>
+                <span class="dateinline">Apr 5, 2015</span>
+		<i class="icon-tags"></i> categorized as <a class="tag" href="/categories/jboss">jboss</a>
+              </div>
+            </header>
+
+ 
+<ul id="markdown-toc">
+  <li><a href="#warm-up" id="markdown-toc-warm-up">Warm-up</a></li>
+  <li><a href="#jdk-stax-api" id="markdown-toc-jdk-stax-api">JDK StaX API</a>    <ul>
+      <li><a href="#examples" id="markdown-toc-examples">Examples</a>        <ul>
+          <li><a href="#example1-xmlstreamreader" id="markdown-toc-example1-xmlstreamreader">Example.1 XMLStreamReader</a></li>
+          <li><a href="#example2-xmlstreamwriter" id="markdown-toc-example2-xmlstreamwriter">Example.2 XMLStreamWriter</a></li>
+          <li><a href="#example3-xmleventreader" id="markdown-toc-example3-xmleventreader">Example.3 XMLEventReader</a></li>
+          <li><a href="#example4-xmleventwriter" id="markdown-toc-example4-xmleventwriter">Example.4 XMLEventWriter</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#jboss-staxmapper-api" id="markdown-toc-jboss-staxmapper-api">JBoss staxmapper API</a>    <ul>
+      <li><a href="#category1-stax-cursor-apis-extention" id="markdown-toc-category1-stax-cursor-apis-extention">Category.1 Stax Cursor API’s extention</a></li>
+      <li><a href="#category2-customized-api" id="markdown-toc-category2-customized-api">Category.2 Customized API</a></li>
+      <li><a href="#category3-thin-stax-facade-api" id="markdown-toc-category3-thin-stax-facade-api">Category.3 Thin StAX facade API</a></li>
+      <li><a href="#examples-1" id="markdown-toc-examples-1">Examples</a>        <ul>
+          <li><a href="#example1" id="markdown-toc-example1">Example.1</a></li>
+          <li><a href="#example2" id="markdown-toc-example2">Example.2</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#jboss-staxmapper-" id="markdown-toc-jboss-staxmapper-">JBoss staxmapper 示例</a>    <ul>
+      <li><a href="#maven-" id="markdown-toc-maven-">添加相关的 Maven 依赖</a></li>
+      <li><a href="#logging-subsystem" id="markdown-toc-logging-subsystem">抽取 logging subsystem</a></li>
+      <li><a href="#jboss-staxmapper--logging-subsystem-" id="markdown-toc-jboss-staxmapper--logging-subsystem-">使用 JBoss staxmapper 解析 logging subsystem 配置</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="warm-up">Warm-up</h2>
+
+<p>JBoss staxmapper 是对 JDK StaX API 扩展，对外提供一个 facade 接口 org.jboss.staxmapper.XMLMapper, 通过 facade 接口对 XLM 进行读写。</p>
+
+<p>XMLMapper 定义的方法如下:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>public interface XMLMapper {
+    void registerRootElement(QName name, XMLElementReader&lt;?&gt; reader);
+    void unregisterRootElement(QName name);
+    void registerRootAttribute(QName name, XMLAttributeReader&lt;?&gt; reader);
+    void unregisterRootAttribute(QName name);
+    void parseDocument(Object rootObject, XMLStreamReader reader) throws XMLStreamException;
+    void deparseDocument(XMLElementWriter&lt;?&gt; writer, Object rootObject, XMLStreamWriter streamWriter) throws XMLStreamException;
+}
+</code></pre>
+</div>
+
+<p>‘parseDocument()’ 和 ‘deparseDocument()’ 分别用于 XML 读写，调运 ‘parseDocument()’ 之前必须首先调运相关的注册方法，如 ‘registerRootElement()’，’parseDocument()’ 中的 rootObject 用于保存解析 XML 的结果。</p>
+
+<p>XMLMapper 读 XML 分三个步骤:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>// 1. Factory 类创建 XMLMapper 实例
+XMLMapper mapper = XMLMapper.Factory.create();
+
+// 2. 注册相关 reader
+mapper.registerRootElement(rootElement, rootParser);
+
+// 3. 调运 parseDocument() 方法
+mapper.parseDocument(results, reader);
+</code></pre>
+</div>
+
+<p>XMLMapper 写 XML 分两个步骤:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>// 1. Factory 类创建 XMLMapper 实例
+XMLMapper mapper = XMLMapper.Factory.create();
+
+// 2. 调运 deparseDocument() 方法
+mapper.deparseDocument(writer, object, streamWriter);
+</code></pre>
+</div>
+
+<blockquote>
+  <p>详细关于 Facade Design Pattern 参照 <a href="http://en.wikipedia.org/wiki/Facade_pattern">Wikipedia</a></p>
+</blockquote>
+
+<p>接下来我们详细介绍 JBoss staxmapper，内容包括:</p>
+
+<ul>
+  <li>JDK StaX API</li>
+  <li>JBoss staxmapper API</li>
+  <li>JBoss staxmapper 示例</li>
+</ul>
+
+<h2 id="jdk-stax-api">JDK StaX API</h2>
+
+<p>Before learning the <code class="highlighter-rouge">JBoss staxmapper</code> we first need to learn the StAX API.</p>
+
+<p>Streaming API for XML, called StaX, is an API for reading and writing XML Documents. StaX is a Pull-Parsing model. Application can take the control over parsing the XML documents by pulling (taking) the events from the parser.</p>
+
+<blockquote>
+  <p><a href="http://en.wikipedia.org/wiki/StAX">Wikipedia article</a> explain why StAX are better in performance than DOM and SAX.</p>
+</blockquote>
+
+<p>The core StaX API falls into two categories and listed as below:</p>
+
+<ul>
+  <li>Cursor API</li>
+  <li>Event Iterator API</li>
+</ul>
+
+<p>The Cursor API has two main interfaces:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>javax.xml.stream.XMLStreamReader
+javax.xml.stream.XMLStreamWriter
+</code></pre>
+</div>
+
+<p>The Event Iterator API has two main interfaces:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>javax.xml.stream.XMLEventReader
+javax.xml.stream.XMLEventWriter
+</code></pre>
+</div>
+
+<h3 id="examples">Examples</h3>
+
+<p>Assuming we have extract WildFly jca subsystem configuration as</p>
+
+<p><a href="https://github.com/kylinsoong/wildfly-samples/blob/master/staxmapper/quickstart/subsystem-jca.xml">subsystem-jca.xml</a></p>
+
+<p>We have 4 examples demonstrate StaX Cursor API and Event Iterator API.</p>
+
+<h4 id="example1-xmlstreamreader">Example.1 XMLStreamReader</h4>
+
+<p>The example will illustrate use the Cursor API read XML file, run StaxXMLStreamReader will read xml content and output to console</p>
+
+<p><a href="https://github.com/kylinsoong/wildfly-samples/blob/master/staxmapper/quickstart/src/main/java/org/jboss/staxmapper/quickstart/StaxXMLStreamReader.java">StaxXMLStreamReader</a></p>
+
+<h4 id="example2-xmlstreamwriter">Example.2 XMLStreamWriter</h4>
+
+<p>The example will illustrate use the Cursor API write XML file, run StaxXMLStreamWriter will generate a xml and output to console</p>
+
+<p><a href="https://github.com/kylinsoong/wildfly-samples/blob/master/staxmapper/quickstart/src/main/java/org/jboss/staxmapper/quickstart/StaxXMLStreamReader.java">StaxXMLStreamWriter</a></p>
+
+<h4 id="example3-xmleventreader">Example.3 XMLEventReader</h4>
+
+<p>The example will illustrate use The Event Iterator API read XML file, run StaxXMLEventReader will read xml content and output to console</p>
+
+<p><a href="https://github.com/kylinsoong/wildfly-samples/blob/master/staxmapper/quickstart/src/main/java/org/jboss/staxmapper/quickstart/StaxXMLEventReader.java">StaxXMLEventReader</a></p>
+
+<h4 id="example4-xmleventwriter">Example.4 XMLEventWriter</h4>
+
+<p>The example will illustrate use The Event Iterator API write XML file, run StaxXMLEventWriter will generate a XML and output to console</p>
+
+<p><a href="https://github.com/kylinsoong/wildfly-samples/blob/master/staxmapper/quickstart/src/main/java/org/jboss/staxmapper/quickstart/StaxXMLEventWriter.java">StaxXMLEventWriter</a></p>
+
+<h2 id="jboss-staxmapper-api">JBoss staxmapper API</h2>
+
+<p>JBoss staxmapper is a thin StAX facade which supports plugability plus some usability enhancements.</p>
+
+<p><a href="https://github.com/jbossas/staxmapper">JBoss staxmapper Source Code</a></p>
+
+<p>JBoss staxmapper mainly extend the Stax Cursor API, we can separate staxmapper API to 3 categories:</p>
+
+<h3 id="category1-stax-cursor-apis-extention">Category.1 Stax Cursor API’s extention</h3>
+
+<p><a href="https://github.com/jbossas/staxmapper/blob/master/src/main/java/org/jboss/staxmapper/XMLExtendedStreamWriter.java">org.jboss.staxmapper.XMLExtendedStreamWriter</a> extends <code class="highlighter-rouge">javax.xml.stream.XMLStreamWriter</code> which the extention mainly focus on format the the XML for configuration files.</p>
+
+<p><a href="https://github.com/jbossas/staxmapper/blob/master/src/main/java/org/jboss/staxmapper/FormattingXMLStreamWriter.java">org.jboss.staxmapper.FormattingXMLStreamWriter</a> implemwnts the <a href="https://github.com/jbossas/staxmapper/blob/master/src/main/java/org/jboss/staxmapper/XMLExtendedStreamWriter.java">org.jboss.staxmapper.XMLExtendedStreamWriter</a>.</p>
+
+<p><a href="https://github.com/jbossas/staxmapper/blob/master/src/main/java/org/jboss/staxmapper/XMLExtendedStreamReader.java">org.jboss.staxmapper.XMLExtendedStreamReader</a> extends <code class="highlighter-rouge">javax.xml.stream.XMLStreamReader</code> which the extention mainly focus on read nested content using a registered set of root elements.</p>
+
+<p><a href="https://github.com/jbossas/staxmapper/blob/master/src/main/java/org/jboss/staxmapper/XMLExtendedStreamReaderImpl.java">org.jboss.staxmapper.XMLExtendedStreamReaderImpl</a> implements the <a href="https://github.com/jbossas/staxmapper/blob/master/src/main/java/org/jboss/staxmapper/XMLExtendedStreamReader.java">org.jboss.staxmapper.XMLExtendedStreamReader</a>.</p>
+
+<p><a href="https://github.com/jbossas/staxmapper/blob/master/src/main/java/org/jboss/staxmapper/FixedXMLStreamReader.java">org.jboss.staxmapper.FixedXMLStreamReader</a> implements <code class="highlighter-rouge">javax.xml.stream.XMLStreamReader</code> which use a delegate to read XML configuration files.</p>
+
+<h3 id="category2-customized-api">Category.2 Customized API</h3>
+
+<p><a href="https://github.com/jbossas/staxmapper/blob/master/src/main/java/org/jboss/staxmapper/XMLAttributeReader.java">org.jboss.staxmapper.XMLAttributeReader</a> which pulls an object information out of some XML attribute and appends it to a provided object model.</p>
+
+<p><a href="https://github.com/jbossas/staxmapper/blob/master/src/main/java/org/jboss/staxmapper/XMLElementReader.java">org.jboss.staxmapper.XMLElementReader</a> which pulls an object out of some XML element and appends it to a provided object model.</p>
+
+<p><a href="https://github.com/jbossas/staxmapper/blob/master/src/main/java/org/jboss/staxmapper/XMLElementWriter.java">org.jboss.staxmapper.XMLElementWriter</a> which writers for XML elements.</p>
+
+<h3 id="category3-thin-stax-facade-api">Category.3 Thin StAX facade API</h3>
+
+<p><a href="https://github.com/jbossas/staxmapper/blob/master/src/main/java/org/jboss/staxmapper/XMLMapper.java">org.jboss.staxmapper.XMLMapper</a> can be though as a facade for JBoss staxmapper, which allows the creation of extensible streaming XML parsers.</p>
+
+<p><a href="https://github.com/jbossas/staxmapper/blob/master/src/main/java/org/jboss/staxmapper/XMLMapperImpl.java">org.jboss.staxmapper.XMLMapperImpl</a> implements <a href="https://github.com/jbossas/staxmapper/blob/master/src/main/java/org/jboss/staxmapper/XMLMapper.java">org.jboss.staxmapper.XMLMapper</a>.</p>
+
+<h3 id="examples-1">Examples</h3>
+
+<p>Assuming we have extract WildFly jca subsystem configuration as</p>
+
+<p><a href="https://github.com/kylinsoong/wildfly-samples/blob/master/staxmapper/quickstart/subsystem-jca.xml">subsystem-jca.xml</a></p>
+
+<p>We have examples demonstrate staxmapper API as below:</p>
+
+<h4 id="example1">Example.1</h4>
+
+<p>The examplw will illustrates how a reader pulls an object out of some XML element and appends it to a provided object model.</p>
+
+<p><a href="https://github.com/kylinsoong/wildfly-samples/blob/master/staxmapper/quickstart/src/main/java/org/jboss/staxmapper/quickstart/StaxmapperXMLElementReader.java">StaxmapperXMLElementReader</a></p>
+
+<h4 id="example2">Example.2</h4>
+
+<p>The example will illustrates writer for XML elements.</p>
+
+<p><a href="https://github.com/kylinsoong/wildfly-samples/blob/master/staxmapper/quickstart/src/main/java/org/jboss/staxmapper/quickstart/StaxmapperXMLElementWriter.java">StaxmapperXMLElementWriter</a></p>
+
+<h2 id="jboss-staxmapper-">JBoss staxmapper 示例</h2>
+
+<p>本示例说明 WildFly 在启动过程中是如何通过 JBoss staxmapper 将配置文件(standalone.xml)的内容解析成 JBoss DMR 对象队列。为了简化示例我们只抽取配置文件的 logging subsystem，只注册 logging subsystem 相关的 reader。</p>
+
+<blockquote>
+  <p>详细关于 JBoss DMR 的介绍参照 <a href="http://ksoong.org/jboss/2015/04/02/jboss-dmr/">http://ksoong.org/jboss-dmr/</a></p>
+</blockquote>
+
+<p>通过如下步骤来运行 JBoss staxmapper 示例</p>
+
+<h3 id="maven-">添加相关的 Maven 依赖</h3>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>&lt;dependency&gt;
+	&lt;groupId&gt;org.wildfly.core&lt;/groupId&gt;
+	&lt;artifactId&gt;wildfly-logging&lt;/artifactId&gt;
+	&lt;version&gt;2.0.0.Alpha5-SNAPSHOT&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre>
+</div>
+
+<blockquote>
+  <p>wildfly-logging 依赖 JBoss staxmapper 和 JBoss DMR, 添加此依赖 我们会获取所有依赖 jars.</p>
+</blockquote>
+
+<h3 id="logging-subsystem">抽取 logging subsystem</h3>
+
+<p>从 WildFLy 配置文件(standalone.xml) 中抽取 logging subsystem 配置，保存于独立的文件中:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>&lt;subsystem xmlns="urn:jboss:domain:logging:3.0"&gt;
+	&lt;console-handler name="CONSOLE"&gt;
+		&lt;level name="INFO"/&gt;
+		&lt;formatter&gt;
+			&lt;named-formatter name="COLOR-PATTERN"/&gt;
+		&lt;/formatter&gt;
+	&lt;/console-handler&gt;
+	&lt;periodic-rotating-file-handler name="FILE" autoflush="true"&gt;
+		&lt;formatter&gt;
+			&lt;named-formatter name="PATTERN"/&gt;
+		&lt;/formatter&gt;
+		&lt;file relative-to="jboss.server.log.dir" path="server.log"/&gt;
+		&lt;suffix value=".yyyy-MM-dd"/&gt;
+		&lt;append value="true"/&gt;
+	&lt;/periodic-rotating-file-handler&gt;
+	&lt;logger category="com.arjuna"&gt;
+		&lt;level name="WARN"/&gt;
+	&lt;/logger&gt;
+	&lt;logger category="org.apache.tomcat.util.modeler"&gt;
+		&lt;level name="WARN"/&gt;
+	&lt;/logger&gt;
+	&lt;logger category="org.jboss.as.config"&gt;
+		&lt;level name="DEBUG"/&gt;
+	&lt;/logger&gt;
+	&lt;logger category="sun.rmi"&gt;
+		&lt;level name="WARN"/&gt;
+	&lt;/logger&gt;
+	&lt;root-logger&gt;
+		&lt;level name="INFO"/&gt;
+		&lt;handlers&gt;
+			&lt;handler name="CONSOLE"/&gt;
+			&lt;handler name="FILE"/&gt;
+		&lt;/handlers&gt;
+	&lt;/root-logger&gt;
+	&lt;formatter name="PATTERN"&gt;
+		&lt;pattern-formatter pattern="%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p [%c] (%t) %s%e%n"/&gt;
+	&lt;/formatter&gt;
+	&lt;formatter name="COLOR-PATTERN"&gt;
+		&lt;pattern-formatter pattern="%K{level}%d{HH:mm:ss,SSS} %-5p [%c] (%t) %s%e%n"/&gt;
+	&lt;/formatter&gt;
+&lt;/subsystem&gt;
+</code></pre>
+</div>
+
+<h3 id="jboss-staxmapper--logging-subsystem-">使用 JBoss staxmapper 解析 logging subsystem 配置</h3>
+
+<p>由于 LoggingSubsystemParser_3_0 没有提供 public 构造方法，我们创建 LoggingSubsystemParserWrapper 继承 LoggingSubsystemParser_3_0，如下代码所示:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>package org.jboss.as.logging;
+
+public class LoggingSubsystemParserWrapper extends LoggingSubsystemParser_3_0{
+}
+</code></pre>
+</div>
+
+<p>运行如下代码 Conosle 口输出解析完的 Jason 对象:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>QName rootElement = new QName("urn:jboss:domain:logging:3.0", "subsystem");
+LoggingSubsystemParserWrapper rootParser = new LoggingSubsystemParserWrapper();
+final XMLMapper mapper = XMLMapper.Factory.create();
+mapper.registerRootElement(rootElement, rootParser);
+		
+final List&lt;ModelNode&gt; updates = new ArrayList&lt;ModelNode&gt;();
+final FileInputStream fis = new FileInputStream("subsystem-logging.xml");
+BufferedInputStream input = new BufferedInputStream(fis);
+XMLStreamReader streamReader = XMLInputFactory.newInstance().createXMLStreamReader(input);
+mapper.parseDocument(updates, streamReader);
+streamReader.close();
+input.close();
+fis.close();
+        
+for(ModelNode model : updates) {
+   System.out.println(model.toJSONString(true));
+}
+</code></pre>
+</div>
+
+<p>如上代码：</p>
+
+<ul>
+  <li>实例化 QName 时 namespaceURI 与本示例开头 LoggingSubsystem 的 namespace 一致，都为<code class="highlighter-rouge">urn:jboss:domain:logging:3.0</code></li>
+  <li>XMLMapper 时通过工厂类创建 <code class="highlighter-rouge">XMLMapper.Factory.create()</code></li>
+  <li>parseDocument 调运时传入的 Object 为 List<ModelNode>，LoggingSubsystemParser_3_0 在解析过程中将 XML 属性，元素转化成 ModelNode，然后添加到 List<ModelNode></ModelNode></ModelNode></li>
+  <li>输出 JBoss DMR 结果可以直接转化为 JSON 对象 <code class="highlighter-rouge">model.toJSONString(true)</code></li>
+</ul>
+
+<p>Console 口输出如下，它与 Logging Subsystem 的配置对应:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="nt">"operation"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"add"</span><span class="p">,</span><span class="w"> </span><span class="nt">"address"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="nt">"subsystem"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"logging"</span><span class="w"> </span><span class="p">}]}</span><span class="w">
+</span><span class="p">{</span><span class="nt">"operation"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"add"</span><span class="p">,</span><span class="w"> </span><span class="nt">"address"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="nt">"subsystem"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"logging"</span><span class="w"> </span><span class="p">},{</span><span class="w"> </span><span class="nt">"pattern-formatter"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"PATTERN"</span><span class="w"> </span><span class="p">}],</span><span class="w"> </span><span class="nt">"pattern"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p [%c] (%t) %s%e%n"</span><span class="p">}</span><span class="w">
+</span><span class="p">{</span><span class="nt">"operation"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"add"</span><span class="p">,</span><span class="w"> </span><span class="nt">"address"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="nt">"subsystem"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"logging"</span><span class="w"> </span><span class="p">},{</span><span class="w"> </span><span class="nt">"pattern-formatter"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"COLOR-PATTERN"</span><span class="w"> </span><span class="p">}],</span><span class="w"> </span><span class="nt">"pattern"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"%K{level}%d{HH:mm:ss,SSS} %-5p [%c] (%t) %s%e%n"</span><span class="p">}</span><span class="w">
+</span><span class="p">{</span><span class="nt">"operation"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"add"</span><span class="p">,</span><span class="w"> </span><span class="nt">"address"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="nt">"subsystem"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"logging"</span><span class="w"> </span><span class="p">},{</span><span class="w"> </span><span class="nt">"console-handler"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"CONSOLE"</span><span class="w"> </span><span class="p">}],</span><span class="w"> </span><span class="nt">"level"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"INFO"</span><span class="p">,</span><span class="w"> </span><span class="nt">"named-formatter"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"COLOR-PATTERN"</span><span class="p">}</span><span class="w">
+</span><span class="p">{</span><span class="nt">"operation"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"add"</span><span class="p">,</span><span class="w"> </span><span class="nt">"address"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="nt">"subsystem"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"logging"</span><span class="w"> </span><span class="p">},{</span><span class="w"> </span><span class="nt">"periodic-rotating-file-handler"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"FILE"</span><span class="w"> </span><span class="p">}],</span><span class="w"> </span><span class="nt">"autoflush"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nt">"named-formatter"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"PATTERN"</span><span class="p">,</span><span class="w"> </span><span class="nt">"file"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"relative-to"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"jboss.server.log.dir"</span><span class="p">,</span><span class="w"> </span><span class="nt">"path"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"server.log"</span><span class="p">},</span><span class="w"> </span><span class="nt">"suffix"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">".yyyy-MM-dd"</span><span class="p">,</span><span class="w"> </span><span class="nt">"append"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">}</span><span class="w">
+</span><span class="p">{</span><span class="nt">"operation"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"add"</span><span class="p">,</span><span class="w"> </span><span class="nt">"address"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="nt">"subsystem"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"logging"</span><span class="w"> </span><span class="p">},{</span><span class="w"> </span><span class="nt">"logger"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"com.arjuna"</span><span class="w"> </span><span class="p">}],</span><span class="w"> </span><span class="nt">"level"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"WARN"</span><span class="p">}</span><span class="w">
+</span><span class="p">{</span><span class="nt">"operation"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"add"</span><span class="p">,</span><span class="w"> </span><span class="nt">"address"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="nt">"subsystem"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"logging"</span><span class="w"> </span><span class="p">},{</span><span class="w"> </span><span class="nt">"logger"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"org.apache.tomcat.util.modeler"</span><span class="w"> </span><span class="p">}],</span><span class="w"> </span><span class="nt">"level"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"WARN"</span><span class="p">}</span><span class="w">
+</span><span class="p">{</span><span class="nt">"operation"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"add"</span><span class="p">,</span><span class="w"> </span><span class="nt">"address"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="nt">"subsystem"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"logging"</span><span class="w"> </span><span class="p">},{</span><span class="w"> </span><span class="nt">"logger"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"org.jboss.as.config"</span><span class="w"> </span><span class="p">}],</span><span class="w"> </span><span class="nt">"level"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"DEBUG"</span><span class="p">}</span><span class="w">
+</span><span class="p">{</span><span class="nt">"operation"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"add"</span><span class="p">,</span><span class="w"> </span><span class="nt">"address"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="nt">"subsystem"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"logging"</span><span class="w"> </span><span class="p">},{</span><span class="w"> </span><span class="nt">"logger"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"sun.rmi"</span><span class="w"> </span><span class="p">}],</span><span class="w"> </span><span class="nt">"level"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"WARN"</span><span class="p">}</span><span class="w">
+</span><span class="p">{</span><span class="nt">"operation"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"add"</span><span class="p">,</span><span class="w"> </span><span class="nt">"address"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="nt">"subsystem"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"logging"</span><span class="w"> </span><span class="p">},{</span><span class="w"> </span><span class="nt">"root-logger"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"ROOT"</span><span class="w"> </span><span class="p">}],</span><span class="w"> </span><span class="nt">"level"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"INFO"</span><span class="p">,</span><span class="w"> </span><span class="nt">"handlers"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"CONSOLE"</span><span class="p">,</span><span class="s2">"FILE"</span><span class="p">]}</span><span class="w">
+</span></code></pre>
+</div>
+
+
+<br/>
+<ul class="btn pull-right">
+<div class="bdsharebuttonbox">
+  <a href="#" class="bds_more" data-cmd="more"></a>
+  <a title="分享到QQ空间" href="#" class="bds_qzone" data-cmd="qzone"></a>
+  <a title="分享到新浪微博" href="#" class="bds_tsina" data-cmd="tsina"></a>
+  <a title="分享到腾讯微博" href="#" class="bds_tqq" data-cmd="tqq"></a>
+  <a title="分享到人人网" href="#" class="bds_renren" data-cmd="renren"></a>
+  <a title="分享到微信" href="#" class="bds_weixin" data-cmd="weixin"></a>
+</div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"分享ksoong.org的文章「JBoss staxmapper」 - ksoong.org","bdDesc":"","bdMini":"2","bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</ul>
+
+<div class="ds-thread" data-thread-key="ksoong2015040401" data-title="JBoss staxmapper" data-url="ksoong.org/jboss/2015/04/05/staxmapper/"></div>
+
+	    <ul class="pager">
+		
+		<li class="previous"><a href="/jboss/2015/04/02/jboss-dmr/">&laquo;&nbsp;JBoss DMR</a></li>
+		
+		
+		<li class="next"><a href="/jboss/2015/04/07/wildfly-standalone/">调试 WildFly Standalone 启动过程&nbsp;&raquo;</a></li>
+		
+	    </ul>
+
+
+        </div>
+        <aside id="sidebar" role="complementary">
+          <div class="subscribe">
+            <h2 class="icon news">
+              <a href="/feed.xml">Subscribe</a>
+            </h2>
+          </div>
+          <nav class="latest">
+            <h2>Latest Posts</h2>
+            <ul>
+            
+              <li>
+                <div class="title">
+                  <a href="/wfl-ds">WildFly Data Sources Configuration</a>
+                </div>
+                <div class="meta">
+                  Apr 26, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-transactions">Transaction in Teiid</a>
+                </div>
+                <div class="meta">
+                  Apr 20, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-getstart-code">Get Start Teiid From Source...</a>
+                </div>
+                <div class="meta">
+                  Apr 7, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-metadata">Understanding Teiid Metadata</a>
+                </div>
+                <div class="meta">
+                  Mar 27, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/rhel7-commands">Linux 命令集合</a>
+                </div>
+                <div class="meta">
+                  Mar 17, 2016
+                </div>
+              </li>
+             
+            </ul>
+            
+                        
+          </nav>
+          <nav class="tags">
+            <h2>Categories</h2>
+            <div class="tag-cloud">
+              
+              <span class="tag tag-1">
+                <a href="/categories/jekyll">Jekyll(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/jboss">Jboss(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/java">Java(18)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/css">Css(1)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/database">Database(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/javaee">Javaee(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/linux">Linux(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/teiid">Teiid(40)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/maven">Maven(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/netty">Netty(7)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/data">Data(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/git">Git(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/other">Other(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/performance">Performance(4)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/security">Security(3)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/docker">Docker(4)</a>
+              </span>
+              
+              
+            </div>
+          </nav>
+        </aside>
+      </div>
+
+
+    </div>
+    <footer>
+      <div class="container">
+        <div class="project">
+          <p class="bottom">
+            ©
+            Copyright 2009-2016 ksoong.
+            <br>
+            <i class="icon-fire"></i>
+            Mixed with <a href="http://twitter.github.com/bootstrap">Bootstrap</a>.
+            <br>
+            <i class="icon-share-alt"></i>
+            Website and docs licensed under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
+            <br>
+            Code released under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, v2.0</a>.
+          </p>
+        </div>
+        <div class="footer-nav">
+          <h4>Learn</h4>
+          <ul>
+            <li>
+              <a href="http://www.jboss.org/">JBoss</a>
+            </li>
+            <li>
+              <a href="http://infinispan.org/">Infinispan</a>
+            </li>
+            <li>
+              <a href="http://teiid.org/">Teiid</a>
+            </li>
+            <li>
+              <a href="https://github.com/kylinsoong">Github</a>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="sponser">
+          <div class="follow-us">
+            <h4>Stay Informed</h4>
+            <ul>
+              <li>
+                <a href="https://plus.google.com/103933729718268414460?rel=author"><img alt="Google+" src="/css/googleplus-16.png" title="Follow ksoong.org on Google+"></a>
+              </li>
+              <li>
+                <a href="http://www.weibo.com/kylinsoong"><img alt="Weibo" src="/css/weibo_logo.jpg" title="Follow me on Weibo"></a>
+              </li>
+	      <li>
+                <a href="https://github.com/kylinsoong"><img alt="Github" src="/css/Octocat.jpg" title="Fork me on Github"></a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+        <a class="visible-desktop" href="#" id="toTop">Top</a>
+      </div>
+        <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1258751305'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1258751305%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+    </footer>
+  
+ 
+    <script src="/css/jquery-1.11.1.min.js"></script>
+    <script src="/css/bootstrap.js"></script>
+
+   <script>
+      $(function() {
+        $('html').addClass('ready');
+        prettify();
+        activateFooterGravity();
+        activateTooltips();
+        activateToTopControl();
+      });
+    </script>
+    <script src="/css/site.js"></script>
+
+    
+            
+            <script type="text/javascript">
+                var duoshuoQuery = {short_name:"ksoong"};
+                (function() {
+                    var ds = document.createElement('script');
+                    ds.type = 'text/javascript';
+                    ds.async = true;
+                    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+                    ds.charset = 'UTF-8';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+                })();
+            </script>
+            
+        
+
+
+</body>
+</html>

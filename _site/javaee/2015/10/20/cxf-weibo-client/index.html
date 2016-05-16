@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html class="ready" lang="en"><head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="shenma-site-verification" content="8a69823d7371d1eec4379853d25200cd_1448504990"> 
+    <title>Kylin Soong . Blog</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="/feed.xml" rel="alternate" title="Kylin Soong . Blog Atom feed" type="application/atom+xml">
+    <link href="/css/screen.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.js"></script>
+    <![endif]-->
+    <link href="/favicon.ico" rel="shortcut icon">
+
+</head>
+
+  <body class="blog index">
+    <header class="navbar navbar-fixed-top" id="banner" role="banner">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-target=".nav-collapse" data-toggle="collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/">
+            <span class="logo"></span>
+            <span class="name">ksoong</span>
+          </a>
+          <nav class="nav-collapse" role="navigation">
+            <ul class="nav">
+              <li><a href="/">Home</a></li>
+	      <!--
+              <li><a href="/lab">Labs</a></li>
+              <li><a href="/blog/">Blog</a></li>
+	      -->
+	      <li><a href="/books">Books</a></li>
+              <li><a href="/archive">Archives</a></li>
+              <li><a href="/slide">Slides</a></li>
+              <li><a href="/about">About</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+    <div style="min-height: 250px;" id="main" role="main">
+      
+<div id="content-header">
+        <div class="container">
+         <h1>
+              <a href="/blog">Blog</a>
+              <!--a href="#">&raquo;</a>
+              <a href="/javaee/2015/10/20/cxf-weibo-client/">Apache CXF 微博客户端</a-->
+          </h1>
+        </div>
+</div>
+      <div class="container">
+        <div id="content">
+          
+<h2 class="title">
+                 <a class="post-link" href="/javaee/2015/10/20/cxf-weibo-client/">Apache CXF 微博客户端</a>
+              </h2>
+ 
+<header class="post">
+              <div class="byline">
+                <span class="author">Posted by
+                <a href="/about">Kylin Soong</a> on</span>
+                <span class="dateinline">Oct 20, 2015</span>
+		<i class="icon-tags"></i> categorized as <a class="tag" href="/categories/javaee">javaee</a>
+              </div>
+            </header>
+
+ 
+<p>Apache CXF (http://cxf.apache.org/) 实现了 JAX-RS 标准，基于JAX-RS 在服务器端，客户端，安全方面等都提供了很好的实现。本文演示如何通过 Apache CXF 客户端实现一个发送微博的小应用。完整的步骤如下：</p>
+
+<ul>
+  <li>在微博开放平台注册一个应用</li>
+  <li>执行微博 OAuth 2.0 认证获取 access token</li>
+  <li>Apache CXF 客户端发微博</li>
+</ul>
+
+<h2 id="section">在微博开放平台注册一个应用</h2>
+
+<p>在微博开放平台（http://open.weibo.com/）创建一个应用如下图所示:</p>
+
+<p><img src="/assets/blog/weibo-api-1.png" alt="weibo create app" /></p>
+
+<blockquote>
+  <p>NOTE: 应用可以是任意名称。</p>
+</blockquote>
+
+<p>点击<code class="highlighter-rouge">创建</code>按钮后，添加相关的信息如下图所示</p>
+
+<p><img src="/assets/blog/weibo-api-2.png" alt="weibo create app info 2" /></p>
+
+<blockquote>
+  <p>NOTE: 上图中 <strong>App Key</strong> 和 <strong>App Secret</strong> 会在获取 access token 中使用到</p>
+</blockquote>
+
+<p>配置 OAuth 2.0 授权回调链接，如下：</p>
+
+<p><img src="/assets/blog/weibo-api-3.png" alt="weibo create app info 3" /></p>
+
+<p>完成如上配置后保存</p>
+
+<h2 id="oauth-20--access-token">执行微博 OAuth 2.0 认证获取 access token</h2>
+
+<p>使用 <code class="highlighter-rouge">CustomizedTools-jar</code> 小工具，选择 <code class="highlighter-rouge">auth</code>，种类选择 <code class="highlighter-rouge">OAuth2-Weibo</code> 如下</p>
+
+<ul>
+  <li>获取 CustomizedTools-jar</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ git clone git@github.com:CustomizedTools/CustomizedTools-jar.git
+$ cd CustomizedTools-jar
+$ mvn clean install -P release
+</code></pre>
+</div>
+
+<p>编译成功会获得 customizedTools-jar，位于 “build/target” 目录下。</p>
+
+<p>详细关于 CustomizedTools-jar，参照 <a href="https://github.com/CustomizedTools/CustomizedTools-jar">https://github.com/CustomizedTools/CustomizedTools-jar</a></p>
+
+<ul>
+  <li>允许</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ java -jar build/target/customizedTools-jar.jar
+[CustomizedTools /]auth -t OAuth2-Weibo
+=== OAuth 2.0 Weibo Workflow ===
+
+Enter the Client ID = 387641515121
+
+Enter the Client Secret = 5e4f21aaddc2bd6596689fe16d8215a24e5
+
+Enter callback = https://api.weibo.com/oauth2/default.html
+
+Open your broswer, access below URL to execute authorization:
+https://api.weibo.com/oauth2/authorize?client_id=3876415151&amp;response_type=code&amp;redirect_uri=https://api.weibo.com/oauth2/default.html&amp;forcelogin=true
+
+Enter Token Secret (Auth Code, Pin) from previous step = 67132e17b0eb44c92d38da484ff57d0d
+
+Post URL: https://api.weibo.com/oauth2/access_token?client_id=3876415151&amp;client_secret=5e4f21ac2bd6596689fe16d8215a24e5&amp;grant_type=authorization_code&amp;redirect_uri=https://api.weibo.com/oauth2/default.html&amp;code=67132e17b0eb44c92d38da484ff57d0d
+Response:
+{"access_token":"2.00PZtDyBBfC2OE91c7asdsds","remind_in":"157679999","expires_in":157679999,"uid":"1803641581"}
+Enter the token from above json response = 2.00PZtDyBBfC2OE91c7a884547pNg4E
+</code></pre>
+</div>
+
+<p>认证过程出现界面如下图所示，<code class="highlighter-rouge">2.00PZtDyBBfC2OE91c7asdsds</code> 为 access_token。</p>
+
+<p><img src="/assets/blog/weibo-api-4.png" alt="weibo create app info 4" /></p>
+
+<h2 id="apache-cxf-">Apache CXF 客户端发微博</h2>
+
+<p>Apache CXF 客户端首先需要添加如下 Maven 依赖</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>&lt;dependency&gt;
+    &lt;groupId&gt;org.apache.cxf&lt;/groupId&gt;
+    &lt;artifactId&gt;cxf-rt-rs-client&lt;/artifactId&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.apache.cxf&lt;/groupId&gt;
+    &lt;artifactId&gt;cxf-rt-rs-security-oauth&lt;/artifactId&gt;
+&lt;/dependency&gt;
+</code></pre>
+</div>
+
+<p>运行如下 Java 代码:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>String statuses_update = "https://api.weibo.com/2/statuses/update.json";
+WebClient wc = WebClient.create(statuses_update);
+wc.form(new Form().param("status", "Apache CXF Client form").param("access_token", "2.00PZtDyBBfC2OE91c7asdsds"));
+</code></pre>
+</div>
+
+<p>运行如上代码后会发布一条微博，登录 weibo.com 查看如下图:</p>
+
+<p><img src="/assets/blog/weibo-api-5.png" alt="weibo create app info 5" /></p>
+
+
+<br/>
+<ul class="btn pull-right">
+<div class="bdsharebuttonbox">
+  <a href="#" class="bds_more" data-cmd="more"></a>
+  <a title="分享到QQ空间" href="#" class="bds_qzone" data-cmd="qzone"></a>
+  <a title="分享到新浪微博" href="#" class="bds_tsina" data-cmd="tsina"></a>
+  <a title="分享到腾讯微博" href="#" class="bds_tqq" data-cmd="tqq"></a>
+  <a title="分享到人人网" href="#" class="bds_renren" data-cmd="renren"></a>
+  <a title="分享到微信" href="#" class="bds_weixin" data-cmd="weixin"></a>
+</div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"分享ksoong.org的文章「Apache CXF 微博客户端」 - ksoong.org","bdDesc":"","bdMini":"2","bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</ul>
+
+<div class="ds-thread" data-thread-key="ksoong2015101902" data-title="Apache CXF 微博客户端" data-url="ksoong.org/javaee/2015/10/20/cxf-weibo-client/"></div>
+
+	    <ul class="pager">
+		
+		<li class="previous"><a href="/javaee/2015/10/14/cxf-rest-advance/">&laquo;&nbsp;Apache CXF jaxrs-advanced example</a></li>
+		
+		
+		<li class="next"><a href="/javaee/2015/10/20/jca-outbound-ra/">Understanding JCA Outbound resource adapter...&nbsp;&raquo;</a></li>
+		
+	    </ul>
+
+
+        </div>
+        <aside id="sidebar" role="complementary">
+          <div class="subscribe">
+            <h2 class="icon news">
+              <a href="/feed.xml">Subscribe</a>
+            </h2>
+          </div>
+          <nav class="latest">
+            <h2>Latest Posts</h2>
+            <ul>
+            
+              <li>
+                <div class="title">
+                  <a href="/wfl-ds">WildFly Data Sources Configuration</a>
+                </div>
+                <div class="meta">
+                  Apr 26, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-transactions">Transaction in Teiid</a>
+                </div>
+                <div class="meta">
+                  Apr 20, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-getstart-code">Get Start Teiid From Source...</a>
+                </div>
+                <div class="meta">
+                  Apr 7, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-metadata">Understanding Teiid Metadata</a>
+                </div>
+                <div class="meta">
+                  Mar 27, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/rhel7-commands">Linux 命令集合</a>
+                </div>
+                <div class="meta">
+                  Mar 17, 2016
+                </div>
+              </li>
+             
+            </ul>
+            
+                        
+          </nav>
+          <nav class="tags">
+            <h2>Categories</h2>
+            <div class="tag-cloud">
+              
+              <span class="tag tag-1">
+                <a href="/categories/jekyll">Jekyll(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/jboss">Jboss(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/java">Java(18)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/css">Css(1)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/database">Database(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/javaee">Javaee(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/linux">Linux(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/teiid">Teiid(40)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/maven">Maven(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/netty">Netty(7)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/data">Data(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/git">Git(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/other">Other(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/performance">Performance(4)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/security">Security(3)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/docker">Docker(4)</a>
+              </span>
+              
+              
+            </div>
+          </nav>
+        </aside>
+      </div>
+
+
+    </div>
+    <footer>
+      <div class="container">
+        <div class="project">
+          <p class="bottom">
+            ©
+            Copyright 2009-2016 ksoong.
+            <br>
+            <i class="icon-fire"></i>
+            Mixed with <a href="http://twitter.github.com/bootstrap">Bootstrap</a>.
+            <br>
+            <i class="icon-share-alt"></i>
+            Website and docs licensed under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
+            <br>
+            Code released under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, v2.0</a>.
+          </p>
+        </div>
+        <div class="footer-nav">
+          <h4>Learn</h4>
+          <ul>
+            <li>
+              <a href="http://www.jboss.org/">JBoss</a>
+            </li>
+            <li>
+              <a href="http://infinispan.org/">Infinispan</a>
+            </li>
+            <li>
+              <a href="http://teiid.org/">Teiid</a>
+            </li>
+            <li>
+              <a href="https://github.com/kylinsoong">Github</a>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="sponser">
+          <div class="follow-us">
+            <h4>Stay Informed</h4>
+            <ul>
+              <li>
+                <a href="https://plus.google.com/103933729718268414460?rel=author"><img alt="Google+" src="/css/googleplus-16.png" title="Follow ksoong.org on Google+"></a>
+              </li>
+              <li>
+                <a href="http://www.weibo.com/kylinsoong"><img alt="Weibo" src="/css/weibo_logo.jpg" title="Follow me on Weibo"></a>
+              </li>
+	      <li>
+                <a href="https://github.com/kylinsoong"><img alt="Github" src="/css/Octocat.jpg" title="Fork me on Github"></a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+        <a class="visible-desktop" href="#" id="toTop">Top</a>
+      </div>
+        <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1258751305'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1258751305%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+    </footer>
+  
+ 
+    <script src="/css/jquery-1.11.1.min.js"></script>
+    <script src="/css/bootstrap.js"></script>
+
+   <script>
+      $(function() {
+        $('html').addClass('ready');
+        prettify();
+        activateFooterGravity();
+        activateTooltips();
+        activateToTopControl();
+      });
+    </script>
+    <script src="/css/site.js"></script>
+
+    
+            
+            <script type="text/javascript">
+                var duoshuoQuery = {short_name:"ksoong"};
+                (function() {
+                    var ds = document.createElement('script');
+                    ds.type = 'text/javascript';
+                    ds.async = true;
+                    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+                    ds.charset = 'UTF-8';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+                })();
+            </script>
+            
+        
+
+
+</body>
+</html>

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html class="ready" lang="en"><head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="shenma-site-verification" content="8a69823d7371d1eec4379853d25200cd_1448504990"> 
+    <title>Kylin Soong . Blog</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="/feed.xml" rel="alternate" title="Kylin Soong . Blog Atom feed" type="application/atom+xml">
+    <link href="/css/screen.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.js"></script>
+    <![endif]-->
+    <link href="/favicon.ico" rel="shortcut icon">
+
+</head>
+
+  <body class="blog index">
+    <header class="navbar navbar-fixed-top" id="banner" role="banner">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-target=".nav-collapse" data-toggle="collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/">
+            <span class="logo"></span>
+            <span class="name">ksoong</span>
+          </a>
+          <nav class="nav-collapse" role="navigation">
+            <ul class="nav">
+              <li><a href="/">Home</a></li>
+	      <!--
+              <li><a href="/lab">Labs</a></li>
+              <li><a href="/blog/">Blog</a></li>
+	      -->
+	      <li><a href="/books">Books</a></li>
+              <li><a href="/archive">Archives</a></li>
+              <li><a href="/slide">Slides</a></li>
+              <li><a href="/about">About</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+    <div style="min-height: 250px;" id="main" role="main">
+      
+<div id="content-header">
+        <div class="container">
+         <h1>
+              <a href="/blog">Blog</a>
+              <!--a href="#">&raquo;</a>
+              <a href="/java/2015/11/20/java-threadpool/">Java 多线程 - jGroups 中多线程的使用</a-->
+          </h1>
+        </div>
+</div>
+      <div class="container">
+        <div id="content">
+          
+<h2 class="title">
+                 <a class="post-link" href="/java/2015/11/20/java-threadpool/">Java 多线程 - jGroups 中多线程的使用</a>
+              </h2>
+ 
+<header class="post">
+              <div class="byline">
+                <span class="author">Posted by
+                <a href="/about">Kylin Soong</a> on</span>
+                <span class="dateinline">Nov 20, 2015</span>
+		<i class="icon-tags"></i> categorized as <a class="tag" href="/categories/java">java</a>
+              </div>
+            </header>
+
+ 
+<p><a href="http://jgroups.org">JGroups</a> 是 JBoss/WildFly, JBoss Cache/Infinispan 等的底层框架，它的协议栈（Protocol Stack）中大量使用多线程，本文抽取出一些示例代码来进行分析。</p>
+
+<h3 id="timer-thread-pool">Timer thread pool</h3>
+
+<p>JGroups 传输层TP(UDP, TCP, TCP_NIO)中的 TimeScheduler 设计用来执行 Runnable Task, JGroups 3.x 版本对应的实现类为 <code class="highlighter-rouge">org.jgroups.util.TimeScheduler3</code>。它的简单架构如下图</p>
+
+<p><img src="/assets/blog/jgroups-tp-timerschedule.png" alt="JGroups TimeScheduler" /></p>
+
+<p>TimeScheduler 架构分三个部分: 阻塞队列，Timer runner 监听线程（监听于阻塞队列），线程池（执行 Task）。Runnable Task 可以通过两种途径被线程池运行：</p>
+
+<ul>
+  <li>Task 被添加到阻塞队列，监听线程获取 Task 并将 Task 提交给线程池，线程池执行 Task</li>
+  <li>Task 直接提交到线程池执行</li>
+</ul>
+
+<p>阻塞队列的实现使用 java.util.concurrent.DelayQueue</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>protected final BlockingQueue&lt;Task&gt; queue = new DelayQueue&lt;&gt;();
+</code></pre>
+</div>
+
+<p>线程池的实现使用 ThreadPoolExecutor</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>ThreadPoolExecutor pool = new ThreadPoolExecutor(timer_min_threads, 
+						 timer_max_threads, 
+						 timer_keep_alive_time,
+						 TimeUnit.MICROSECONDS,
+						 new LinkedBlockingQueue&lt;Runnable&gt;(timer_queue_max_size),
+						 timer_thread_factory,
+						 new ThreadPoolExecutor.AbortPolicy());
+</code></pre>
+</div>
+
+<p>如上 ThreadPoolExecutor 实例化参数来自 JGroups 协议栈的配置:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>timer_type="new3"
+timer.min_threads="2"
+timer.max_threads="4"
+timer.keep_alive_time="3000"
+imer.queue_max_size="500"
+</code></pre>
+</div>
+
+<p>TimeScheduler 在 JGroups 中的使用：</p>
+
+<ul>
+  <li>RSVP 协议启动 ResendTask</li>
+  <li>STABLE 协议启动 StableTask</li>
+  <li>UNICAST3 协议启动 RetransmitTask</li>
+  <li>NAKACK2 协议启动 RetransmitTask</li>
+</ul>
+
+<h2 id="oob-thread-pool">OOB thread pool</h2>
+
+<p>OOB 线程池的实现使用 ThreadPoolExecutor</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>BlockingQueue&lt;Runnable&gt; oob_thread_pool_queue = new SynchronousQueue&lt;&gt;();
+int oob_thread_pool_min_threads = 1;
+int oob_thread_pool_max_threads = 8;
+long oob_thread_pool_keep_alive_time = 5000;
+ThreadFactory oob_thread_factory = new DefaultThreadFactory("OOB", false, true);
+ThreadPoolExecutor pool = new ThreadPoolExecutor(oob_thread_pool_min_threads, oob_thread_pool_max_threads, oob_thread_pool_keep_alive_time, TimeUnit.MILLISECONDS, oob_thread_pool_queue);
+pool.setThreadFactory(oob_thread_factory);
+RejectedExecutionHandler handler = new ThreadPoolExecutor.DiscardPolicy();
+pool.setRejectedExecutionHandler(handler);
+</code></pre>
+</div>
+
+<p>如上 ThreadPoolExecutor 实例化参数来自 JGroups 协议栈的配置:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>oob_thread_pool.enabled="true"
+oob_thread_pool.min_threads="1"
+oob_thread_pool.max_threads="8"
+oob_thread_pool.keep_alive_time="5000"
+oob_thread_pool.queue_enabled="false"
+oob_thread_pool.queue_max_size="100"
+oob_thread_pool.rejection_policy="discard"
+</code></pre>
+</div>
+
+<h2 id="regular-thread-pool">Regular thread pool</h2>
+
+<p>Regular 线程池的实现使用 ThreadPoolExecutor</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>int thread_pool_queue_max_size=10000;
+BlockingQueue&lt;Runnable&gt; thread_pool_queue = new LinkedBlockingQueue&lt;&gt;(thread_pool_queue_max_size);
+int thread_pool_min_threads = 2;
+int thread_pool_max_threads = 8;
+long thread_pool_keep_alive_time = 5000;
+ThreadFactory default_thread_factory = new DefaultThreadFactory("Incoming", false, true);
+ThreadPoolExecutor pool = new ThreadPoolExecutor(thread_pool_min_threads, thread_pool_max_threads, thread_pool_keep_alive_time, TimeUnit.MILLISECONDS, thread_pool_queue);
+pool.setThreadFactory(default_thread_factory);
+RejectedExecutionHandler handler = new ThreadPoolExecutor.DiscardPolicy();
+pool.setRejectedExecutionHandler(handler);
+</code></pre>
+</div>
+
+<p>如上 ThreadPoolExecutor 实例化参数来自 JGroups 协议栈的配置:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>thread_pool.enabled="true"
+thread_pool.min_threads="2"
+thread_pool.max_threads="8"
+thread_pool.keep_alive_time="5000"
+thread_pool.queue_enabled="true"
+thread_pool.queue_max_size="10000"
+thread_pool.rejection_policy="discard"
+</code></pre>
+</div>
+
+<h2 id="internal-thread-pool">Internal thread pool</h2>
+
+<p>Internal 线程池的实现使用 ThreadPoolExecutor</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>int internal_thread_pool_queue_max_size = 500;
+BlockingQueue&lt;Runnable&gt; internal_thread_pool_queue = new LinkedBlockingQueue&lt;&gt;(internal_thread_pool_queue_max_size);
+int internal_thread_pool_min_threads = 2;
+int internal_thread_pool_max_threads = 4;
+long internal_thread_pool_keep_alive_time = 30000;
+ThreadFactory internal_thread_factory = new DefaultThreadFactory("INT", false, true);
+ThreadPoolExecutor pool = new ThreadPoolExecutor(internal_thread_pool_min_threads, internal_thread_pool_max_threads, internal_thread_pool_keep_alive_time, TimeUnit.MILLISECONDS, internal_thread_pool_queue);
+pool.setThreadFactory(internal_thread_factory);
+RejectedExecutionHandler handler = new ThreadPoolExecutor.DiscardPolicy();
+pool.setRejectedExecutionHandler(handler);
+</code></pre>
+</div>
+
+
+<br/>
+<ul class="btn pull-right">
+<div class="bdsharebuttonbox">
+  <a href="#" class="bds_more" data-cmd="more"></a>
+  <a title="分享到QQ空间" href="#" class="bds_qzone" data-cmd="qzone"></a>
+  <a title="分享到新浪微博" href="#" class="bds_tsina" data-cmd="tsina"></a>
+  <a title="分享到腾讯微博" href="#" class="bds_tqq" data-cmd="tqq"></a>
+  <a title="分享到人人网" href="#" class="bds_renren" data-cmd="renren"></a>
+  <a title="分享到微信" href="#" class="bds_weixin" data-cmd="weixin"></a>
+</div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"分享ksoong.org的文章「Java 多线程 - jGroups 中多线程的使用」 - ksoong.org","bdDesc":"","bdMini":"2","bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</ul>
+
+<div class="ds-thread" data-thread-key="ksoong2015111901" data-title="Java 多线程 - jGroups 中多线程的使用" data-url="ksoong.org/java/2015/11/20/java-threadpool/"></div>
+
+	    <ul class="pager">
+		
+		<li class="previous"><a href="/jboss/2015/11/18/jgroups-buffer-size/">&laquo;&nbsp;JGroups WARN message</a></li>
+		
+		
+		<li class="next"><a href="/jboss/2015/11/24/jgroups-protocol-stack/">jGroups 协议栈&nbsp;&raquo;</a></li>
+		
+	    </ul>
+
+
+        </div>
+        <aside id="sidebar" role="complementary">
+          <div class="subscribe">
+            <h2 class="icon news">
+              <a href="/feed.xml">Subscribe</a>
+            </h2>
+          </div>
+          <nav class="latest">
+            <h2>Latest Posts</h2>
+            <ul>
+            
+              <li>
+                <div class="title">
+                  <a href="/wfl-ds">WildFly Data Sources Configuration</a>
+                </div>
+                <div class="meta">
+                  Apr 26, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-transactions">Transaction in Teiid</a>
+                </div>
+                <div class="meta">
+                  Apr 20, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-getstart-code">Get Start Teiid From Source...</a>
+                </div>
+                <div class="meta">
+                  Apr 7, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-metadata">Understanding Teiid Metadata</a>
+                </div>
+                <div class="meta">
+                  Mar 27, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/rhel7-commands">Linux 命令集合</a>
+                </div>
+                <div class="meta">
+                  Mar 17, 2016
+                </div>
+              </li>
+             
+            </ul>
+            
+                        
+          </nav>
+          <nav class="tags">
+            <h2>Categories</h2>
+            <div class="tag-cloud">
+              
+              <span class="tag tag-1">
+                <a href="/categories/jekyll">Jekyll(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/jboss">Jboss(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/java">Java(18)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/css">Css(1)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/database">Database(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/javaee">Javaee(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/linux">Linux(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/teiid">Teiid(40)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/maven">Maven(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/netty">Netty(7)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/data">Data(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/git">Git(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/other">Other(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/performance">Performance(4)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/security">Security(3)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/docker">Docker(4)</a>
+              </span>
+              
+              
+            </div>
+          </nav>
+        </aside>
+      </div>
+
+
+    </div>
+    <footer>
+      <div class="container">
+        <div class="project">
+          <p class="bottom">
+            ©
+            Copyright 2009-2016 ksoong.
+            <br>
+            <i class="icon-fire"></i>
+            Mixed with <a href="http://twitter.github.com/bootstrap">Bootstrap</a>.
+            <br>
+            <i class="icon-share-alt"></i>
+            Website and docs licensed under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
+            <br>
+            Code released under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, v2.0</a>.
+          </p>
+        </div>
+        <div class="footer-nav">
+          <h4>Learn</h4>
+          <ul>
+            <li>
+              <a href="http://www.jboss.org/">JBoss</a>
+            </li>
+            <li>
+              <a href="http://infinispan.org/">Infinispan</a>
+            </li>
+            <li>
+              <a href="http://teiid.org/">Teiid</a>
+            </li>
+            <li>
+              <a href="https://github.com/kylinsoong">Github</a>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="sponser">
+          <div class="follow-us">
+            <h4>Stay Informed</h4>
+            <ul>
+              <li>
+                <a href="https://plus.google.com/103933729718268414460?rel=author"><img alt="Google+" src="/css/googleplus-16.png" title="Follow ksoong.org on Google+"></a>
+              </li>
+              <li>
+                <a href="http://www.weibo.com/kylinsoong"><img alt="Weibo" src="/css/weibo_logo.jpg" title="Follow me on Weibo"></a>
+              </li>
+	      <li>
+                <a href="https://github.com/kylinsoong"><img alt="Github" src="/css/Octocat.jpg" title="Fork me on Github"></a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+        <a class="visible-desktop" href="#" id="toTop">Top</a>
+      </div>
+        <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1258751305'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1258751305%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+    </footer>
+  
+ 
+    <script src="/css/jquery-1.11.1.min.js"></script>
+    <script src="/css/bootstrap.js"></script>
+
+   <script>
+      $(function() {
+        $('html').addClass('ready');
+        prettify();
+        activateFooterGravity();
+        activateTooltips();
+        activateToTopControl();
+      });
+    </script>
+    <script src="/css/site.js"></script>
+
+    
+            
+            <script type="text/javascript">
+                var duoshuoQuery = {short_name:"ksoong"};
+                (function() {
+                    var ds = document.createElement('script');
+                    ds.type = 'text/javascript';
+                    ds.async = true;
+                    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+                    ds.charset = 'UTF-8';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+                })();
+            </script>
+            
+        
+
+
+</body>
+</html>

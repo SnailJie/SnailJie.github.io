@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html class="ready" lang="en"><head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="shenma-site-verification" content="8a69823d7371d1eec4379853d25200cd_1448504990"> 
+    <title>Kylin Soong . Blog</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="/feed.xml" rel="alternate" title="Kylin Soong . Blog Atom feed" type="application/atom+xml">
+    <link href="/css/screen.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.js"></script>
+    <![endif]-->
+    <link href="/favicon.ico" rel="shortcut icon">
+
+</head>
+
+  <body class="blog index">
+    <header class="navbar navbar-fixed-top" id="banner" role="banner">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-target=".nav-collapse" data-toggle="collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/">
+            <span class="logo"></span>
+            <span class="name">ksoong</span>
+          </a>
+          <nav class="nav-collapse" role="navigation">
+            <ul class="nav">
+              <li><a href="/">Home</a></li>
+	      <!--
+              <li><a href="/lab">Labs</a></li>
+              <li><a href="/blog/">Blog</a></li>
+	      -->
+	      <li><a href="/books">Books</a></li>
+              <li><a href="/archive">Archives</a></li>
+              <li><a href="/slide">Slides</a></li>
+              <li><a href="/about">About</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+    <div style="min-height: 250px;" id="main" role="main">
+      
+<div id="content-header">
+        <div class="container">
+         <h1>
+              <a href="/blog">Blog</a>
+              <!--a href="#">&raquo;</a>
+              <a href="/git-commands">Git Useful commands</a-->
+          </h1>
+        </div>
+</div>
+      <div class="container">
+        <div id="content">
+          
+<h2 class="title">
+                 <a class="post-link" href="/git-commands">Git Useful commands</a>
+              </h2>
+ 
+<header class="post">
+              <div class="byline">
+                <span class="author">Posted by
+                <a href="/about">Kylin Soong</a> on</span>
+                <span class="dateinline">Sep 2, 2014</span>
+		<i class="icon-tags"></i> categorized as <a class="tag" href="/categories/git">git</a>
+              </div>
+            </header>
+
+ 
+<p>This documents contain a series useful git commands and Frequent Questions and Answers.</p>
+
+<ul id="markdown-toc">
+  <li><a href="#useful-git-commands" id="markdown-toc-useful-git-commands">Useful git commands</a>    <ul>
+      <li><a href="#an-example-of-manage-remote-branchs" id="markdown-toc-an-example-of-manage-remote-branchs">An example of manage remote branchs</a></li>
+      <li><a href="#an-example-of-manage-forked-remote-branches" id="markdown-toc-an-example-of-manage-forked-remote-branches">An example of manage forked remote branches</a></li>
+      <li><a href="#syncing-a-fork" id="markdown-toc-syncing-a-fork">Syncing a fork</a></li>
+    </ul>
+  </li>
+  <li><a href="#question--answer" id="markdown-toc-question--answer">Question &amp; Answer</a>    <ul>
+      <li><a href="#q1-what-is-the-difference-between-origin-and-upstream-in-github" id="markdown-toc-q1-what-is-the-difference-between-origin-and-upstream-in-github">Q1. What is the difference between origin and upstream in github?</a></li>
+      <li><a href="#q2-how-to-create-a-patch-with-the-latest-10-commits" id="markdown-toc-q2-how-to-create-a-patch-with-the-latest-10-commits">Q2. How to create a patch with the latest 10 commits?</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="useful-git-commands">Useful git commands</h2>
+
+<ul>
+  <li>Show Current branch</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>git branch
+</code></pre>
+</div>
+
+<ul>
+  <li>Show all branchs</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>git branch -a
+</code></pre>
+</div>
+
+<ul>
+  <li>Switch to exist branch</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>git checkout master
+</code></pre>
+</div>
+
+<ul>
+  <li>Delete a exist branch</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>git push origin --delete new
+</code></pre>
+</div>
+
+<ul>
+  <li>Create a new branch</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>git checkout -b EAP-6.x
+git push origin EAP-6.x
+</code></pre>
+</div>
+
+<ul>
+  <li>revert a commit</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>git revert e86dc9e0ec0dc3b4481891134d5481af1389ea61
+git push origin master
+</code></pre>
+</div>
+
+<h3 id="an-example-of-manage-remote-branchs">An example of manage remote branchs</h3>
+
+<p>As below figure, this example will demonstrates how to operate remote branches, the main content including: clone remote repo, change remove repo, 2 ways to create branch(UI, command line), change remote branch.</p>
+
+<p><img src="/assets/blog/git-branch-remote.png" alt="Git remote branch" /></p>
+
+<ul>
+  <li>Clone and push change</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ git clone git@github.com:CustomizedTools/cst-examples.git
+$ cd cst-examples/
+$ touch master
+$ git add master
+$ git commit -m "add master file to master"
+$ git push origin master
+</code></pre>
+</div>
+
+<ul>
+  <li>Create and pull branch</li>
+</ul>
+
+<p>With the document <a href="https://help.github.com/articles/creating-and-deleting-branches-within-your-repository/">creating-and-deleting-branches-within-your-repository/</a> create a branch V1, execute ‘git pull’ will pull V1 to local:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ git pull
+$ git branch -a
+* master
+  remotes/origin/HEAD -&gt; origin/master
+  remotes/origin/V1
+  remotes/origin/master
+</code></pre>
+</div>
+
+<ul>
+  <li>Checkout and Switch to V1, commit and push change</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ git checkout V1
+$ git branch -a
+* V1
+  master
+  remotes/origin/HEAD -&gt; origin/master
+  remotes/origin/V1
+  remotes/origin/master
+$ mv master V1
+$ git commit -m "change from master to V1"
+$ git push origin V1
+</code></pre>
+</div>
+
+<ul>
+  <li>Create branch via commands, push new branch to remote</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ git checkout -b V2
+$ git branch -a
+  V1
+* V2
+  master
+  remotes/origin/HEAD -&gt; origin/master
+  remotes/origin/V1
+  remotes/origin/V2
+  remotes/origin/master
+$ git push origin V2
+</code></pre>
+</div>
+
+<h3 id="an-example-of-manage-forked-remote-branches">An example of manage forked remote branches</h3>
+
+<p>Continue with above example, in this example we will demonstrates how to manage forked remote branches. Below is the example architecture:</p>
+
+<p><img src="/assets/blog/git-branch-remote-fork.png" alt="Git remote branch fork" /></p>
+
+<ul>
+  <li>Fork a repo</li>
+</ul>
+
+<p><a href="https://help.github.com/articles/fork-a-repo/">https://help.github.com/articles/fork-a-repo/</a></p>
+
+<ul>
+  <li>Clone forked repo and show all branchs</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ git clone git@github.com:kylinsoong/cst-examples.git
+$ cd cst-examples/
+$ git branch -a
+* master
+  remotes/origin/HEAD -&gt; origin/master
+  remotes/origin/V1
+  remotes/origin/V2
+  remotes/origin/master
+</code></pre>
+</div>
+
+<ul>
+  <li>Checkout V2, push change to Forked V2</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ git checkout V2
+$ git branch -a
+* V2
+  master
+  remotes/origin/HEAD -&gt; origin/master
+  remotes/origin/V1
+  remotes/origin/V2
+  remotes/origin/maste
+$ touch readme
+$ git add readme
+$ git commit -m "add readme file"
+$ git push origin V2
+</code></pre>
+</div>
+
+<ul>
+  <li>Use pull request to push change to Remote branch</li>
+</ul>
+
+<p><a href="https://help.github.com/articles/using-pull-requests/">https://help.github.com/articles/using-pull-requests/</a></p>
+
+<h3 id="syncing-a-fork">Syncing a fork</h3>
+
+<p><a href="https://help.github.com/articles/syncing-a-fork/">https://help.github.com/articles/syncing-a-fork/</a> have detailed steps. The commands used including:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>git remote -v
+git remote add upstream https://github.com/ORIGINAL_OWNER/ORIGINAL_REPOSITORY.git
+
+git fetch upstream
+git checkout master
+git merge upstream/master
+git push origin master
+</code></pre>
+</div>
+
+<h2 id="question--answer">Question &amp; Answer</h2>
+
+<h3 id="q1-what-is-the-difference-between-origin-and-upstream-in-github">Q1. What is the difference between origin and upstream in github?</h3>
+
+<p>When a git branch -a command is done, some branches have a prefix of origin (remotes/origin/..) while others have a prefix of upstream (remotes/upstream/..) as below example:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ git branch -a
+* master
+  remotes/origin/HEAD -&gt; origin/master
+  remotes/origin/V_0_1
+  remotes/origin/V_0_2
+  remotes/origin/master
+  remotes/upstream/V_0_1
+  remotes/upstream/V_0_2
+  remotes/upstream/master
+</code></pre>
+</div>
+
+<p>As <a href="https://help.github.com/articles/fork-a-repo/">https://help.github.com/articles/fork-a-repo/</a>, if a Repo be Forked, Cloned and sync be configured, it looks like</p>
+
+<p><img src="/assets/blog/git-origin-upstream.png" alt="Git origin upstream" /></p>
+
+<ul>
+  <li><code class="highlighter-rouge">upstream</code> generally refers to the original repo that you have forked</li>
+  <li><code class="highlighter-rouge">origin</code> is your fork: your own repo on GitHub, clone of the original repo of GitHub</li>
+</ul>
+
+<p>You will use <code class="highlighter-rouge">upstream</code> to <strong>fetch from the original repo</strong> (in order to keep your local copy in sync with the project you want to contribute to).</p>
+
+<p>You will use <code class="highlighter-rouge">origin</code> to <strong>pull and push</strong> since you can contribute to your own repo.</p>
+
+<p>More details refer to <a href="http://stackoverflow.com/questions/9257533/what-is-the-difference-between-origin-and-upstream-in-github">stackoverflow</a></p>
+
+<h3 id="q2-how-to-create-a-patch-with-the-latest-10-commits">Q2. How to create a patch with the latest 10 commits?</h3>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>git format-patch -10 HEAD --stdout &gt; 0001-last-10-commits.patch
+</code></pre>
+</div>
+
+
+<br/>
+<ul class="btn pull-right">
+<div class="bdsharebuttonbox">
+  <a href="#" class="bds_more" data-cmd="more"></a>
+  <a title="分享到QQ空间" href="#" class="bds_qzone" data-cmd="qzone"></a>
+  <a title="分享到新浪微博" href="#" class="bds_tsina" data-cmd="tsina"></a>
+  <a title="分享到腾讯微博" href="#" class="bds_tqq" data-cmd="tqq"></a>
+  <a title="分享到人人网" href="#" class="bds_renren" data-cmd="renren"></a>
+  <a title="分享到微信" href="#" class="bds_weixin" data-cmd="weixin"></a>
+</div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"分享ksoong.org的文章「Git Useful commands」 - ksoong.org","bdDesc":"","bdMini":"2","bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</ul>
+
+<div class="ds-thread" data-thread-key="ksoong20140901" data-title="Git Useful commands" data-url="ksoong.org/git-commands"></div>
+
+	    <ul class="pager">
+		
+		<li class="previous"><a href="/java-proxies">&laquo;&nbsp;Java Proxy Vehicle Example</a></li>
+		
+		
+		<li class="next"><a href="/netty-examples">Netty Examples&nbsp;&raquo;</a></li>
+		
+	    </ul>
+
+
+        </div>
+        <aside id="sidebar" role="complementary">
+          <div class="subscribe">
+            <h2 class="icon news">
+              <a href="/feed.xml">Subscribe</a>
+            </h2>
+          </div>
+          <nav class="latest">
+            <h2>Latest Posts</h2>
+            <ul>
+            
+              <li>
+                <div class="title">
+                  <a href="/wfl-ds">WildFly Data Sources Configuration</a>
+                </div>
+                <div class="meta">
+                  Apr 26, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-transactions">Transaction in Teiid</a>
+                </div>
+                <div class="meta">
+                  Apr 20, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-getstart-code">Get Start Teiid From Source...</a>
+                </div>
+                <div class="meta">
+                  Apr 7, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/teiid-metadata">Understanding Teiid Metadata</a>
+                </div>
+                <div class="meta">
+                  Mar 27, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/rhel7-commands">Linux 命令集合</a>
+                </div>
+                <div class="meta">
+                  Mar 17, 2016
+                </div>
+              </li>
+             
+            </ul>
+            
+                        
+          </nav>
+          <nav class="tags">
+            <h2>Categories</h2>
+            <div class="tag-cloud">
+              
+              <span class="tag tag-1">
+                <a href="/categories/jekyll">Jekyll(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/jboss">Jboss(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/java">Java(18)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/css">Css(1)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/database">Database(6)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/javaee">Javaee(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/linux">Linux(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/teiid">Teiid(40)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/maven">Maven(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/netty">Netty(7)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/data">Data(24)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/git">Git(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/other">Other(11)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/performance">Performance(4)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/security">Security(3)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/docker">Docker(4)</a>
+              </span>
+              
+              
+            </div>
+          </nav>
+        </aside>
+      </div>
+
+
+    </div>
+    <footer>
+      <div class="container">
+        <div class="project">
+          <p class="bottom">
+            ©
+            Copyright 2009-2016 ksoong.
+            <br>
+            <i class="icon-fire"></i>
+            Mixed with <a href="http://twitter.github.com/bootstrap">Bootstrap</a>.
+            <br>
+            <i class="icon-share-alt"></i>
+            Website and docs licensed under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
+            <br>
+            Code released under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, v2.0</a>.
+          </p>
+        </div>
+        <div class="footer-nav">
+          <h4>Learn</h4>
+          <ul>
+            <li>
+              <a href="http://www.jboss.org/">JBoss</a>
+            </li>
+            <li>
+              <a href="http://infinispan.org/">Infinispan</a>
+            </li>
+            <li>
+              <a href="http://teiid.org/">Teiid</a>
+            </li>
+            <li>
+              <a href="https://github.com/kylinsoong">Github</a>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="sponser">
+          <div class="follow-us">
+            <h4>Stay Informed</h4>
+            <ul>
+              <li>
+                <a href="https://plus.google.com/103933729718268414460?rel=author"><img alt="Google+" src="/css/googleplus-16.png" title="Follow ksoong.org on Google+"></a>
+              </li>
+              <li>
+                <a href="http://www.weibo.com/kylinsoong"><img alt="Weibo" src="/css/weibo_logo.jpg" title="Follow me on Weibo"></a>
+              </li>
+	      <li>
+                <a href="https://github.com/kylinsoong"><img alt="Github" src="/css/Octocat.jpg" title="Fork me on Github"></a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+        <a class="visible-desktop" href="#" id="toTop">Top</a>
+      </div>
+        <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1258751305'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1258751305%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+    </footer>
+  
+ 
+    <script src="/css/jquery-1.11.1.min.js"></script>
+    <script src="/css/bootstrap.js"></script>
+
+   <script>
+      $(function() {
+        $('html').addClass('ready');
+        prettify();
+        activateFooterGravity();
+        activateTooltips();
+        activateToTopControl();
+      });
+    </script>
+    <script src="/css/site.js"></script>
+
+    
+            
+            <script type="text/javascript">
+                var duoshuoQuery = {short_name:"ksoong"};
+                (function() {
+                    var ds = document.createElement('script');
+                    ds.type = 'text/javascript';
+                    ds.async = true;
+                    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+                    ds.charset = 'UTF-8';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+                })();
+            </script>
+            
+        
+
+
+</body>
+</html>
