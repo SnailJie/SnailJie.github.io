@@ -1,12 +1,12 @@
 # Site settings
-title: Snail Jie . Blog
+title: SnailJie.Blog
 email: snailren@126.com
 description: "Jie Ren Blog"
 #baseurl: ""
 url: snail.ren
 twitter_username: kylinsoong
-github_username:  SnailJie
-author: Snail Ren
+github_username: SnailJie
+author: SnailRen
 
 
 # Build settings
