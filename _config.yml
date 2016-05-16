@@ -1,12 +1,12 @@
 # Site settings
-title: Kylin Soong . Blog
-email: kylinsoong.1214@gmail.com
-description: "Kylin Soong Blog"
+title: Snail Jie . Blog
+email: snailren@126.com
+description: "Jie Ren Blog"
 #baseurl: ""
-url: ksoong.org
+url: snail.ren
 twitter_username: kylinsoong
-github_username:  kylinsoong
-author: Kylin Soong
+github_username:  SnailJie
+author: Snail Ren
 
 
 # Build settings

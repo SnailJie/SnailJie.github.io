@@ -5,8 +5,8 @@ echo "--------------------------------------"
 echo ""
 git status
 echo ""
-git add --all
+git add .
 echo ""
 git commit -m "deploy new post"
 echo ""
-git push origin master
+git push origin gh-pages
