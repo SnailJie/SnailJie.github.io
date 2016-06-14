@@ -12,8 +12,16 @@ excerpt: Teiid is a Open Source Data Virtulization Platform,just talking about t
 * Table of contents
 {:toc}
 
- 
+## [Teiid](http://teiid.jboss.org/) Architecture
+  
  ![Teiid Client Registry]({{ site.baseurl }}/assets/blog/teiid_architecture.png)
+ ## Connector
+ 
+## View Data 
+## Translator
+## VDB
+
+
  
  
  
