@@ -9,4 +9,4 @@ git add .
 echo ""
 git commit -m "deploy new post"
 echo ""
-git push origin master 
+git push origin gh_pages:master 
