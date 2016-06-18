@@ -68,7 +68,7 @@ public class myThread implements Callable<String>{
     }
 ~~~
     
-    启动
+  启动
    
 ~~~
 	myThread thread = new myThread();
@@ -166,7 +166,8 @@ Java线程提供了一个很好的机制，就是在线程中发生的异常，�
 	* 3.在执行线程前，进行Handler注册，将其绑定到这个线程
 	
 	
-	~~~
+	
+~~~
 	public class myExceptionHandler implements Thread.UncaughtExceptionHandler{ //自定义处理逻辑
     
     @Override
@@ -189,4 +190,4 @@ Java线程提供了一个很好的机制，就是在线程中发生的异常，�
         thread.setUncaughtExceptionHandler(new myExceptionHandler());   //注册handler
         thread.start();
     }
-	~~~	 
+~~~	 
