@@ -35,46 +35,46 @@ excerpt: Java并发编程系列2:java多线程Thread的实现方法、中断机�
    
    启动
    
-   ~~~
+~~~
     myThread thread = new myThread();
     thread.start();
-   ~~~
+~~~
    
 * 实现Runnable接口
 
-	~~~
+~~~
 public class myThread implements Runnable{
         public void run() {   //实现run方法
             //业务逻辑
         }
     }
-	~~~
+~~~
 	
    启动
    
-   ~~~
+~~~
     myThread thread = new myThread();
     new Thread(thread).start();   // 这里的调用方式不同
-   ~~~
+~~~
 
 
 * 实现Callable接口
 	
-	~~~
+~~~
 public class myThread implements Callable<String>{
         public void call() {
             //业务逻辑
         }
     }
-    ~~~
+~~~
     
     启动
    
-   ~~~
+~~~
 	myThread thread = new myThread();
     FutureTask<String> feature = new FutureTask<String>(thread);
     new Thread(feature).start(); // 这里的调用方式不同
-   ~~~
+~~~
 
 至于应该选择哪种实现方式，各个方式都有自己的优缺点。比如采用直接继承的方式虽然会比较方便一点，但是我们知道java不支持多继承的，如果采用继承接口的方式实现的话就能避免无法多重继承的尴尬。
  
