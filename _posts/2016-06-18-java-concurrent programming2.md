@@ -25,13 +25,13 @@ excerpt: Java并发编程系列2:java多线程Thread的实现方法、中断机�
 
 * 继承Thread父类
    
-   ~~~
+~~~
    public class myThread extends Thread{
    	public void run(){    //覆盖run方法
    		super.run();
    	}
    }
-   ~~~
+~~~
    
    启动
    
@@ -53,7 +53,6 @@ public class myThread implements Runnable{
    启动
    
    ~~~
-   
     myThread thread = new myThread();
     new Thread(thread).start();   // 这里的调用方式不同
    ~~~
