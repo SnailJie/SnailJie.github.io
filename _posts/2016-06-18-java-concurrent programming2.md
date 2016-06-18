@@ -168,7 +168,7 @@ Java线程提供了一个很好的机制，就是在线程中发生的异常，�
 	
 	
 ~~~
-	public class myExceptionHandler implements Thread.UncaughtExceptionHandler{ //自定义处理逻辑
+public class myExceptionHandler implements Thread.UncaughtExceptionHandler{ //自定义处理逻辑
     
     @Override
     public void uncaughtException(Thread t, Throwable e) {
