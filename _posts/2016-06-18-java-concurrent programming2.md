@@ -53,6 +53,7 @@ public class myThread implements Runnable{
    启动
    
    ~~~
+   
     myThread thread = new myThread();
     new Thread(thread).start();   // 这里的调用方式不同
    ~~~
