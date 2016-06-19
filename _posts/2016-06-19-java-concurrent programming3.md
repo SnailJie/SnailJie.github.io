@@ -114,8 +114,7 @@ ReadWriteLock接口，主要用在对于读操作比较多，写操作比较少�
 
  ReentrantReadWriteLock是其实现类，实现读锁、写锁的分离使用，能适用更复杂的应用场景
  
- ~~~
- 
+~~~
  private ReentrantReadWriteLock rwLock = new ReentrantReadWriteLock();    //创建锁对象
  private Lock readLock = rwLock.readLock();
  private Lock writeLock = rwLock.writeLock();
@@ -130,7 +129,7 @@ ReadWriteLock接口，主要用在对于读操作比较多，写操作比较少�
         ……
         readLock.unlock();
     }
- ~~~
+~~~
 
 #### StampedLock
 
