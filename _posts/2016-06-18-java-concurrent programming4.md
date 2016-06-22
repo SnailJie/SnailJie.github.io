@@ -25,11 +25,11 @@ Java编码中，我们经常需要用到容器来编程。在并发环境下，J
  
 在Map类中，提供两种线程安全容器。
  
-* ###java.util.Hashtable
+* java.util.Hashtable
 
 Hashtable和HashMap类似，都是散列表，存储键值对映射。主要区别在于Hashtable是线程安全的。当我们查看Hashtable源码的时候，可以看到Hashtable的方法都是通过synchronized来进行方法层次的同步，以达到线程安全的作用。
 
-* ###java.util.concurrent.ConcurrentHashMap
+* java.util.concurrent.ConcurrentHashMap
 
 ConcurrentHashMap是性能更好的散列表。在兼顾线程安全的同时，相对于Hashtable，在效率上有很大的提高。我们可以猜想，Hashtable的线程安全实现是对方法进行synchronized，很明显可以通过其他并发方式，如ReentrantLock进行优化。而ConcurrentHashMap正是采用了ReentrantLock。运用锁分离技术，即在代码块上加锁，而不是方法上加。同时ConcurrentHashMap的一个特色是允许多个修改并发操作。这就有意思了，我们知道一般写都是互斥的，为什么这个还能多个同时写呢？那是因为ConcurrentHashMap采用了内部使用段机制，将ConcurrentHashMap分成了很多小段。只要不在一个小段上写就可以并发写。
 
@@ -47,15 +47,15 @@ Collection部分主要是运用的CopyOnWrite机制，即写时复制机制。�
 
 可以看到，这种机制适用于**读操作多，写操作少**的应用场景。
 
-* ####java.util.concurrent.CopyOnWriteArrayList
+* java.util.concurrent.CopyOnWriteArrayList
 
 	Collection类的线程安全容器主要都是利用的ReentrantLock实现的线程安全，CopyOnWriteArrayList也不例外。在并发写的时候，需要获取lock。读的时候不需要进行lock
 
-* ####java.util.concurrent.CopyOnWriteArraySet
+* java.util.concurrent.CopyOnWriteArraySet
 
 	CopyOnWriteArraySet的实现就是基于CopyOnWriteArrayList实现的，采用的装饰器进行实现。二者的区别和List和Set的区别一样。
 
-* ####Vector
+* Vector
 
 	一般我们都不用Vector了，不过它确实也是线程安全的。相对于其他容器，能够提供随机访问功能。
 
