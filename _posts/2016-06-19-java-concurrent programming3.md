@@ -2,7 +2,7 @@
 layout: blog
 title:  "Java Concurrent Programming3: Thread Safe  "
 date:   2016-06-19 14:00:00
-categories: Concurrent
+categories: concurrent
 permalink: /java-concurrent programming
 author: Jaren
 duoshuoid: Jaren2016061901

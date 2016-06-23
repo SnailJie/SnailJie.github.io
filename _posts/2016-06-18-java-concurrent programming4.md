@@ -2,7 +2,7 @@
 layout: blog
 title:  "Java Concurrent Programming4: Safe Collection  "
 date:   2016-06-20 23:00:00
-categories: Concurrent
+categories: concurrent
 permalink: /java-concurrent programming
 author: Jaren
 duoshuoid: Jaren2016062001
