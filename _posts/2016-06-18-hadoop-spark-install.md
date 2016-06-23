@@ -1,12 +1,12 @@
 ---
 layout: blog
-title:  "Hadoop and Spark Installation  "
+title:  "Hadoop and Spark and HiveInstallation  "
 date:   2016-06-23 20:00:00
 categories: Big Data
 permalink: /java-concurrent programming
 author: Jaren
 duoshuoid: Jaren2016062301
-excerpt: Hadoop 2.x and Spark 1.6.1 installation guide
+excerpt: Hadoop and Spark and Hive installation guide
 ---
 
 * Table of contents
