@@ -1,6 +1,6 @@
 ---
 layout: blog
-title:  "Hadoop and Spark and HiveInstallation  "
+title:  "Hadoop and Spark and Hive Installation  "
 date:   2016-06-23 20:00:00
 categories: bigdata
 permalink: /java-concurrent programming
