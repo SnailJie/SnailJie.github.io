@@ -2,7 +2,7 @@
 layout: blog
 title:  "Hadoop and Spark and HiveInstallation  "
 date:   2016-06-23 20:00:00
-categories: Big Data
+categories: BigData
 permalink: /java-concurrent programming
 author: Jaren
 duoshuoid: Jaren2016062301

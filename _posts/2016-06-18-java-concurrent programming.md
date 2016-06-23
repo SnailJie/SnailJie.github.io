@@ -2,7 +2,7 @@
 layout: blog
 title:  "Java Concurrent Programming "
 date:   2016-06-18 11:00:00
-categories: Java
+categories: Concurrent
 permalink: /java-concurrent programming
 author: Jaren
 duoshuoid: Jaren2016061801
