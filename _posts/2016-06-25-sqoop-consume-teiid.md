@@ -15,7 +15,7 @@ excerpt: Sqoop installation and import VDB from Teiid to HDFS
 
 
 
-##	Downloading and installing Sqoop 
+## Downloading and installing Sqoop 
 Sqoop can import/export data from Database, like mysql, sql server, etc. 
 
 ### Installing Sqoop

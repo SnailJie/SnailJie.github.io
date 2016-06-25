@@ -1,6 +1,6 @@
 ---
 layout: blog
-title:  "Hadoop and Spark and Hive Installation  "
+title:  "Hadoop and Spark and Hive Installation"
 date:   2016-06-23 20:00:00
 categories: bigdata
 permalink: /java-concurrent programming
@@ -15,7 +15,7 @@ excerpt: Hadoop and Spark and Hive installation guide
 
 
 
-##	Downloading and installing Hadoop 
+## Downloading and installing Hadoop 
 
 
 ### Installing Hadoop 2.x to Red Hat Linux
