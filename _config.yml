@@ -9,6 +9,8 @@ github_username: SnailJie
 author: SnailRen
 
 
+auto: true
+
 # Build settings
 markdown: kramdown
 #markdown: redcarpet

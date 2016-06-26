@@ -3,14 +3,14 @@
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <meta name="shenma-site-verification" content="8a69823d7371d1eec4379853d25200cd_1448504990"> 
-    <title>SnailJie.Blog</title>
+    <title>Snail Ren . Blog</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <link href="/feed.xml" rel="alternate" title="SnailJie.Blog Atom feed" type="application/atom+xml">
+    <link href="/feed.xml" rel="alternate" title="Snail Ren . Blog Atom feed" type="application/atom+xml">
     <link href="/css/screen.css" rel="stylesheet">
     <!--[if lt IE 9]>
       <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.js"></script>
     <![endif]-->
-    <link href="/favicon.ico" rel="shortcut icon">
+    <link href="/myself.gif" rel="shortcut icon">
 
 </head>
 
@@ -25,7 +25,7 @@
           </a>
           <a class="brand" href="/">
             <span class="logo"></span>
-            <span class="name">ksoong</span>
+            <span class="name">snail.ren</span>
           </a>
           <nav class="nav-collapse" role="navigation">
             <ul class="nav">
@@ -34,9 +34,9 @@
               <li><a href="/lab">Labs</a></li>
               <li><a href="/blog/">Blog</a></li>
 	      -->
-	      <li><a href="/books">Books</a></li>
-              <li><a href="/archive">Archives</a></li>
-              <li><a href="/slide">Slides</a></li>
+	      <!--<li><a href="/books">Books</a></li>-->
+                <li><a href="/archive">Archives</a></li>
+              <!--<li><a href="/slide">Slides</a></li>-->
               <li><a href="/about">About</a></li>
             </ul>
           </nav>
@@ -50,7 +50,7 @@
          <h1>
               <a href="/blog">Blog</a>
               <!--a href="#">&raquo;</a>
-              <a href="/teiid-getstart-code">Get Start Teiid From Source Code</a-->
+              <a href="/teiid-getstart-code">On the Teiid Architecture </a-->
           </h1>
         </div>
 </div>
@@ -58,113 +58,33 @@
         <div id="content">
           
 <h2 class="title">
-                 <a class="post-link" href="/teiid-getstart-code">Get Start Teiid From Source Code</a>
+                 <a class="post-link" href="/teiid-getstart-code">On the Teiid Architecture </a>
               </h2>
  
 <header class="post">
               <div class="byline">
                 <span class="author">Posted by
-                <a href="/about">Kylin Soong</a> on</span>
-                <span class="dateinline">Apr 7, 2016</span>
+                <a href="/about">Jaren</a> on</span>
+                <span class="dateinline">Jun 15, 2016</span>
 		<i class="icon-tags"></i> categorized as <a class="tag" href="/categories/teiid">teiid</a>
               </div>
             </header>
 
  
 <ul id="markdown-toc">
-  <li><a href="#install-from-source-code" id="markdown-toc-install-from-source-code">Install from source code</a>    <ul>
-      <li><a href="#to-build-teiid" id="markdown-toc-to-build-teiid">To build Teiid</a></li>
-      <li><a href="#to-install-teiid" id="markdown-toc-to-install-teiid">To install Teiid</a></li>
-    </ul>
-  </li>
-  <li><a href="#create-user" id="markdown-toc-create-user">Create User</a></li>
-  <li><a href="#run-quick-start" id="markdown-toc-run-quick-start">Run Quick Start</a>    <ul>
-      <li><a href="#dynamicvdb-datafederation" id="markdown-toc-dynamicvdb-datafederation">dynamicvdb-datafederation</a></li>
-      <li><a href="#dynamicvdb-materialization" id="markdown-toc-dynamicvdb-materialization">dynamicvdb-materialization</a></li>
-    </ul>
-  </li>
+  <li><a href="#teiidhttpteiidjbossorg-architecture" id="markdown-toc-teiidhttpteiidjbossorg-architecture"><a href="http://teiid.jboss.org/">Teiid</a> Architecture</a></li>
+  <li><a href="#view-data" id="markdown-toc-view-data">View Data</a></li>
 </ul>
 
-<h2 id="install-from-source-code">Install from source code</h2>
+<h2 id="teiidhttpteiidjbossorg-architecture"><a href="http://teiid.jboss.org/">Teiid</a> Architecture</h2>
 
-<h3 id="to-build-teiid">To build Teiid</h3>
+<p><img src="/assets/blog/teiid_architecture.png" alt="Teiid Client Registry" />
+ ## Connector</p>
 
-<p>The following are prerequisites to build Teiid:</p>
+<h2 id="view-data">View Data</h2>
+<p>## Translator
+## VDB</p>
 
-<ol>
-  <li>install JDK 1.7 or higher</li>
-  <li>install maven 3 - <a href="http://maven.apache.org/download.html">http://maven.apache.org/download.html</a></li>
-  <li>Set Up Git - <a href="https://help.github.com/articles/set-up-git/">https://help.github.com/articles/set-up-git/</a></li>
-  <li>Create a github account and fork Teiid</li>
-</ol>
-
-<p>Enter the following:</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>$ git clone https://github.com/&lt;yourname&gt;/teiid.git
-$ cd teiid
-$ mvn clean install -P release -Dmaven.javadoc.skip=true -s settings.xml
-</code></pre>
-</div>
-
-<h3 id="to-install-teiid">To install Teiid</h3>
-<p>Standalone Mode</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>$ unzip build/target/teiid-9.0.0.Alpha3-SNAPSHOT-wildfly-server.zip
-$ cd teiid-9.0.0.Alpha3-SNAPSHOT/
-$ ./bin/standalone.sh  
-$ ./bin/jboss-cli.sh --connect --file=bin/scripts/teiid-standalone-mode-install.cli  
-</code></pre>
-</div>
-<p>Domain Mode</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>$ unzip build/target/teiid-9.0.0.Alpha3-SNAPSHOT-wildfly-server.zip
-$ cd teiid-9.0.0.Alpha3-SNAPSHOT/
-$ ./bin/domain.sh  
-$ ./bin/jboss-cli.sh --connect --file=bin/scripts/teiid-domain-mode-install.cli 
-</code></pre>
-</div>
-
-<h2 id="create-user">Create User</h2>
-
-<p>The User including dashboardUser, teiidUser, restUser, odataUser, ManagementUser, use create-user script to create:</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>$ ./bin/add-user.sh -a -u dashboardAdmin -p password1! -g admin  
-$ ./bin/add-user.sh -a -u teiidUser -p password1! -g user  
-$ ./bin/add-user.sh -a -u restUser -p password1! -g rest  
-$ ./bin/add-user.sh -a -u odataUser -p password1! -g odata  
-$ ./bin/add-user.sh admin password1!  
-</code></pre>
-</div>
-
-<h2 id="run-quick-start">Run Quick Start</h2>
-
-<p>If teiid-quickstart not exist under WildFly Home, Clone it to WildFly Home:</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>$ git clone https://github.com/teiid/teiid-quickstarts.git
-</code></pre>
-</div>
-
-<h3 id="dynamicvdb-datafederation">dynamicvdb-datafederation</h3>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>$ cp -r teiid-quickstarts/dynamicvdb-datafederation/src/teiidfiles/ ./
-$ ./bin/jboss-cli.sh --connect --file=teiid-quickstarts/dynamicvdb-datafederation/src/scripts/setup.cli
-$ cd standalone/deployments/
-$ cp ../../teiid-quickstarts/dynamicvdb-datafederation/src/vdb/portfolio-vdb.xml* ./
-</code></pre>
-</div>
-
-<p><a href="https://github.com/kylinsoong/teiid-test/blob/master/client/src/main/java/org/teiid/test/jdbc/client/PortfolioCient.java">PortfolioCient</a></p>
-
-<h3 id="dynamicvdb-materialization">dynamicvdb-materialization</h3>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>$ cd standalone/deployments/
-$ cp ../../teiid-quickstarts/dynamicvdb-materialization/src/vdb/portfolio* ./
-</code></pre>
-</div>
-
-<p><a href="https://github.com/kylinsoong/teiid-test/blob/master/client/src/main/java/org/teiid/test/jdbc/client/PortfolioMaterializeClient.java">PortfolioMaterializeClient</a></p>
-
-<p><a href="https://github.com/kylinsoong/teiid-test/blob/master/client/src/main/java/org/teiid/test/jdbc/client/PortfolioInterMaterializeClient.java">PortfolioInterMaterializeClient</a></p>
 
 
 <br/>
@@ -177,17 +97,15 @@ $ cp ../../teiid-quickstarts/dynamicvdb-materialization/src/vdb/portfolio* ./
   <a title="分享到人人网" href="#" class="bds_renren" data-cmd="renren"></a>
   <a title="分享到微信" href="#" class="bds_weixin" data-cmd="weixin"></a>
 </div>
-<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"分享ksoong.org的文章「Get Start Teiid From Source Code」 - ksoong.org","bdDesc":"","bdMini":"2","bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"分享ksoong.org的文章「On the Teiid Architecture 」 - ksoong.org","bdDesc":"","bdMini":"2","bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
 </ul>
 
-<div class="ds-thread" data-thread-key="ksoong2016040601" data-title="Get Start Teiid From Source Code" data-url="snail.ren/teiid-getstart-code"></div>
+<div class="ds-thread" data-thread-key="Jaren2016061401" data-title="On the Teiid Architecture " data-url="snail.ren/teiid-getstart-code"></div>
 
 	    <ul class="pager">
 		
-		<li class="previous"><a href="/teiid-metadata">&laquo;&nbsp;Understanding Teiid Metadata</a></li>
 		
-		
-		<li class="next"><a href="/teiid-transactions">Transaction in Teiid&nbsp;&raquo;</a></li>
+		<li class="next"><a href="/java-concurrent programming">Java Concurrent Programming &nbsp;&raquo;</a></li>
 		
 	    </ul>
 
@@ -205,46 +123,46 @@ $ cp ../../teiid-quickstarts/dynamicvdb-materialization/src/vdb/portfolio* ./
             
               <li>
                 <div class="title">
-                  <a href="/wfl-ds">WildFly Data Sources Configuration</a>
+                  <a href="/java-concurrent programming">XP极限编程</a>
                 </div>
                 <div class="meta">
-                  Apr 26, 2016
+                  Jun 26, 2016
                 </div>
               </li>
              
               <li>
                 <div class="title">
-                  <a href="/teiid-transactions">Transaction in Teiid</a>
+                  <a href="/java-concurrent programming">Sqoop Consume Teiid  </a>
                 </div>
                 <div class="meta">
-                  Apr 20, 2016
+                  Jun 25, 2016
                 </div>
               </li>
              
               <li>
                 <div class="title">
-                  <a href="/teiid-getstart-code">Get Start Teiid From Source...</a>
+                  <a href="/java-concurrent programming">Hadoop and Spark and Hive...</a>
                 </div>
                 <div class="meta">
-                  Apr 7, 2016
+                  Jun 24, 2016
                 </div>
               </li>
              
               <li>
                 <div class="title">
-                  <a href="/teiid-metadata">Understanding Teiid Metadata</a>
+                  <a href="/java-concurrent programming">Java Concurrent Programming4: Safe Collection...</a>
                 </div>
                 <div class="meta">
-                  Mar 27, 2016
+                  Jun 21, 2016
                 </div>
               </li>
              
               <li>
                 <div class="title">
-                  <a href="/rhel7-commands">Linux 命令集合</a>
+                  <a href="/java-concurrent programming">Java Concurrent Programming3: Thread Safe...</a>
                 </div>
                 <div class="meta">
-                  Mar 17, 2016
+                  Jun 19, 2016
                 </div>
               </li>
              
@@ -257,67 +175,19 @@ $ cp ../../teiid-quickstarts/dynamicvdb-materialization/src/vdb/portfolio* ./
             <div class="tag-cloud">
               
               <span class="tag tag-1">
-                <a href="/categories/jekyll">Jekyll(6)</a>
+                <a href="/categories/teiid">Teiid(1)</a>
               </span>
               
               <span class="tag tag-1">
-                <a href="/categories/jboss">Jboss(24)</a>
+                <a href="/categories/concurrent">Concurrent(4)</a>
               </span>
               
               <span class="tag tag-1">
-                <a href="/categories/java">Java(18)</a>
+                <a href="/categories/bigdata">Bigdata(2)</a>
               </span>
               
               <span class="tag tag-1">
-                <a href="/categories/css">Css(1)</a>
-              </span>
-              
-              <span class="tag tag-1">
-                <a href="/categories/database">Database(6)</a>
-              </span>
-              
-              <span class="tag tag-1">
-                <a href="/categories/javaee">Javaee(11)</a>
-              </span>
-              
-              <span class="tag tag-1">
-                <a href="/categories/linux">Linux(2)</a>
-              </span>
-              
-              <span class="tag tag-1">
-                <a href="/categories/teiid">Teiid(40)</a>
-              </span>
-              
-              <span class="tag tag-1">
-                <a href="/categories/maven">Maven(2)</a>
-              </span>
-              
-              <span class="tag tag-1">
-                <a href="/categories/netty">Netty(7)</a>
-              </span>
-              
-              <span class="tag tag-1">
-                <a href="/categories/data">Data(24)</a>
-              </span>
-              
-              <span class="tag tag-1">
-                <a href="/categories/git">Git(2)</a>
-              </span>
-              
-              <span class="tag tag-1">
-                <a href="/categories/other">Other(11)</a>
-              </span>
-              
-              <span class="tag tag-1">
-                <a href="/categories/performance">Performance(4)</a>
-              </span>
-              
-              <span class="tag tag-1">
-                <a href="/categories/security">Security(3)</a>
-              </span>
-              
-              <span class="tag tag-1">
-                <a href="/categories/docker">Docker(4)</a>
+                <a href="/categories/se">Se(1)</a>
               </span>
               
               
@@ -366,14 +236,14 @@ $ cp ../../teiid-quickstarts/dynamicvdb-materialization/src/vdb/portfolio* ./
           <div class="follow-us">
             <h4>Stay Informed</h4>
             <ul>
+              <!--<li>-->
+                <!--<a href="https://plus.google.com/103933729718268414460?rel=author"><img alt="Google+" src="/css/googleplus-16.png" title="Follow ksoong.org on Google+"></a>-->
+              <!--</li>-->
               <li>
-                <a href="https://plus.google.com/103933729718268414460?rel=author"><img alt="Google+" src="/css/googleplus-16.png" title="Follow ksoong.org on Google+"></a>
-              </li>
-              <li>
-                <a href="http://www.weibo.com/kylinsoong"><img alt="Weibo" src="/css/weibo_logo.jpg" title="Follow me on Weibo"></a>
+                <a href="#"><img alt="Weibo" src="/css/weibo_logo.jpg" title="Follow me on Weibo"></a>
               </li>
 	      <li>
-                <a href="https://github.com/kylinsoong"><img alt="Github" src="/css/Octocat.jpg" title="Fork me on Github"></a>
+                <a href="https://github.com/SnailJie"><img alt="Github" src="/css/Octocat.jpg" title="Fork me on Github"></a>
               </li>
 
             </ul>
@@ -381,7 +251,7 @@ $ cp ../../teiid-quickstarts/dynamicvdb-materialization/src/vdb/portfolio* ./
         </div>
         <a class="visible-desktop" href="#" id="toTop">Top</a>
       </div>
-        <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1258751305'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1258751305%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+            <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1259236108'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1259236108%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
     </footer>
   
  
@@ -402,14 +272,14 @@ $ cp ../../teiid-quickstarts/dynamicvdb-materialization/src/vdb/portfolio* ./
     
             
             <script type="text/javascript">
-                var duoshuoQuery = {short_name:"ksoong"};
+                var duoshuoQuery = {short_name:"snailren"};
                 (function() {
                     var ds = document.createElement('script');
-                    ds.type = 'text/javascript';
-                    ds.async = true;
+                    ds.type = 'text/javascript';ds.async = true;
                     ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
                     ds.charset = 'UTF-8';
-                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+                    (document.getElementsByTagName('head')[0]
+                    || document.getElementsByTagName('body')[0]).appendChild(ds);
                 })();
             </script>
             

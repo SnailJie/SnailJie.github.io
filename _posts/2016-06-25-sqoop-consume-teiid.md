@@ -1,7 +1,7 @@
 ---
 layout: blog
-title:  "Sqoop Consume Teiid  "
-date:   2016-06-25 10:00:00
+title: "Sqoop Consume Teiid  "
+date: 2016-06-25 10:00:00
 categories: bigdata
 permalink: /java-concurrent programming
 author: Jaren

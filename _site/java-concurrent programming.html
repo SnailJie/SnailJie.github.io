@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html class="ready" lang="en"><head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="shenma-site-verification" content="8a69823d7371d1eec4379853d25200cd_1448504990"> 
+    <title>Snail Ren . Blog</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="/feed.xml" rel="alternate" title="Snail Ren . Blog Atom feed" type="application/atom+xml">
+    <link href="/css/screen.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.js"></script>
+    <![endif]-->
+    <link href="/myself.gif" rel="shortcut icon">
+
+</head>
+
+  <body class="blog index">
+    <header class="navbar navbar-fixed-top" id="banner" role="banner">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-target=".nav-collapse" data-toggle="collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/">
+            <span class="logo"></span>
+            <span class="name">snail.ren</span>
+          </a>
+          <nav class="nav-collapse" role="navigation">
+            <ul class="nav">
+              <li><a href="/">Home</a></li>
+	      <!--
+              <li><a href="/lab">Labs</a></li>
+              <li><a href="/blog/">Blog</a></li>
+	      -->
+	      <!--<li><a href="/books">Books</a></li>-->
+                <li><a href="/archive">Archives</a></li>
+              <!--<li><a href="/slide">Slides</a></li>-->
+              <li><a href="/about">About</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+    <div style="min-height: 250px;" id="main" role="main">
+      
+<div id="content-header">
+        <div class="container">
+         <h1>
+              <a href="/blog">Blog</a>
+              <!--a href="#">&raquo;</a>
+              <a href="/java-concurrent programming">XP极限编程</a-->
+          </h1>
+        </div>
+</div>
+      <div class="container">
+        <div id="content">
+          
+<h2 class="title">
+                 <a class="post-link" href="/java-concurrent programming">XP极限编程</a>
+              </h2>
+ 
+<header class="post">
+              <div class="byline">
+                <span class="author">Posted by
+                <a href="/about">Jaren</a> on</span>
+                <span class="dateinline">Jun 26, 2016</span>
+		<i class="icon-tags"></i> categorized as <a class="tag" href="/categories/se">se</a>
+              </div>
+            </header>
+
+ 
+<ul id="markdown-toc">
+  <li><a href="#xp" id="markdown-toc-xp">XP团队组成</a></li>
+  <li><a href="#section" id="markdown-toc-section">项目相关环境</a></li>
+  <li><a href="#xp-1" id="markdown-toc-xp-1">XP过程</a></li>
+  <li><a href="#section-1" id="markdown-toc-section-1">思考</a></li>
+  <li><a href="#section-2" id="markdown-toc-section-2">协作</a>    <ul>
+      <li><a href="#section-3" id="markdown-toc-section-3">1、信任</a></li>
+      <li><a href="#section-4" id="markdown-toc-section-4">2、坐到一起</a></li>
+      <li><a href="#section-5" id="markdown-toc-section-5">3、真实客户参与</a></li>
+      <li><a href="#section-6" id="markdown-toc-section-6">4、统一协作语言</a></li>
+      <li><a href="#section-7" id="markdown-toc-section-7">5、站立会议</a></li>
+      <li><a href="#section-8" id="markdown-toc-section-8">6、编码规范</a></li>
+      <li><a href="#section-9" id="markdown-toc-section-9">7、迭代演示</a></li>
+      <li><a href="#section-10" id="markdown-toc-section-10">8、汇报</a></li>
+    </ul>
+  </li>
+  <li><a href="#section-11" id="markdown-toc-section-11">发布</a>    <ul>
+      <li><a href="#section-12" id="markdown-toc-section-12">1、全部完成</a></li>
+      <li><a href="#bug" id="markdown-toc-bug">2、没有bug</a></li>
+      <li><a href="#section-13" id="markdown-toc-section-13">3、版本控制</a></li>
+      <li><a href="#section-14" id="markdown-toc-section-14">4、十分钟构建</a></li>
+      <li><a href="#section-15" id="markdown-toc-section-15">5、持续集成</a></li>
+      <li><a href="#section-16" id="markdown-toc-section-16">6、代码集体所有制</a></li>
+      <li><a href="#section-17" id="markdown-toc-section-17">7、文档</a></li>
+    </ul>
+  </li>
+  <li><a href="#section-18" id="markdown-toc-section-18">计划</a>    <ul>
+      <li><a href="#section-19" id="markdown-toc-section-19">1、愿景</a></li>
+      <li><a href="#section-20" id="markdown-toc-section-20">2、发布计划</a></li>
+      <li><a href="#section-21" id="markdown-toc-section-21">3、计划博弈</a></li>
+      <li><a href="#section-22" id="markdown-toc-section-22">4、风险管理</a></li>
+      <li><a href="#section-23" id="markdown-toc-section-23">5、迭代计划</a></li>
+      <li><a href="#section-24" id="markdown-toc-section-24">6、松弛</a></li>
+      <li><a href="#section-25" id="markdown-toc-section-25">7、故事</a></li>
+      <li><a href="#section-26" id="markdown-toc-section-26">8、估算</a></li>
+    </ul>
+  </li>
+  <li><a href="#section-27" id="markdown-toc-section-27">开发</a>    <ul>
+      <li><a href="#section-28" id="markdown-toc-section-28">1、增量式需求</a></li>
+      <li><a href="#section-29" id="markdown-toc-section-29">2、客户测试</a></li>
+      <li><a href="#section-30" id="markdown-toc-section-30">3、测试驱动开发</a></li>
+      <li><a href="#section-31" id="markdown-toc-section-31">4、重构</a></li>
+      <li><a href="#section-32" id="markdown-toc-section-32">5、简单设计</a></li>
+      <li><a href="#section-33" id="markdown-toc-section-33">6、增量设计和架构</a></li>
+      <li><a href="#section-34" id="markdown-toc-section-34">7、试验方案</a></li>
+      <li><a href="#section-35" id="markdown-toc-section-35">8、性能优化</a></li>
+      <li><a href="#section-36" id="markdown-toc-section-36">9、探索性测试</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="xp">XP团队组成</h2>
+
+<p><img src="/assets/blog/XP.png" alt="JMM" /></p>
+
+<h2 id="section">项目相关环境</h2>
+<ul>
+  <li>利益相关者：与PM一样，对项目进行管理</li>
+  <li>执行发起人：最终客户（必须定期演示）</li>
+</ul>
+
+<h2 id="xp-1">XP过程</h2>
+
+<p><img src="/assets/blog/XP-process.png" alt="JMM" /></p>
+
+<h2 id="section-1">思考</h2>
+
+<ul>
+  <li>结对编程</li>
+</ul>
+
+<p>结对编程中，一个人写，一个人思考。结对编程可以防止被打扰，可以提高精力</p>
+
+<ul>
+  <li>精力充沛的工作</li>
+</ul>
+
+<p>按时下班，不把工作带回家，健康饮食，经常锻炼。</p>
+
+<ul>
+  <li>
+    <p>信息化工作场所</p>
+
+    <p>通过各种信息（图表等）贴在工作场所，以随时了解项目进度、当前情况，同时通过图表监控、测评项目。</p>
+  </li>
+  <li>
+    <p>根源分析</p>
+
+    <p>遇到问题不要想责备，问自己为什么会出现这个问题，寻求问题根源</p>
+  </li>
+  <li>
+    <p>回顾</p>
+
+    <p>在一次会议中引导一个人说过话，那么他继续说话的可能性就会加大</p>
+  </li>
+</ul>
+
+<h2 id="section-2">协作</h2>
+
+<h3 id="section-3">1、信任</h3>
+
+<p>团队内部需要和谐团结，与客户（关系人）的关系弄好。可以采用：客户与程序员换位思考、程序员与测试员换位思考、共同进餐、团队持续性（以团队为单位做项目）。坦然面对错误，及早与关系人坦白困难、错误，共同面对问题。定期交付，维护与关系人的关系。</p>
+
+<h3 id="section-4">2、坐到一起</h3>
+
+<p>团队的所有成员需要在同一个场所办公。现场客户、程序员、测试员等。这样可以及时交流、高效沟通。但是也提供一个私密的小房间供打电话、聊天等。</p>
+
+<h3 id="section-5">3、真实客户参与</h3>
+
+<p>有了真实用户的参与，就不会让自己陷入各种细节。扩大自己的视角。利用他们在实际中如何使用软件、他们的领域知识，可以让你交付一款真正有用的产品。</p>
+
+<h3 id="section-6">4、统一协作语言</h3>
+
+<p>采用同一种语言，可以较少程序员与客户专家的沟通障碍。比如程序员采用客户领域的术语进行图表的绘制、命名。</p>
+
+<h3 id="section-7">5、站立会议</h3>
+
+<p>在一个固定的时间召开。每次不要超过十分钟。时间不一定在早上，可以上午结束的时候。会议由每个人讲需要让整个团队知道的事情。可以以“我昨天做了什么、今天打算做什么、遇到了什么问题”的格式，也不一定得按照这个格式。</p>
+
+<h3 id="section-8">6、编码规范</h3>
+
+<p>编码的规范可以包含：开发实践、工具和快捷键、文件和目录布局、构建和约定、错误处理和断言、实践和日志记录方式、设计约定等。规范的设计，以“1、指定可以接受的最小标准集合 2、关注一致性和共识，而不是完美”。</p>
+
+<p>在制定规范后，如果有人没有按照规范，可以和他谈：认为这个规范怎么样，为什么没有按照规范。</p>
+
+<h3 id="section-9">7、迭代演示</h3>
+
+<p>迭代演示可以降低风险，增加活力，促进团队进步。XP的核心就是定期交付。在演示的过程中，可以解释为什么和原计划不同，有什么变化。若客户具体到某一细节，可以说在演示结束后由项目经理解释。在演示结束后问客户：</p>
+
+<ul>
+  <li>1、到目前为止客户是否满意。</li>
+  <li>2、是否可以继续。如果在演示中，客户提到需要添加新特性，则说：会后由产品经理负责特性的把关与添加。</li>
+</ul>
+
+<h3 id="section-10">8、汇报</h3>
+
+<ul>
+  <li>进行良好的汇报，可以增加客户对团队的信任，更相信团队的决策。</li>
+  <li>进展汇报：愿景陈述、每周演示、发布和迭代计划、burn-up图。如果需要更详细，可以提供路线图   、状态电子邮件</li>
+  <li>管理汇报：生产率、产能、缺陷、时间利用率</li>
+  <li>不要汇报：源代码行数、故事数、开发速度、代码质量等</li>
+</ul>
+
+<h2 id="section-11">发布</h2>
+
+<h3 id="section-12">1、全部完成</h3>
+
+<p>全部完成是指可以发布使用。平时以全部完成来要求团队，可以避免大量难以预计的收尾工作。完成包含测试完成、编码完成、设计完成、集成完成、成功构建、安装、移植、评审完成、修复完成、用户接受。TDD可以促使设计、测试、编程同步完成。</p>
+
+<h3 id="bug">2、没有bug</h3>
+
+<div class="highlighter-rouge"><pre class="highlight"><code> a.编写更少的bug：采用TDD，可以减少一定bug。或者通过大量技术和组织方法尽量减少bug的生成。
+ b.消除bug的温床：通过重构设计不良的代码可以减少bug
+ c.修复bug：尽早修复bug，越到最后代码修复的成本就越大。
+ d.测试过程：通过探索性测试，以不寻常的方式进行测试，可以检测预料之外的bug
+ e.修正过程：对自己进行总结，查找为什么会出现bug，对自己的编码过程就行改正。
+</code></pre>
+</div>
+
+<h3 id="section-13">3、版本控制</h3>
+
+<p>版本控制可以管理项目，可以进行回退等</p>
+
+<h3 id="section-14">4、十分钟构建</h3>
+
+<p>自动化构建，可以避免很多问题。可以利用ant、make等进行构建。当项目在很小的时候进行自动化构建。尽量不要让构建的时间太长。</p>
+
+<h3 id="section-15">5、持续集成</h3>
+
+<p>持续集成能够减少很多隐藏的发布时间。每隔几小时进行集成，保证构建、测试及其他发布的基础组件都能及时更新。这样可以降低发布难度。</p>
+
+<h3 id="section-16">6、代码集体所有制</h3>
+
+<p>这样可以让整个团队为所有代码复制。每个人都可以改进别人的代码。这样可以在一个人离开时，团队还能继续推进。实在无法实施集体所有制，可以通过结对编程折中。</p>
+
+<h3 id="section-17">7、文档</h3>
+
+<p>文档不用很多，但是因为有更好有效的交流方式，不是偷懒的借口。不需要特定去做什么文档，如果一些文档有商业价值，将其安排为一个user story进行操作。</p>
+
+<h2 id="section-18">计划</h2>
+
+<h3 id="section-19">1、愿景</h3>
+
+<p>揭示项目正在朝哪个方向前进，以及为什么朝这个方向前进。制定愿景时，可以从：项目应该完成什么、项目为什么有价值、项目的成功标准是什么。愿景指定后就推广出去，贴在工作场所，要求客户一同参与愿景指定。如果有了一份清晰、有说服力的远景，则很容易为故事安排优先级。同时团队成员了解项目的重要程度，有助于提高士气。</p>
+
+<h3 id="section-20">2、发布计划</h3>
+
+<p>在接受项目时，尽量只做一个项目，不要几个一起做。同时尽早发布，经常发布，将最有价值的特性先发布出去，有助于提升商业价值。在发布的时候，不要全部把所有的发布出去，为自己留一些余地，不要一次性全部发布。计划需要不断调整，让客户清楚你的计划。可以以时间为标准进行计划。</p>
+
+<h3 id="section-21">3、计划博弈</h3>
+
+<p>在计划生成后，对计划的具体安排需要讨论。在对计划进行实施时，良好的计划博弈，是让程序员觉得自己的专业知识对计划进行了贡献，客户觉得自己的领域知识做出了优先级划定。</p>
+
+<h3 id="section-22">4、风险管理</h3>
+
+<p>随时对风险进行把控、预测、应对。及时当开发中断也能成功交付，这样以后公司会更加信任你。</p>
+
+<h3 id="section-23">5、迭代计划</h3>
+
+<p>每次选择最后价值的特性加入其中进行迭代。一次迭代，由：演示演一轮迭代、回顾前一轮迭代、制定迭代计划、承担故事的交付、开发故事、准备发布。一般在一周完成。在发布了迭代任务后，对任务进行跟踪。</p>
+
+<h3 id="section-24">6、松弛</h3>
+
+<p>在迭代中添加松弛制度，增加研究时间，不要太紧。</p>
+
+<h3 id="section-25">7、故事</h3>
+
+<p>以用户为中心，用一个个卡片来整理故事。太大的故事进行拆分。故事由客户进行把关。同时也可以包含文档故事、非功能故事、bug故事、试验故事、估算、会议等。将故事分小，可以频繁交付完整特性。</p>
+
+<h3 id="section-26">8、估算</h3>
+
+<p>做良好的估算，在每次迭代中都是一致和可预测的。估算时，对故事进行充分分析和挖掘。</p>
+
+<h2 id="section-27">开发</h2>
+
+<h3 id="section-28">1、增量式需求</h3>
+<p>客户可能开始不能确定全部的需求，不用担心。那就开始在已经确定的上面工作。但是客户的每次反馈都需要记录，客户签字，防止客户否认</p>
+
+<h3 id="section-29">2、客户测试</h3>
+<p>对于每个特性，创建客户测试可以通过描述、演示、开发进行。描述是由客户详细、举例描述功能。让用户领导进行客户测试，引导他们参与</p>
+
+<h3 id="section-30">3、测试驱动开发</h3>
+<p>在开发前先写测试，这样你在开发时，会自动对你的开发过程进行把控</p>
+
+<h3 id="section-31">4、重构</h3>
+<p>在平时对代码进行重构，持续提高代码质量</p>
+
+<h3 id="section-32">5、简单设计</h3>
+
+<h3 id="section-33">6、增量设计和架构</h3>
+
+<h3 id="section-34">7、试验方案</h3>
+
+<h3 id="section-35">8、性能优化</h3>
+
+<h3 id="section-36">9、探索性测试</h3>
+
+<blockquote>
+  <p>XP的价值：<strong>简单、勇气、沟通、反馈、尊重</strong>。
+在实践中避免浪费，若项目一定会失败，则尽早失败。</p>
+</blockquote>
+
+
+<br/>
+<ul class="btn pull-right">
+<div class="bdsharebuttonbox">
+  <a href="#" class="bds_more" data-cmd="more"></a>
+  <a title="分享到QQ空间" href="#" class="bds_qzone" data-cmd="qzone"></a>
+  <a title="分享到新浪微博" href="#" class="bds_tsina" data-cmd="tsina"></a>
+  <a title="分享到腾讯微博" href="#" class="bds_tqq" data-cmd="tqq"></a>
+  <a title="分享到人人网" href="#" class="bds_renren" data-cmd="renren"></a>
+  <a title="分享到微信" href="#" class="bds_weixin" data-cmd="weixin"></a>
+</div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"分享ksoong.org的文章「XP极限编程」 - ksoong.org","bdDesc":"","bdMini":"2","bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</ul>
+
+<div class="ds-thread" data-thread-key="Jaren2016062601" data-title="XP极限编程" data-url="snail.ren/java-concurrent programming"></div>
+
+	    <ul class="pager">
+		
+		<li class="previous"><a href="/java-concurrent programming">&laquo;&nbsp;Sqoop Consume Teiid  </a></li>
+		
+		
+	    </ul>
+
+
+        </div>
+        <aside id="sidebar" role="complementary">
+          <div class="subscribe">
+            <h2 class="icon news">
+              <a href="/feed.xml">Subscribe</a>
+            </h2>
+          </div>
+          <nav class="latest">
+            <h2>Latest Posts</h2>
+            <ul>
+            
+              <li>
+                <div class="title">
+                  <a href="/java-concurrent programming">XP极限编程</a>
+                </div>
+                <div class="meta">
+                  Jun 26, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/java-concurrent programming">Sqoop Consume Teiid  </a>
+                </div>
+                <div class="meta">
+                  Jun 25, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/java-concurrent programming">Hadoop and Spark and Hive...</a>
+                </div>
+                <div class="meta">
+                  Jun 24, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/java-concurrent programming">Java Concurrent Programming4: Safe Collection...</a>
+                </div>
+                <div class="meta">
+                  Jun 21, 2016
+                </div>
+              </li>
+             
+              <li>
+                <div class="title">
+                  <a href="/java-concurrent programming">Java Concurrent Programming3: Thread Safe...</a>
+                </div>
+                <div class="meta">
+                  Jun 19, 2016
+                </div>
+              </li>
+             
+            </ul>
+            
+                        
+          </nav>
+          <nav class="tags">
+            <h2>Categories</h2>
+            <div class="tag-cloud">
+              
+              <span class="tag tag-1">
+                <a href="/categories/teiid">Teiid(1)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/concurrent">Concurrent(4)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/bigdata">Bigdata(2)</a>
+              </span>
+              
+              <span class="tag tag-1">
+                <a href="/categories/se">Se(1)</a>
+              </span>
+              
+              
+            </div>
+          </nav>
+        </aside>
+      </div>
+
+
+    </div>
+    <footer>
+      <div class="container">
+        <div class="project">
+          <p class="bottom">
+            ©
+            Copyright 2009-2016 ksoong.
+            <br>
+            <i class="icon-fire"></i>
+            Mixed with <a href="http://twitter.github.com/bootstrap">Bootstrap</a>.
+            <br>
+            <i class="icon-share-alt"></i>
+            Website and docs licensed under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
+            <br>
+            Code released under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, v2.0</a>.
+          </p>
+        </div>
+        <div class="footer-nav">
+          <h4>Learn</h4>
+          <ul>
+            <li>
+              <a href="http://www.jboss.org/">JBoss</a>
+            </li>
+            <li>
+              <a href="http://infinispan.org/">Infinispan</a>
+            </li>
+            <li>
+              <a href="http://teiid.org/">Teiid</a>
+            </li>
+            <li>
+              <a href="https://github.com/kylinsoong">Github</a>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="sponser">
+          <div class="follow-us">
+            <h4>Stay Informed</h4>
+            <ul>
+              <!--<li>-->
+                <!--<a href="https://plus.google.com/103933729718268414460?rel=author"><img alt="Google+" src="/css/googleplus-16.png" title="Follow ksoong.org on Google+"></a>-->
+              <!--</li>-->
+              <li>
+                <a href="#"><img alt="Weibo" src="/css/weibo_logo.jpg" title="Follow me on Weibo"></a>
+              </li>
+	      <li>
+                <a href="https://github.com/SnailJie"><img alt="Github" src="/css/Octocat.jpg" title="Fork me on Github"></a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+        <a class="visible-desktop" href="#" id="toTop">Top</a>
+      </div>
+            <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1259236108'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1259236108%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+    </footer>
+  
+ 
+    <script src="/css/jquery-1.11.1.min.js"></script>
+    <script src="/css/bootstrap.js"></script>
+
+   <script>
+      $(function() {
+        $('html').addClass('ready');
+        prettify();
+        activateFooterGravity();
+        activateTooltips();
+        activateToTopControl();
+      });
+    </script>
+    <script src="/css/site.js"></script>
+
+    
+            
+            <script type="text/javascript">
+                var duoshuoQuery = {short_name:"snailren"};
+                (function() {
+                    var ds = document.createElement('script');
+                    ds.type = 'text/javascript';ds.async = true;
+                    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+                    ds.charset = 'UTF-8';
+                    (document.getElementsByTagName('head')[0]
+                    || document.getElementsByTagName('body')[0]).appendChild(ds);
+                })();
+            </script>
+            
+        
+
+
+</body>
+</html>
