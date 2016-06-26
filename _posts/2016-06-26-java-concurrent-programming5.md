@@ -20,7 +20,7 @@ excerpt: Java多线程之间通过线程阀进行交互，总结一下阻塞队�
  线程阀是线程之间相互制约和交互的机制.阻塞队列BlockingQueue的主要应用场景为生产者\消费者场景中。当队列为空时，消费者线程需要等待队列为非空。当队列满时，生产者线程需要等待队列可用。
  BlockingQueue为一个接口，有多种不同的类实现了该接口，提供具有各种特性的阻塞队列。
  
-  ![JMM]({{ site.baseurl }}/assets/blog/BlockingQueue.png)
+  ![JMM]({{ site.baseurl }}/assets/blog/BlockQueue.png)
  
 ### 1. ArrayBlockingQueue
 
