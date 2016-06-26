@@ -32,7 +32,7 @@ $ tar -xvf sqoop-1.4.6.bin__hadoop-2.0.4-alpha.tar.gz
 ~~~~
 
 
-####Step.2  Configure
+#### Step.2  Configure
 
 Just set environment variable, that's all.
 

@@ -3,7 +3,7 @@ layout: blog
 title:  "Java Concurrent Programming "
 date:   2016-06-18 11:00:00
 categories: concurrent
-permalink: /java-concurrent programming
+permalink: /java-concurrent-programming1
 author: Jaren
 duoshuoid: Jaren2016061801
 excerpt: Java并发编程系列1:java并发编程基础知识介绍

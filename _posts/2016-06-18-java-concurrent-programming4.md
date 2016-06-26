@@ -3,7 +3,7 @@ layout: blog
 title:  "Java Concurrent Programming4: Safe Collection  "
 date:   2016-06-20 23:00:00
 categories: concurrent
-permalink: /java-concurrent programming
+permalink: /java-concurrent-programming4
 author: Jaren
 duoshuoid: Jaren2016062001
 excerpt: Java并发编程系列4:java线程安全的容器类
