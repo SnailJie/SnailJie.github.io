@@ -3,7 +3,7 @@ layout: blog
 title:  "Java Concurrent Programming3: Thread Safe  "
 date:   2016-06-19 14:00:00
 categories: concurrent
-permalink: /java-concurrent programming
+permalink: /java-concurrent-programming3
 author: Jaren
 duoshuoid: Jaren2016061901
 excerpt: Java并发编程系列3:java多线程Thread线程同步与互斥、锁机制

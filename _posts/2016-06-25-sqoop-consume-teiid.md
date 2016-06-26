@@ -3,7 +3,7 @@ layout: blog
 title: "Sqoop Consume Teiid  "
 date: 2016-06-25 10:00:00
 categories: bigdata
-permalink: /java-concurrent programming
+permalink: /sqoop-consume-teiid
 author: Jaren
 duoshuoid: Jaren2016062501
 excerpt: Sqoop installation and import VDB from Teiid to HDFS
