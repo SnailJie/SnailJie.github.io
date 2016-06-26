@@ -6,7 +6,7 @@ categories: concurrent
 permalink: /java-concurrent-programming5
 author: Jaren
 duoshuoid: Jaren2016061901
-excerpt: Java多线程之间通过线程阀进行交互，总结一下阻塞队列BlockingQueue。同时介绍几种同步计数器
+excerpt: Java多线程之间通过线程阀进行交互，总结一下阻塞队列BlockingQueue，同时介绍几种同步计数器
 ---
 
 * Table of contents

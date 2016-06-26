@@ -1,12 +1,12 @@
 ---
 layout: blog
-title:  "Java Concurrent Programming2: Thread "
+title:  "Thread "
 date:   2016-06-18 17:00:00
 categories: concurrent
 permalink: /java-concurrent-programming2
 author: Jaren
 duoshuoid: Jaren2016061802
-excerpt: Java并发编程系列2:java多线程Thread的实现方法、中断机制、生命周期、守护进程等
+excerpt: java多线程Thread的实现方法、中断机制、生命周期、守护进程等
 ---
 
 * Table of contents

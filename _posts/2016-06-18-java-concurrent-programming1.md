@@ -6,7 +6,7 @@ categories: concurrent
 permalink: /java-concurrent-programming1
 author: Jaren
 duoshuoid: Jaren2016061801
-excerpt: Java并发编程系列1:java并发编程基础知识介绍
+excerpt: java并发编程基础知识介绍
 ---
 
 * Table of contents
