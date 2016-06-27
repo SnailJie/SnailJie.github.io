@@ -23,7 +23,7 @@ Java线程池的实现是通过java.util.concurrent.Executors。Executors是工�
 
 ![Executor]({{ site.baseurl }}/assets/blog/Executor.png)
 
-* Executor:
+* Executor
 
 在Java的线程池实现中，以Executor为顶级接口，对其进行继承和扩展，是线程的执行工具
 
