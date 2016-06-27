@@ -2,7 +2,7 @@
 layout: blog
 title: "Thread Pool"
 date: 2016-06-26 11:00:00
-categories: se
+categories: concurrent
 permalink: /Thread-Pool
 author: Jaren
 duoshuoid: Jaren2016062701
