@@ -126,3 +126,5 @@ public static void main(String[] args) throws Exception {
 * RejectedExecutionHandler handler:当拒绝任务时的策略
 
 很想写个Demo，但是很晚了，改天吧
+
+>NOTICE: 线程池的使用需要在单例模式下，只需要一个线程池
