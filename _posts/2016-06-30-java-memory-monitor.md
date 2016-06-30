@@ -78,7 +78,7 @@ ForkJoin的监控不用继承，直接调用方法获取线程信息。如getPoo
 Java垃圾回收机制是Java的一个特色。在进行垃圾回收过程中，将空间划分为Young Generation, Old Generation, Permanent Generation。Permanent Generation（永久代）是方法区，一般这块不参与GC。GC主要是回收Young Generation和 Old Generation部分。
 
 
-![GC]({{ site.baseurl }}/assets/blog/Memory.png)
+![GC]({{ site.baseurl }}/assets/blog/GC.png)
 
 * Young Generation:  年轻代主要存放新产生的对象，分为三个部分，主要为了生命周期短的对象尽量在年轻代
 
