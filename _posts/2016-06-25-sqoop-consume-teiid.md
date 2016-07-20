@@ -26,10 +26,10 @@ Sqoop can import/export data from Database, like mysql, sql server, etc.
 You can get Sqoop from http://sqoop.apache.org. Compatible Sqoop version is needed to match you Hadoop version.
 
  
-~~~~
+```
 $ wget http://apache.fayea.com/sqoop/1.4.6/sqoop-1.4.6.bin__hadoop-2.0.4-alpha.tar.gz
 $ tar -xvf sqoop-1.4.6.bin__hadoop-2.0.4-alpha.tar.gz
-~~~~
+```
 
 
 #### Step.2  Configure
@@ -39,16 +39,16 @@ Just set environment variable, that's all.
 Edit `/etc/profile`, root user is needed.
 
 
-~~~~
+```
 export SQOOP_HOME=/home/userName/sqoop-1.4.6.bin__hadoop-2.0.4-alpha
 export PATH = $SQOOP_HOME/bin:$PATH
-~~~~
+```
 
 After edit
 
-~~~~
+```
 $ source /etc/profile
-~~~~
+```
 
 ## Sqoop consume Teiid
 
@@ -77,16 +77,16 @@ This quickstart demonstrates how to import data from teiid to HDFS by Sqoop.
 
 You need download Teiid JDBC Driver from http://teiid.jboss.org/downloads/ and copy it to $SQOOP_HOME/lib
 
-~~~~
+```
 cp teiid-9.0.0.Final-jdbc.jar $SQOOP_HOME/lib
-~~~~
+```
 
 
 #### 2. Import data to HDFS
 
-~~~~
+```
 $ sqoop import --connect jdbc:teiid:Portfolio@mm://127.0.0.1:31000 --driver org.teiid.jdbc.TeiidDriver --username odataUser --password password1! --table product 
-~~~~
+```
 
 #### 3. Check HDFS
 
@@ -94,16 +94,16 @@ Now, you can verify that whether the data from VDB is imported to HDFS.
 
 * Verify HDFS
 
-~~~~
+```
 $ hadoop dfs -ls /user/username/product
-~~~~
+```
 
 * Verify Data
 
-~~~~
+```
 $ hadoop dfs -get /user/username/product ./result
 $ cat result/part-m-*
-~~~~
+```
 
  
 
